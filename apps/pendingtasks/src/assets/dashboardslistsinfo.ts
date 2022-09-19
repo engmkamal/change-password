@@ -11,21 +11,14 @@
         "RenderDetListInfo": [{ "name": "PendingApproval", "select": "GUID,ID,Title,ProcessName,RequestedByName,Status,EmployeeID,RequestedByEmail,RequestLink,PendingWith/ID,PendingWith/Title,Author/ID,Created,Author/Title,Author/Office,Author/JobTitle&$expand=PendingWith/ID,Author/ID&$orderby=Created desc"}],
         "DetailsListInfo": [{ "name": "PendingApproval", "select": "GUID,ID,Title,ProcessName,RequestedByName,Status,EmployeeID,RequestedByEmail,RequestLink,PendingWith/ID,PendingWith/Title,Author/ID,Created,Author/Title,Author/Office,Author/JobTitle&$expand=PendingWith/ID,Author/ID&$orderby=Created desc", "primaryKey": "Title"}],
         "DbViewColDef": [
-            { "fldType": "ViewOnTitleUrlField", "headerName": "Request ID", "field": "RequestLink", "editable":false, "minWidth": 80 },
-            { "fldType": "TextField", "headerName": "Process Name", "field": "ProcessName", "editable":false, "minWidth": 165 },            
-            { "fldType": "TextField", "headerName": "Requested by", "field": "Author.Title", "editable":false, "minWidth": 165 },
-            { "fldType": "GetSetDateTimeField", "headerName": "Assigned Date Time", "field": "Modified", "valueGetter":"Modified", "editable":false, "minWidth": 190 },
-            { "fldType": "GetSetDateTimeField", "headerName": "Created Date Time", "field": "Created", "valueGetter":"Created", "editable":false, "minWidth": 180 },            
-            { "fldType": "TextField", "headerName": "Status", "field": "Status", "editable":false, "minWidth": 160 }
+            { "fldType": "ViewOnTitleUrlField", "headerName": "Request ID", "field": "RequestLink", "editable":false, "minWidth": 80, "maxWidth": 160 },
+            { "fldType": "TextField", "headerName": "Process Name", "field": "ProcessName", "editable":false, "minWidth": 165, "maxWidth": 250 },            
+            { "fldType": "TextField", "headerName": "Requested by", "field": "Author.Title", "editable":false, "minWidth": 165, "maxWidth": 250 },
+            { "fldType": "TextField", "headerName": "Job Title", "field": "Author.JobTitle", "editable":false, "minWidth": 200, "maxWidth": 350 },
+            { "fldType": "GetSetDateTimeField", "headerName": "Assigned Date Time", "field": "Modified", "valueGetter":"Modified", "editable":false, "minWidth": 160, "maxWidth": 250 },
+            { "fldType": "GetSetDateTimeField", "headerName": "Created Date Time", "field": "Created", "valueGetter":"Created", "editable":false, "minWidth": 160, "maxWidth": 250 },            
+            { "fldType": "TextField", "headerName": "Status", "field": "Status", "editable":false, "minWidth": 160, "maxWidth": 350 }
         ],
-        "MasterDetailViewColDef": [
-            { "fldType": "ViewLinkUrlField", "headerName": "View", "field": "RequestLink", "editable":false, "minWidth": 80 },
-            { "fldType": "TitleWitouthMDField", "headerName": "Request ID", "field": "Title", "editable":false, "minWidth": 120 },
-            { "fldType": "TextField", "headerName": "Process Name", "field": "ProcessName", "editable":false, "minWidth": 165 },            
-            { "fldType": "TextField", "headerName": "Requested by", "field": "Author.Title", "editable":false, "minWidth": 165 },
-            { "fldType": "GetSetDateTimeField", "headerName": "Assigned Date Time", "field": "Modified", "valueGetter":"Modified", "editable":false, "minWidth": 190 },
-            { "fldType": "GetSetDateTimeField", "headerName": "Created Date Time", "field": "Created", "valueGetter":"Created", "editable":false, "minWidth": 180 },            
-            { "fldType": "TextField", "headerName": "Status", "field": "Status", "editable":false, "minWidth": 165 }
-        ]
+        "MasterDetailViewColDef": []
     }
 ]

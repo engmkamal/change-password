@@ -24,7 +24,8 @@ export class ColumnDefinition{
         filterParams: {
             resetButton: true,
         },
-        minWidth: el.minWidth,
+        minWidth: el.minWidth, 
+        maxWidth: el.maxWidth,
         menuTabs: ['filterMenuTab', 'generalMenuTab'],
         editable: false,
         cellClass: "titleWithMDFieldClass",
@@ -59,7 +60,8 @@ export class ColumnDefinition{
         filterParams: {
             resetButton: true,
         },
-        minWidth: el.minWidth,
+        minWidth: el.minWidth, 
+        maxWidth: el.maxWidth,
         menuTabs: ['filterMenuTab', 'generalMenuTab'],
         cellClass: "ag-header-group-cell-label",
         editable: false,
@@ -126,7 +128,8 @@ export class ColumnDefinition{
             }
             }
         },
-        minWidth: el.minWidth,
+        minWidth: el.minWidth, 
+        maxWidth: el.maxWidth,
         menuTabs: ['filterMenuTab', 'generalMenuTab'],
         editable: el.editable,
         cellEditor: 'agTextCellEditor'
@@ -145,7 +148,8 @@ export class ColumnDefinition{
         filterParams: {
             resetButton: true,
         },
-        minWidth: el.minWidth,
+        minWidth: el.minWidth, 
+        maxWidth: el.maxWidth,
         menuTabs: ['filterMenuTab', 'generalMenuTab'],
         editable: el.editable,
         cellEditor: 'agTextCellEditor',
@@ -178,7 +182,8 @@ export class ColumnDefinition{
         filterParams: {
             resetButton: true,
         },
-        minWidth: el.minWidth,
+        minWidth: el.minWidth, 
+        maxWidth: el.maxWidth,
         menuTabs: ['filterMenuTab', 'generalMenuTab'],
         editable: el.editable,
         cellEditor: 'agLargeTextCellEditor',
@@ -211,7 +216,8 @@ export class ColumnDefinition{
         filterParams: {
             resetButton: true,
         },
-        minWidth: el.minWidth,
+        minWidth: el.minWidth, 
+        maxWidth: el.maxWidth,
         menuTabs: ['filterMenuTab', 'generalMenuTab'],
         editable: el.editable,
         cellEditor: 'agSelectCellEditor', //'agTextCellEditor', //'agLargeTextCellEditor',
@@ -248,7 +254,8 @@ export class ColumnDefinition{
         filterParams: {
             resetButton: true,
         },
-        minWidth: el.minWidth,
+        minWidth: el.minWidth, 
+        maxWidth: el.maxWidth,
         menuTabs: ['filterMenuTab', 'generalMenuTab'],
         cellClass: "ag-header-group-cell-label",
         cellStyle: function (params:any) {
@@ -275,7 +282,7 @@ export class ColumnDefinition{
         headerName: el.headerName,
         field: el.field,
         cellRenderer: (params:any)=> {
-            return '<a href="https://portal.bergerbd.com/leaveauto/SitePages/' + this.dbInfo.wfName + '.aspx?UniqueId=' + params.value + '&mode=read" target="_blank">view</a>';
+            return '<a href="https://portal.bergerbd.com/leaveauto/SitePages/' + this.dbInfo.wfName + '.aspx?UniqueId=' + params.value + '&mode=read">view</a>';
         },
         enableRowGroup: false,
         menuTabs: ['columnsMenuTab'],//menuTabs: ['filterMenuTab', 'generalMenuTab', 'columnsMenuTab'],
@@ -293,7 +300,8 @@ export class ColumnDefinition{
             }
             }
         },
-        minWidth: 85,
+        minWidth: 85, 
+        maxWidth: 250,
         }
 
         return vwLnkFld;
@@ -305,7 +313,7 @@ export class ColumnDefinition{
         headerName: el.headerName,
         field: el.field,
         cellRenderer: (params:any)=> {
-            return `<a href="${params.value}" target="_blank">View</a>`;
+            return `<a href="${params.value}" >View</a>`;
         },
         enableRowGroup: false,
         menuTabs: ['columnsMenuTab'],//menuTabs: ['filterMenuTab', 'generalMenuTab', 'columnsMenuTab'],
@@ -323,7 +331,8 @@ export class ColumnDefinition{
             }
             }
         },
-        minWidth: 85,
+        minWidth: 85, 
+        maxWidth: 250,
         }
 
         return vwLnkFld;
@@ -336,7 +345,7 @@ export class ColumnDefinition{
         field: el.field,
         cellRenderer: (params:any)=> {
             const title = params.data['Title'];
-            return `<a href="${params.value}" target="_blank" style="color:blue;">${title}</a>`;
+            return `<a href="${params.value}" style="color:blue;">${title}</a>`;
         },
         enableRowGroup: false,
         menuTabs: ['columnsMenuTab'],//menuTabs: ['filterMenuTab', 'generalMenuTab', 'columnsMenuTab'],
@@ -354,7 +363,8 @@ export class ColumnDefinition{
             }
             }
         },
-        minWidth: 85,
+        minWidth: 85, 
+        maxWidth: 250,
         }
 
         return vwLnkFld;
@@ -400,7 +410,8 @@ export class ColumnDefinition{
             }
             }
         },
-        minWidth: el.minWidth,
+        minWidth: el.minWidth, 
+        maxWidth: el.maxWidth,
         }
 
         return vwLnkFld;
@@ -414,7 +425,8 @@ export class ColumnDefinition{
               //const siteUrl = window.location.href + el.siteUrl;
               const url = "https://portal.bergerbd.com/" +  el.siteUrl + params.data.ID + el.mode;
     
-              return '<a href="' + url+ '" target="_blank">View</a>';
+              return '<a href="' + url+ '" >View</a>';
+              //return '<a href="' + url+ '" target="_blank">View</a>';
     
             },
             enableRowGroup: false,
@@ -433,7 +445,8 @@ export class ColumnDefinition{
                 }
               }
             },
-            minWidth: el.minWidth,
+            minWidth: el.minWidth, 
+            maxWidth: el.maxWidth,
           }
     
           return vwLnkFld;
@@ -450,7 +463,7 @@ export class ColumnDefinition{
               //return '<a href="' + url+ '" target="_blank">View</a>';
               const title = params.data[el.field];
 
-              return `<a href="${url}" target="_blank" onmouseover="Click to view and process">${title}</a>`;
+              return `<a href="${url}" onmouseover="Click to view and process">${title}</a>`;
     
             },
             enableRowGroup: false,
@@ -469,7 +482,8 @@ export class ColumnDefinition{
                 }
               }
             },
-            minWidth: el.minWidth,
+            minWidth: el.minWidth, 
+            maxWidth: el.maxWidth,
           }
     
           return vwLnkFld;
@@ -529,7 +543,8 @@ export class ColumnDefinition{
             }
             }
         },
-        minWidth: el.minWidth,
+        minWidth: el.minWidth, 
+        maxWidth: el.maxWidth,
         menuTabs: ['filterMenuTab', 'generalMenuTab'],
         editable: el.editable,
         cellEditor: 'agTextCellEditor',
@@ -593,7 +608,8 @@ export class ColumnDefinition{
             }
             }
         },
-        minWidth: el.minWidth,
+        minWidth: el.minWidth, 
+        maxWidth: el.maxWidth,
         menuTabs: ['filterMenuTab', 'generalMenuTab'],
         editable: el.editable,
         cellEditor: 'agTextCellEditor',
@@ -616,7 +632,8 @@ export class ColumnDefinition{
         filterParams: {
             resetButton: true,
         },
-        minWidth: el.minWidth,
+        minWidth: el.minWidth, 
+        maxWidth: el.maxWidth,
         menuTabs: ['filterMenuTab', 'generalMenuTab'],
         editable: el.editable,
         cellEditor: 'agTextCellEditor',
@@ -651,7 +668,8 @@ export class ColumnDefinition{
         filterParams: {
             resetButton: true,
         },
-        minWidth: el.minWidth,
+        minWidth: el.minWidth, 
+        maxWidth: el.maxWidth,
         menuTabs: ['filterMenuTab', 'generalMenuTab'],
         cellClass: "ag-header-group-cell-label",
         cellStyle: function (params:any) {
@@ -697,7 +715,8 @@ export class ColumnDefinition{
             }
             }
         },
-        minWidth: el.minWidth,
+        minWidth: el.minWidth, 
+        maxWidth: el.maxWidth,
         }
 
         return vwLnkFld;
@@ -737,7 +756,8 @@ export class ColumnDefinition{
         },
         cellStyle: { 'white-space': 'normal', 'line-height': 1.5 },
         autoHeight: true,
-        minWidth: el.minWidth,
+        minWidth: el.minWidth, 
+        maxWidth: el.maxWidth,
         menuTabs: ['filterMenuTab', 'generalMenuTab'],
         //cellClass: "ag-header-group-cell-label",
         // cellStyle: function(params) {
@@ -771,7 +791,8 @@ export class ColumnDefinition{
         filterParams: {
             resetButton: true,
         },
-        minWidth: el.minWidth,
+        minWidth: el.minWidth, 
+        maxWidth: el.maxWidth,
         menuTabs: ['filterMenuTab', 'generalMenuTab'],
         cellClass: "ag-header-group-cell-label",
         cellStyle: { 'white-space': 'normal', 'line-height': 1.5 },

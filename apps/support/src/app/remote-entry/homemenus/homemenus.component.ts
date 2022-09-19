@@ -1,5 +1,5 @@
 import { MediaMatcher } from '@angular/cdk/layout';
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild, HostListener } from '@angular/core';
 import { from, of } from 'rxjs'; 
 import { groupBy, map, mergeMap, reduce, toArray } from 'rxjs/operators';
 import { SplistcrudService, BreakpointObserverService } from '@portal/core';
@@ -252,6 +252,16 @@ export class HomemenusComponent implements OnInit, OnDestroy, AfterViewInit {
 
   //@ViewChild(DragndresizableComponent, {static : true}) child : DragndresizableComponent;
 
+  public getScreenWidth: any;
+  public getScreenHeight: any;
+  
+  // @HostListener('window:resize', ['$event'])
+  // onWindowResize() {
+  //   this.getScreenWidth = window.innerWidth;
+  //   this.getScreenHeight = window.innerHeight;
+  // }
+  
+
   constructor(
     changeDetectorRef: ChangeDetectorRef, 
     media: MediaMatcher, 
@@ -346,6 +356,9 @@ export class HomemenusComponent implements OnInit, OnDestroy, AfterViewInit {
     .breakpoint$.subscribe(() =>
       this.currentBreakpoint = this.breakpointObserverService.breakpointChanged()
     );
+
+    this.getScreenWidth = window.innerWidth;
+    this.getScreenHeight = window.innerHeight;
     
   }
 
@@ -758,6 +771,12 @@ export class HomemenusComponent implements OnInit, OnDestroy, AfterViewInit {
     this.allWorkflows.push(card);
 
     this.allWFsDivH = 180 * this.rowNo;
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onWindowResize() {
+    this.getScreenWidth = window.innerWidth;
+    this.getScreenHeight = window.innerHeight;
   }
 
 }

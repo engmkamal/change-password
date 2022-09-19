@@ -3,7 +3,8 @@ import {
   OnInit,
   ViewChild,
   AfterViewInit,
-  Renderer2
+  Renderer2,
+  HostListener
 } from '@angular/core';
 //========to covert promise to observer======
 import {
@@ -220,6 +221,10 @@ export class PendingtasksComponent implements OnInit, AfterViewInit {
     }),
   };
 
+  public getScreenWidth: any;
+  public getScreenHeight: any;
+
+  tblContentHeight = 440;
 
   constructor(
     private sharepointlistService: SharepointlistService,
@@ -462,6 +467,9 @@ export class PendingtasksComponent implements OnInit, AfterViewInit {
     // if(hp){
     //   hp.style.height = '25px';
     // } 
+
+    this.tblContentHeight = this.getScreenHeight - 270;
+    this.mpTG.paginationPageSize = (this.tblContentHeight - 75)/25; // 75px = tbl header: 55px + footer:20px
     
     const pp = document.querySelector('.ag-paging-panel')as HTMLElement | null;
     if(pp){
@@ -547,6 +555,9 @@ export class PendingtasksComponent implements OnInit, AfterViewInit {
                 //this.rowData = JSON.parse(JSON.stringify(items.value));
                 const parsedData = JSON.parse(JSON.stringify(items.value));
                 this.rowData = parsedData.filter((res:any)=>{return res.Title != null});
+                if(this.rowData.length < this.mpTG.paginationPageSize){
+                  this.tblContentHeight = (this.rowData.length * 25) + 75;
+                }
                 resolve(this.rowData);
               }
             );
@@ -713,7 +724,7 @@ export class PendingtasksComponent implements OnInit, AfterViewInit {
       this.mpTG.animateRows = true;
       this.mpTG.suppressDragLeaveHidesColumns = true;
       this.mpTG.groupUseEntireRow = true;
-      this.mpTG.paginationPageSize = 15;
+      this.mpTG.paginationPageSize = 25;
       this.mpTG.floatingFilter = true;
       this.mpTG.cacheQuickFilter = true;
       this.mpTG.enableCharts = true;
@@ -759,6 +770,9 @@ export class PendingtasksComponent implements OnInit, AfterViewInit {
             const parsedData = JSON.parse(JSON.stringify(items.value));
             this.rowData = parsedData;
             //this.rowData = parsedData.filter((res:any)=>{return res.RequestLink != null});
+            if(this.rowData.length < this.mpTG.paginationPageSize){
+              this.tblContentHeight = (this.rowData.length * 25) + 75;
+            }
             resolve(this.rowData);
           }
         );
@@ -902,7 +916,11 @@ export class PendingtasksComponent implements OnInit, AfterViewInit {
               (items:any) => {                
                 const parsedData = JSON.parse(JSON.stringify(items.value));
                 ownPendings = [...this.rowData, ...parsedData];
-                this.rowData = ownPendings;               
+                this.rowData = ownPendings;
+                
+                if(this.rowData.length < this.mpTG.paginationPageSize){
+                  this.tblContentHeight = (this.rowData.length * 25) + 75;
+                }
                 
                 resolve(this.rowData);
               }
@@ -947,6 +965,13 @@ export class PendingtasksComponent implements OnInit, AfterViewInit {
   }
 
   async ngOnInit() {
+
+    this.getScreenWidth = window.innerWidth;
+    this.getScreenHeight = window.innerHeight;
+    
+    this.tblContentHeight = this.getScreenHeight - 270;
+    this.mpTG.paginationPageSize = (this.tblContentHeight - 75)/25; // 75px = tbl header: 55px + footer:20px
+    
     await this.getlogedInUser();
     const pendingList = {
       apiUrl: `https://portal.bergerbd.com/leaveauto/_api/web/lists/getByTitle('PendingApproval')/items?&$top=100&$select=GUID,ID,Title,ProcessName,RequestedByName,Status,EmployeeID,RequestedByEmail,RequestLink,PendingWith/ID,PendingWith/Title,Author/ID,Created,Author/Title,Author/Office,Author/JobTitle,Modified&$expand=PendingWith/ID,Author/ID&$filter=PendingWith/ID eq '${this.logedInUser.aDId}'&$orderby=Created desc`,
@@ -969,7 +994,7 @@ export class PendingtasksComponent implements OnInit, AfterViewInit {
     //   apiUrl: `https://portal.bergerbd.com/leaveauto/_api/web/lists/getByTitle('PendingApproval')/items?&$top=200&$select=GUID,ID,Title,ProcessName,RequestedByName,Status,EmployeeID,RequestedByEmail,RequestLink,PendingWith/ID,PendingWith/Title,Author/ID,Created,Author/Title,Author/Office,Author/JobTitle,Modified&$expand=PendingWith/ID,Author/ID&$filter=PendingWith/ID eq '${this.logedInUser.aDId}'&$orderby=Created desc`,
     // }    
     // this.getPendingTasks(penListAVI);
-    
+
     
   }
 
@@ -1503,6 +1528,12 @@ export class PendingtasksComponent implements OnInit, AfterViewInit {
     return throwError(() => {
       return errorMessage;
     });
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onWindowResize() {
+    this.getScreenWidth = window.innerWidth;
+    this.getScreenHeight = window.innerHeight;
   }
 
 }

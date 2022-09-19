@@ -456,8 +456,18 @@ export class PendingtasksComponent implements OnInit, AfterViewInit {
     //====for editing ===
     
     this.mpTG.rowNodeApi = params.rowNodeApi;
-    this.mpTG.editType = 'fullRow';    
+    this.mpTG.editType = 'fullRow'; 
     
+    // const hp = document.querySelector('.ag-header-row')as HTMLElement | null;//ag-header-row //ag-header-container//ag-header-viewport
+    // if(hp){
+    //   hp.style.height = '25px';
+    // } 
+    
+    const pp = document.querySelector('.ag-paging-panel')as HTMLElement | null;
+    if(pp){
+      pp.style.height = '20px';
+    }
+
   }
 
   createColDef(i:any) {
@@ -703,7 +713,7 @@ export class PendingtasksComponent implements OnInit, AfterViewInit {
       this.mpTG.animateRows = true;
       this.mpTG.suppressDragLeaveHidesColumns = true;
       this.mpTG.groupUseEntireRow = true;
-      this.mpTG.paginationPageSize = 10;
+      this.mpTG.paginationPageSize = 15;
       this.mpTG.floatingFilter = true;
       this.mpTG.cacheQuickFilter = true;
       this.mpTG.enableCharts = true;

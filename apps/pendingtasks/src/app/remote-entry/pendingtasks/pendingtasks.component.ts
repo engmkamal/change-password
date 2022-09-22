@@ -71,7 +71,7 @@ import Swal from 'sweetalert2';
 import { Grid, GridOptions } from 'ag-grid-community';
 // import 'ag-grid-community/styles/ag-grid.css';
 // import 'ag-grid-community/styles/ag-theme-alpine.css';
-// import 'ag-grid-enterprise';
+import 'ag-grid-enterprise';
 //-------------------------
 
 
@@ -468,8 +468,8 @@ export class PendingtasksComponent implements OnInit, AfterViewInit {
     //   hp.style.height = '25px';
     // } 
 
-    this.tblContentHeight = this.getScreenHeight - 270;
-    this.mpTG.paginationPageSize = (this.tblContentHeight - 75)/25; // 75px = tbl header: 55px + footer:20px
+    this.tblContentHeight = this.getScreenHeight - 200;
+    this.mpTG.paginationPageSize = (this.tblContentHeight - 80)/35; // 80px = tbl header: 55px + footer:20px + additional:5px
     
     const pp = document.querySelector('.ag-paging-panel')as HTMLElement | null;
     if(pp){
@@ -556,7 +556,7 @@ export class PendingtasksComponent implements OnInit, AfterViewInit {
                 const parsedData = JSON.parse(JSON.stringify(items.value));
                 this.rowData = parsedData.filter((res:any)=>{return res.Title != null});
                 if(this.rowData.length < this.mpTG.paginationPageSize){
-                  this.tblContentHeight = (this.rowData.length * 25) + 75;
+                  this.tblContentHeight = (this.rowData.length * 25) + 150;
                 }
                 resolve(this.rowData);
               }
@@ -724,7 +724,7 @@ export class PendingtasksComponent implements OnInit, AfterViewInit {
       this.mpTG.animateRows = true;
       this.mpTG.suppressDragLeaveHidesColumns = true;
       this.mpTG.groupUseEntireRow = true;
-      this.mpTG.paginationPageSize = 25;
+      this.mpTG.paginationPageSize = 10;
       this.mpTG.floatingFilter = true;
       this.mpTG.cacheQuickFilter = true;
       this.mpTG.enableCharts = true;
@@ -771,7 +771,7 @@ export class PendingtasksComponent implements OnInit, AfterViewInit {
             this.rowData = parsedData;
             //this.rowData = parsedData.filter((res:any)=>{return res.RequestLink != null});
             if(this.rowData.length < this.mpTG.paginationPageSize){
-              this.tblContentHeight = (this.rowData.length * 25) + 75;
+              this.tblContentHeight = (this.rowData.length * 25) + 150;
             }
             resolve(this.rowData);
           }
@@ -919,7 +919,7 @@ export class PendingtasksComponent implements OnInit, AfterViewInit {
                 this.rowData = ownPendings;
                 
                 if(this.rowData.length < this.mpTG.paginationPageSize){
-                  this.tblContentHeight = (this.rowData.length * 25) + 75;
+                  this.tblContentHeight = (this.rowData.length * 25) + 150;
                 }
                 
                 resolve(this.rowData);
@@ -969,8 +969,8 @@ export class PendingtasksComponent implements OnInit, AfterViewInit {
     this.getScreenWidth = window.innerWidth;
     this.getScreenHeight = window.innerHeight;
     
-    this.tblContentHeight = this.getScreenHeight - 270;
-    this.mpTG.paginationPageSize = (this.tblContentHeight - 75)/25; // 75px = tbl header: 55px + footer:20px
+    this.tblContentHeight = this.getScreenHeight - 200;
+    this.mpTG.paginationPageSize = (this.tblContentHeight - 80)/35; // 80px = tbl header: 55px + footer:20px + additional:5px
     
     await this.getlogedInUser();
     const pendingList = {

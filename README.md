@@ -3,7 +3,7 @@
 # Portal
 
 <p>The final output view:</p> 
-<p style="text-align: center;"><img src="https://github.com/engmkamal/my-approvals-on-workflow/blob/master/apps/pendingtasks/src/assets/PendingApproval.png"></p>
+<p style="text-align: center;"><img src="https://github.com/engmkamal/pending-approval/blob/master/apps/pendingtasks/src/assets/PendingApproval.png"></p>
 
 <p>View click on each Workflow of Landing page:</p> 
 <p style="text-align: center;"><img src="https://github.com/engmkamal/my-approvals-on-workflow/blob/master/apps/pendingtasks/src/assets/PendingApproval.png"></p>

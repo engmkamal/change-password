@@ -3,7 +3,7 @@
         "WfName": "PendingApproval",
         "AcessPermission": "Public", 
         "AuthGroups": ["Berger Portal Owners"],
-        "AuthUsersADId": [208, 296, 350, 21],
+        "AuthUsersADId": [208, 296, 350, 21, 1026],
         "AuthUsersEmpId": [1270, 334],  
         "DisplayTxt": "Pending Approval",
         "ViewUrl": { "siteUrl": "leaveauto/SitePages/PendingApproval.aspx?UniqueId=", "qryStrKeyTyp": "GUID", "mode": "&mode=read", "titleTag": "ITSR-" },
@@ -11,7 +11,7 @@
         "RenderDetListInfo": [{ "name": "PendingApproval", "select": "GUID,ID,Title,ProcessName,RequestedByName,Status,EmployeeID,RequestedByEmail,RequestLink,PendingWith/ID,PendingWith/Title,Author/ID,Created,Author/Title,Author/Office,Author/JobTitle&$expand=PendingWith/ID,Author/ID&$orderby=Created desc"}],
         "DetailsListInfo": [{ "name": "PendingApproval", "select": "GUID,ID,Title,ProcessName,RequestedByName,Status,EmployeeID,RequestedByEmail,RequestLink,PendingWith/ID,PendingWith/Title,Author/ID,Created,Author/Title,Author/Office,Author/JobTitle&$expand=PendingWith/ID,Author/ID&$orderby=Created desc", "primaryKey": "Title"}],
         "DbViewColDef": [
-            { "fldType": "ViewOnTitleUrlField", "headerName": "Request ID", "field": "RequestLink", "editable":false, "minWidth": 80, "maxWidth": 160 },
+            { "fldType": "ViewOnTitleUrlField", "headerName": "Request ID", "field": "RequestLink", "editable":false, "minWidth": 120, "maxWidth": 160 },
             { "fldType": "TextField", "headerName": "Process Name", "field": "ProcessName", "editable":false, "minWidth": 165, "maxWidth": 250 },            
             { "fldType": "TextField", "headerName": "Requested by", "field": "Author.Title", "editable":false, "minWidth": 165, "maxWidth": 250 },
             { "fldType": "TextField", "headerName": "Job Title", "field": "Author.JobTitle", "editable":false, "minWidth": 200, "maxWidth": 350 },

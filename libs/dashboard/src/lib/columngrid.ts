@@ -300,8 +300,8 @@ export class ColumnDefinition{
             }
             }
         },
-        minWidth: 85, 
-        maxWidth: 250,
+        minWidth: el.minWidth, 
+        maxWidth: el.maxWidth,
         }
 
         return vwLnkFld;
@@ -331,8 +331,8 @@ export class ColumnDefinition{
             }
             }
         },
-        minWidth: 85, 
-        maxWidth: 250,
+        minWidth: el.minWidth, 
+        maxWidth: el.maxWidth,
         }
 
         return vwLnkFld;
@@ -363,8 +363,8 @@ export class ColumnDefinition{
             }
             }
         },
-        minWidth: 85, 
-        maxWidth: 250,
+        minWidth: el.minWidth, 
+        maxWidth: el.maxWidth,
         }
 
         return vwLnkFld;

@@ -1,0 +1,192 @@
+<form [formGroup]="childGroup" class="fix-this">
+    <fieldset>
+       <legend>{{formLabel}}</legend>
+       <div fxFlex="100" class="frmDiv itemRow" fxLayout="row" fxLayout.xs="column" fxLayoutGap="50px">
+          <div fxFlex="1 1 100" fxLayout="column">
+             <div fxLayout="column" style="padding: 5px;">
+                <div class="panel-body" fxFlex="1 1 100" fxLayout="column">
+                   <div fxFlex="100" class="frmDiv" fxLayout="column" fxLayout.xs="column" fxLayoutGap="5px">
+                      <div fxFlex="100" fxLayout="row">
+                         <div></div>
+                         <div *ngIf="_showDeleteAssigneeBtn">
+                            <button type="button" (click)="remove.emit()">
+                               Delete Assignee
+                            </button>
+                         </div>
+                      </div>
+                      <br />
+
+                      <portal-peoplepicker [formGroup]="childGroup" (selectionAssignee)="_selectionAssignee($event)" (outputToParent)="GetOutputVal($event)"></portal-peoplepicker>
+
+                      <!-- <div fxFlex="1 1 100" fxLayout="row" fxLayoutAlign="space-between start" style="line-height: 30px;">
+                         <div fxFlex="1 1 15">
+                            <mat-label>Assign To</mat-label>
+                         </div>
+                         <div fxFlex="1 1 2">
+                            <mat-label>:</mat-label>
+                         </div>
+                         <div fxFlex="1 1 83">
+                           <portal-peoplepicker [formGroup]="childGroup" (selectionAssignee)="_selectionAssignee($event)"></portal-peoplepicker>
+                            
+                         </div>
+                      </div> -->
+
+                      <!-- <div fxFlex="1 1 100" fxLayout="row" fxLayoutAlign="space-between start">
+                         <div fxFlex="1 1 15">
+                            <mat-label>Sample Description<label style="color:red">*</label></mat-label>                           
+                         </div>
+                         <div fxFlex="1 1 2">
+                            <mat-label>:</mat-label>
+                         </div>
+                         <div fxFlex="1 1 83">
+                            <ng-container *ngIf="showSmplLbl(); else showSampleDescriptionTxt">
+                               <label style="color: navy; font-family: Arial, Helvetica, sans-serif; font-size: 10pt;">{{sampleInfo.SampleDescription}}</label>
+                               
+                               <mat-form-field appearance="no" fxFlex="100" class="mFrmFld">
+                                  <textarea matInput formControlName="SampleDescription" cdkTextareaAutosize
+                                     cdkAutosizeMinRows="1" cdkAutosizeMaxRows="5" readonly disabled></textarea>
+                               </mat-form-field>
+                            </ng-container>
+                            <ng-template #showSampleDescriptionTxt>
+                               <mat-form-field appearance="outline" fxFlex="100" class="mFrmFld" required>
+                                  <textarea matInput formControlName="SampleDescription" cdkTextareaAutosize
+                                     cdkAutosizeMinRows="1" cdkAutosizeMaxRows="5" #sampleDescription
+                                     maxlength="200"></textarea>
+                                  <mat-hint align="end">{{sampleDescription.value?.length || 0}}/200</mat-hint>
+                               </mat-form-field>
+                            </ng-template>
+                         </div>
+                      </div>
+                      <div fxFlex="1 1 100" fxLayout="row" fxLayoutAlign="space-between start">
+                         <div fxFlex="1 1 15">
+                            <mat-label>Appearance<label style="color:red">*</label></mat-label>                           
+                         </div>
+                         <div fxFlex="1 1 2">
+                            <mat-label>:</mat-label>
+                         </div>
+                         <div fxFlex="1 1 83">
+                            <ng-container *ngIf="showSmplLbl(); else showAppearanceTxt">
+                               <label style="color: navy; font-family: Arial, Helvetica, sans-serif; font-size: 10pt;">{{sampleInfo.Appearance}}</label>
+                               <mat-form-field appearance="no" fxFlex="100" class="mFrmFld">
+                                  <input matInput formControlName="Appearance" readonly disabled>
+                               </mat-form-field>
+                            </ng-container>
+                            <ng-template #showAppearanceTxt>
+                               <mat-form-field appearance="outline" fxFlex="100" class="mFrmFld" required>
+                                  <input matInput formControlName="Appearance" placeholder="Provide Appearance">
+                               </mat-form-field>
+                            </ng-template>
+                         </div>
+                      </div>
+                      <div fxFlex="1 1 100" fxLayout="row" fxLayoutAlign="space-between start">
+                         <div fxFlex="1 1 15">
+                            <mat-label>Reference No <label style="color:red">*</label></mat-label>
+                         </div>
+                         <div fxFlex="1 1 2">
+                            <mat-label>:</mat-label>
+                         </div>
+                         <div fxFlex="1 1 83">
+                            <ng-container *ngIf="showSmplLbl(); else showReferenceNoTxt">
+                               <label style="color: navy; font-family: Arial, Helvetica, sans-serif; font-size: 10pt;">{{sampleInfo.ReferenceNo}}</label>
+                               <mat-form-field appearance="no" fxFlex="100" class="mFrmFld">
+                                  <input matInput formControlName="ReferenceNo" readonly disabled>
+                               </mat-form-field>
+                            </ng-container>
+                            <ng-template #showReferenceNoTxt>
+                               <mat-form-field appearance="outline" fxFlex="100" class="mFrmFld" required>
+                                  <input matInput formControlName="ReferenceNo" placeholder="Provide Reference No">
+                               </mat-form-field>
+                            </ng-template>
+                         </div>
+                      </div>
+                      <div fxFlex="1 1 100" fxLayout="row" fxLayoutAlign="space-between start">
+                         <div fxFlex="1 1 15">
+                            <mat-label>Sample Type<label style="color:red">*</label></mat-label>
+                         </div>
+                         <div fxFlex="1 1 2">
+                            <mat-label>:</mat-label>
+                         </div>
+                         <div fxFlex="1 1 83">
+                            <ng-container *ngIf="showSmplLbl(); else showSampleTypeTxt">
+                               <label style="color: navy; font-family: Arial, Helvetica, sans-serif; font-size: 10pt;">{{sampleInfo.SampleType}}</label>
+                         
+                            </ng-container>
+                            <ng-template #showSampleTypeTxt>
+                               <mat-form-field appearance="outline" fxFlex="100" class="mFrmFld">
+                                  <mat-select formControlName="SampleType" required>
+                                     <mat-option *ngFor="let sampleType of sampleTypes" [value]="sampleType">
+                                        {{sampleType}}
+                                     </mat-option>
+                                  </mat-select>
+                               </mat-form-field>
+                            </ng-template>
+                         </div>
+                      </div>
+                      <div fxFlex="1 1 100" fxLayout="row" fxLayoutAlign="space-between start">
+                         <div fxFlex="1 1 15">
+                            <mat-label>Material Construction</mat-label>
+                         </div>
+                         <div fxFlex="1 1 2">
+                            <mat-label>:</mat-label>
+                         </div>
+                         <div fxFlex="1 1 83">
+                            <ng-container *ngIf="showSmplLbl(); else showMaterialConstructionTxt">
+                               <label style="color: navy; font-family: Arial, Helvetica, sans-serif; font-size: 10pt;">{{sampleInfo.MaterialConstruction}}</label>
+                     
+                            </ng-container>
+                            <ng-template #showMaterialConstructionTxt>
+                               <mat-form-field appearance="outline" fxFlex="100" class="mFrmFld">
+                                  <input matInput formControlName="MaterialConstruction"
+                                     placeholder="Material Construction">
+                               </mat-form-field>
+                            </ng-template>
+                         </div>
+                      </div>
+                      <div fxFlex="1 1 100" fxLayout="row" fxLayoutAlign="space-between start">
+                         <div fxFlex="1 1 15">
+                            <mat-label>Sample Quantity</mat-label>
+                         </div>
+                         <div fxFlex="1 1 2">
+                            <mat-label>:</mat-label>
+                         </div>
+                         <div fxFlex="1 1 83">
+                            <ng-container *ngIf="showSmplLbl(); else showSampleQuantityTxt">
+                               <label style="color: navy; font-family: Arial, Helvetica, sans-serif; font-size: 10pt;">{{sampleInfo.SampleQuantity}}</label>
+            
+                            </ng-container>
+                            <ng-template #showSampleQuantityTxt>
+                               <mat-form-field appearance="outline" fxFlex="100" class="mFrmFld">
+                                  <input matInput formControlName="SampleQuantity" placeholder="SampleQuantity">
+                               </mat-form-field>
+                            </ng-template>
+                         </div>
+                      </div>
+                      <div fxFlex="1 1 100" fxLayout="row" fxLayoutAlign="space-between start">
+                         <div fxFlex="1 1 15">
+                            <mat-label>Specific Requirement</mat-label>
+                         </div>
+                         <div fxFlex="1 1 2">
+                            <mat-label>:</mat-label>
+                         </div>
+                         <div fxFlex="1 1 83">
+                            <ng-container *ngIf="showSmplLbl(); else showSmplTxt">
+                               <label style="color: navy; font-family: Arial, Helvetica, sans-serif; font-size: 10pt;">{{sampleInfo.SpecificRequirement}}</label>
+   
+                            <ng-template #showSmplTxt>
+                               <mat-form-field appearance="outline" fxFlex="100" class="mFrmFld">
+                                  <textarea matInput formControlName="SpecificRequirement" cdkTextareaAutosize
+                                     cdkAutosizeMinRows="1" cdkAutosizeMaxRows="5" #specificRequirement
+                                     maxlength="200"></textarea>
+                                  <mat-hint align="end">{{specificRequirement.value?.length || 0}}/200</mat-hint>
+                               </mat-form-field>
+                            </ng-template>
+                         </div>
+                      </div> -->
+                   </div>
+                </div>
+             </div>
+          </div>
+       </div>
+       <br>
+    </fieldset>
+ </form>

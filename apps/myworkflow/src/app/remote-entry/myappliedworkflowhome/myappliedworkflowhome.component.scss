@@ -1,0 +1,19 @@
+:host ::ng-deep {
+    .lowHeight {
+        ::ng-deep .mat-expansion-panel-header {
+            height: 30px !important;
+        }
+
+        .ag-theme-material .ag-paging-panel {
+            height: 10px;
+        }
+
+        ::ng-deep .mat-expansion-panel-body {
+            padding: 0 1px 10px !important;
+        }
+
+        ::ng-deep .mat-expansion-panel.mat-expanded {
+            height: 15rem !important;
+        }
+    }
+}    

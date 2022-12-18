@@ -1,0 +1,11 @@
+<!-- <ng-container [formGroup]="controlContainer.control"> -->
+    <div class="container" fxLayout="column" fxLayoutAlign="start center">
+        <ag-grid-angular [ngStyle]="{'width.%': '100', 'height.px': gridHeight}"
+              class="ag-theme-alpine"
+              [defaultColDef]="defaultColDef"
+              [columnDefs]="columnDefs"
+              [rowData]="rowData"
+              (gridReady)="gridReady($event)">                            
+        </ag-grid-angular>
+  </div>
+<!-- </ng-container> -->

@@ -1,0 +1,12 @@
+@import "~@angular/material/prebuilt-themes/indigo-pink.css";
+
+::ng-deep .mat-form-field-appearance-outline#portalDropdownAutocomplete .mat-form-field-outline  {
+    background-color:whitesmoke !important;
+    border-radius: 5px;  
+}
+
+
+
+::ng-deep .mat-input-element {
+    color:dodgerblue !important;
+}

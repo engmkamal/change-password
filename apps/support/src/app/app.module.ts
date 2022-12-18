@@ -21,6 +21,6 @@ import { AppComponent } from './app.component';
    }], { initialNavigation: 'enabledBlocking' }),
  ],
  providers: [],
- bootstrap: [AppComponent],
+ bootstrap: [AppComponent]
 })
 export class AppModule {}

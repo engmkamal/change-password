@@ -1,0 +1,9 @@
+{
+    "/_api/*" : {
+      "target": "https://portaldv.bergerbd.com/leaveauto/_api",
+      "secure": false,
+      "logLevel": "debug",
+      "changeOrigin": true,
+      "pathRewrite": {"http://localhost:4200/_api": "https://portaldv.bergerbd.com/leaveauto/_api/_api"}
+    }
+}

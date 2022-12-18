@@ -1,28 +1,32 @@
 // @ts-nocheck
 
 import { Component, OnInit, HostListener } from '@angular/core';
-import { from } from "rxjs";
+import { Subscription, from } from 'rxjs';
 import { SharepointlistService } from '@portal/core';
-//import { Router } from '@angular/router';
+import { Router } from '@angular/router';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { 
+  LoginService,
+  IProcessLog,
+  ISupModel,
+  ISupportQuery,
+  //AppdataproviderService 
+} from '@portal/shared/data-access-user';
 
+import Swal from 'sweetalert2';
 
+//import { distinctUntilChanged } from 'rxjs/operators';
 
 @Component({
   selector: 'portal-supporthome',
   templateUrl: './supporthome.component.html',
-  styleUrls: ['./supporthome.component.scss'],  
-  // styleUrls: [
-  //   './capexbudgethome.component.scss',
-  //   '../../../../../../assets/css/indigo-pink.css',
-  //   '../../../../../../assets/css/ng-select.component.scss',
-  //   '../../../../../../assets/css/material.theme.scss',
-  // ]
+  styleUrls: ['./supporthome.component.scss']
 })
 export class SupporthomeComponent implements OnInit {
 
   currentAbsoluteUrl = window.location.href;
   Status = "";
-  uId = "";
+  uId:string = "";
   readMode = "";
   logedUserAdId = null;
   _testParamNode = null;
@@ -31,11 +35,46 @@ export class SupporthomeComponent implements OnInit {
   testParameters = {};//should be omited
   reportReleaseGrp = {}; //should be omited
   childBtnClickAction = "";
-  createReqInfoFrmChild:any;
+  //createReqInfoFrmChild:any;
+  createReqInfoFrmChild:ISupModel = {
+    uId: "",
+    readMode: "",
+    ID: null,
+    Title: null,
+    Status: null,
+    AppParameters: {
+      Requestor: {},
+      ProblemDescription: {
+        RequestFor: "",
+        RequestCategory: "",
+        Subject: "",
+        Description: "",
+      },
+      PriorityInfo: {          
+        Priority: "",
+        EmergContact: "",
+        BusinessImpact: "",
+        EmergContactNumber: "",
+        EmergContactEmail: ""
+      },
+      SystemDetail: {},                    
+      ProcessLog: [],
+      Attachments: [],
+      Action: ""
+    },
+    PendingTo: null,
+  };
+
   approvalLink:any;
   reviewLink:any;
   pendingApprovalListInfo:any;
+  processLogListInfo:any;
+  queryResponseListInfo:any;
   updatedMstrLstInfo:any;
+  newDetailLstInfo:any;
+  updatedDetailLstInfo:any;
+  attachmentListInfor:any;
+  notificationListInfo:any;
   labResponsibles = [];
   labResponsiblesOpms = [];
   emitedDataFrmChild:any;
@@ -51,19 +90,36 @@ export class SupporthomeComponent implements OnInit {
   };
 
   parsedRequestInfo = {
-    uId: '',
-    readMode: '',
+    uId: "",
+    readMode: "",
     ID: null,
     Title: null,
     Status: null,
-    RnDLabTest: null,
+    AppParameters: {
+      Requestor: {},
+      ProblemDescription: {
+        RequestFor: "",
+        RequestCategory: "",
+        Subject: "",
+        Description: "",
+      },
+      PriorityInfo: {          
+        Priority: "",
+        EmergContact: "",
+        BusinessImpact: "",
+        EmergContactNumber: "",
+        EmergContactEmail: ""
+      },
+      SystemDetail: {},                    
+      ProcessLog: [],
+      Attachments: [],
+      Comments: "",
+    },
     PendingWith: null,
-    RequestorAdId: null,
-    CapexBudgetProposal: null
   };
   
-  //webAbsoluteUrl = window.location.origin + "/leaveauto";
-  webAbsoluteUrl = "https://portaldv.bergerbd.com/leaveauto";
+  webAbsoluteUrl = window.location.origin;
+  //webAbsoluteUrl = "https://portaldv.bergerbd.com/leaveauto";
 
   //==for alert==
   options = {
@@ -80,6 +136,13 @@ export class SupporthomeComponent implements OnInit {
 
   dataFrmExcelUpload: any = [];
 
+  appDataSubscription!: Subscription;
+
+  isLoggedIn$ = this._loginService.isUserLoggedIn$;
+
+  pendingtasksUrl = "https://support.bergertechbd.com/pendingtasks";
+  myrequestsUrl = "https://support.bergertechbd.com/myrequests" ;
+
   // starColorP:StarRatingColor = StarRatingColor.primary;
   // starColorW:StarRatingColor = StarRatingColor.warn;
 
@@ -91,8 +154,39 @@ export class SupporthomeComponent implements OnInit {
   //   presentationModeR : 3
   // }
 
-  constructor(public sharepointlistService: SharepointlistService) {
+  constructor(
+    private router: Router,
+    private _loginService: LoginService,
+    public sharepointlistService: SharepointlistService,
+    //private appdataproviderService: AppdataproviderService,
+    private httpClient: HttpClient 
+    ) {
+      
     //=====Reading unique id from url -- start ==========
+    // if (this.currentAbsoluteUrl.indexOf('=') > -1) {
+    //   let varCurrentUrlSplitArray = this.currentAbsoluteUrl.split('?');
+    //   if (varCurrentUrlSplitArray.length >= 2) {
+    //     let queryString = varCurrentUrlSplitArray[1];
+    //     if(queryString2.length > 5){
+    //       let queryString2 = queryString.split('%2F')[1];
+    //       if(queryString2.length > 5){
+    //         let inclGuid = queryString2.split('guid%3D')[1];
+    //         let guid = inclGuid.slice(0, 36);
+    //         this.uId = guid;
+    //         if(inclGuid.length > 40){
+    //           let inclMod = inclGuid.split('&')[1];
+    //           let mod = inclMod.split('mode%3D')[1];
+    //           this.readMode = mod;
+    //         }else{
+    //           this.readMode = "";
+    //         }
+    //       }
+    //     }       
+        
+    //   }
+    // }
+    //------Reading unique id from url -- End-----
+
     if (this.currentAbsoluteUrl.indexOf('=') > -1) {
       let varCurrentUrlSplitArray = this.currentAbsoluteUrl.split('?');
       if (varCurrentUrlSplitArray.length >= 2) {
@@ -100,181 +194,84 @@ export class SupporthomeComponent implements OnInit {
         let parameters = queryString.split('&');
         for (let i = 0; i < parameters.length; i++) {
           let param = parameters[i];
-          if (param.toLowerCase().indexOf('uniqueid=') > -1)
+          if (param.toLowerCase().indexOf('guid=') > -1){
             this.uId = param.split('=')[1];
+            if( this.uId == "" && localStorage.getItem('logedCustId') == null && localStorage.getItem('logedEmpEmail') == null){
+              this.router.navigate(['/login']);          
+            }
+          }
           else if (param.toLowerCase().indexOf('mode=') > -1)
             this.readMode = param.split('=')[1];
         }
       }
     }
-    //------Reading unique id from url -- End-----
+    
   }
 
   ngOnInit(): void {
 
-    if (this.uId != "") {
-      this.listInfo.name = "CapexBudgetMaster";
-      this.listInfo.select = 'Status' + "," + 'RequestorEmpId' + "," + 'CapexBudgetProposal' + "," + 'GUID' + "," + 'Modified' + "," + 'Created' + "," + 'PendingWith/ID' + "," + 'PendingWith/Title' + "," + 'Author/ID' + "," + 'Author/Title' + "," + 'ID' + "," + 'Title';
-      this.listInfo.expand = 'Author' + "," + 'PendingWith';
-      this.listInfo.filterBy = 'GUID';
-      this.listInfo.filterWith = this.uId;
-      this.listInfo.top = 100000;
+    //this.toastSucAlert('success', false, 'Request Submitted Successfully');
 
-      this.sharepointlistService.getSPLoggedInUser().then((res) => {
-        this.logedUserAdId = res;
-        from(
-          this.sharepointlistService.getItemWithAnyFilterExpand(this.listInfo, res)
-        ).subscribe(
-          (res) => {
-            let userRnDSections:any = [];
+    //this.appdataproviderService.getUid();
 
-            // let r : any = testData.RnDLabTest;
+    this.isLoggedIn$
+    .pipe(distinctUntilChanged())
+    .subscribe(async (loggedIn) => {
+      if (!loggedIn) {
+        this.router.navigate(['/login']);
+        
+      }else if( localStorage.getItem('logedCustId') == null && localStorage.getItem('logedEmpEmail') == null){
+        this.router.navigate(['/login']);          
+      } 
+      else { 
+        
+        if (this.uId != "") {             
+        } else {
+            this.requestInfo = {
+              uId: "",
+              readMode: "",
+              Status: "" 
+            };
+        }
+        
+        // this.appDataSubscription = this.this.appdataproviderService.appData$.subscribe((res:any) => {
+        //   if (res.uId != "") {             
+        //   } else {
+        //       this.requestInfo = {
+        //         uId: "",
+        //         readMode: "",
+        //         Status: "" 
+        //       };
+        //   }
+        // })
+      }
+    });
 
-            // this.parsedRequestInfo = {
-            //   uId: testData.uId,
-            //   readMode: testData.readMode,
-            //   ID: testData.ID,
-            //   Title: testData.Title,
-            //   Status: testData.Status,
-            //   RnDLabTest: JSON.parse(r),
-            //   PendingWith: testData.PendingWith
-            // };
-
-            this.parsedRequestInfo = { 
-              uId: this.uId,
-              readMode: this.readMode,
-              ID: res[0].ID,
-              Title: res[0].Title,
-              Status: res[0].Status,
-              CapexBudgetProposal: JSON.parse(res[0].CapexBudgetProposal),
-              PendingWith: res[0].PendingWith,
-              RequestorAdId: res[0].Author.ID,
-              RnDLabTest: JSON.parse(res[0].CapexBudgetProposal)
-            }
-            
-            if (this.readMode == "read" || this.readMode == "print" || this.readMode == "feedback") {
-              this.requestInfo = this.parsedRequestInfo;
-            } 
-            else if (res[0].Status == 'Submitted') {
-              this.requestInfo = this.parsedRequestInfo;
-            }
-            else {
-              //=== checking whether loged user is PendingWith person or not
-
-              //if ((this.parsedRequestInfo.PendingWith.results).some(user => user.ID == this.logedUserAdId)) {
-
-                if (res[0].Status == 'SubmittedToITInfra' || res[0].Status == 'SubmittedToCCAI' || res[0].Status == 'Submitted' || res[0].Status == 'PickedUp' || this.Status == 'PickedUp') {
-                  // for (let t = 0; t < this.testParameters.length; t++) {
-                  //   for (let r = 0; r < this.testParameters[t].Respectives.length; r++) {
-                  //     if (this.testParameters[t].Respectives[r].RAdId == this.logedUserAdId) {
-                  //       this._testParamNode = t;
-                  //       userRnDSections.push(
-                  //         { RnDSection: this.testParameters[t].RnDSection }
-                  //       )
-                  //     }
-                  //   }
-                  // }
-
-                  this.parsedTestParameters = JSON.parse(res[0].RnDLabTest);
-
-                  let labPersonnelData = this.parsedTestParameters.TestParameters.filter(x => userRnDSections.map(y => y.RnDSection).includes(x.Title.RnDSection));
-
-                  let logedLabPersonnelData = labPersonnelData.filter(x => (x.Title.Respectives.some(y=>y.RAdId == this.logedUserAdId)));
-
-                  this.requestInfo = {
-                    uId: this.uId,
-                    readMode: this.readMode,
-                    Status: res[0].Status,
-                    RnDLabTest: logedLabPersonnelData
-                  };
-                  this.Status = res[0].Status;
-                  //this.Status = 'PartiallyReported';
-                }
-
-                else if (this.parsedRequestInfo.Status == 'PartiallyReported') {
-                  //== filtering only the TestParameterStatus=="Submitted"
-                  for (let t = 0; t < this.parsedRequestInfo.RnDLabTest.TestParameters.length; t++) {
-                    if (this.parsedRequestInfo.RnDLabTest.TestParameters[t].TestParameterStatus == "Submitted") {
-                      this._testParamNode = t; // get array index of this TestParameter
-                      //=== maping the loged user's RnDLabTest 
-                      // for (let t = 0; t < this.testParameters.length; t++) {
-                      //   for (let r = 0; r < this.testParameters[t].Respectives.length; r++) {
-                      //     if (this.testParameters[t].Respectives[r].RAdId == this.logedUserAdId) {
-
-                      //       userRnDSections.push(
-                      //         { RnDSection: this.testParameters[t].RnDSection }
-                      //       )
-                      //     }
-                      //   }
-                      // }
-                    }
-
-                    this.parsedTestParameters = JSON.parse(res[0].RnDLabTest);
-                    let labPersonnelData = this.parsedTestParameters.TestParameters.filter(x => userRnDSections.map(y => y.RnDSection).includes(x.Title.RnDSection))
-
-                    this.requestInfo = {
-                      uId: this.uId,
-                      readMode: this.readMode,
-                      Status: res[0].Status,
-                      RnDLabTest: labPersonnelData
-                    };
-                    this.Status = res[0].Status;
-                  }
-                }
-                else if (this.parsedRequestInfo.Status == 'Reported' || this.Status == 'Completed') {
-
-                  this.requestInfo = this.parsedRequestInfo;
-
-
-                  this.Status = this.parsedRequestInfo.Status;
-                  //console.log('PartiallySubmitted');
-                }
-              // } else {
-              //   alert("Unaothorized access: this application is neither applied by you nor pending with you!!");
-              //   setTimeout(function () {                  
-              //     window.location.href = "https://portal.bergerbd.com/leaveauto/SitePages/MyWFRequest.aspx";
-              //     //window.location.href = this.webAbsoluteUrl + "/SitePages/MyWFRequest.aspx";
-              //   }, 4000);
-              // }
-
-            }
-
-          },
-          (err) => {
-            console.log(err)
-          },
-        );
-      });
-    } else {
-      this.sharepointlistService.getSPLoggedInUser().then((res) => {
-        this.logedUserAdId = res;
-        this.requestInfo = {
-          uId: "",
-          readMode: "",
-          Status: "",
-          logedUserAdId: this.logedUserAdId,
-          //GridInfo: 
-        };
-      });
-    }
   }
 
-  executeAfterViewInit(){
-    this.allApprovers = 
+  async executeAfterViewInit(){
+
+    let _approvers = await this._getAllApprovers();
+
+    if(_approvers.value.length >0){
+      this.allApprovers = 
       {
-        headITInfraName: "Shoab Mahmood Al Naoshad",
-        headITInfraEmail: "shoaib@bergerbd.com",
-        headITInfraAdId: 21,
-        headITInfraEmpId: "",
-        headIAssetName: "Mahbubur Rahman",
-        headAssetEmail: "mrahman@bergerbd.com",
-        headAssetAdId: 129,
-        headAssetEmpId: ""
+        headITInfraName: _approvers.value[0].BusDevLeadName,
+        headITInfraEmail: _approvers.value[0].BusDevLeadEmail,
+        headERPName: _approvers.value[0].SAPProgLeadName,
+        headERPEmail: _approvers.value[0].SAPProgLeadEmail,
+        gmITName: _approvers.value[0].COOName,
+        gmITEmail: _approvers.value[0].COOEmail,
       }
+    }else{
+      alert("Approver Info not found !");
+      return false;
+    }
+
   }
 
   ngAfterViewInit() { 
-    this.executeAfterViewInit();
+    //this.executeAfterViewInit();
   }
 
 
@@ -298,13 +295,59 @@ export class SupporthomeComponent implements OnInit {
   // }
   // //------------ working with screen size ends --------------------------
 
-  GetOutputVal(valFrmChild: any) {
-    if (this.uId == "") {
-      this.createReqInfoFrmChild = valFrmChild;
-    }
-    else {
-      this.emitedDataFrmChild = valFrmChild;
-    }
+  getBtnClickAction(valFrmChild: any) {
+    // if (this.uId == "") {
+
+    //   this.parsedRequestInfo.AppParameters.Requestor = valFrmChild.AppParameters.Requestor;
+    //   this.parsedRequestInfo.AppParameters.ProblemDescription = valFrmChild.AppParameters.ProblemDescription;
+    //   this.parsedRequestInfo.AppParameters.PriorityInfo = valFrmChild.AppParameters.PriorityInfo;
+    //   this.parsedRequestInfo.AppParameters.SystemDetail = valFrmChild.AppParameters.SystemDetail;
+    //   this.parsedRequestInfo.AppParameters.Attachments = valFrmChild.AppParameters.Attachments;
+    //   //this.parsedRequestInfo.AppParameters.Action = action;
+
+    //   this.allApprovers = 
+    //   {
+    //     // headITInfraName: "Shoab Mahmood Al Naoshad",
+    //     // headITInfraEmail: "shoaib@bergerbd.com",
+    //     // headITInfraAdId: 21,
+    //     // headERPName: "Md Razibur Rahman",
+    //     // headERPEmail: "razib@bergerbd.com",
+    //     // gmITName: "Mohammad Abu Nader Al Mokaddes",
+    //     // gmITEmail: "nader@bergerbd.com",
+
+    //     headITInfraName: "Kamal Infra",
+    //     headITInfraEmail: "kamal@bergerbd.com",
+    //     headITInfraAdId: 1026,
+    //     headERPName: "Kamal ERP",
+    //     headERPEmail: "kamal@bergerbd.com",
+    //     gmITName: "Kamal GM",
+    //     gmITEmail: "kamal@bergerbd.com",
+    //   }
+
+    // }
+    // else {
+    //   this.emitedDataFrmChild = valFrmChild;
+
+    //   this.allApprovers = 
+    //   {
+    //     // headITInfraName: "Shoab Mahmood Al Naoshad",
+    //     // headITInfraEmail: "shoaib@bergerbd.com",
+    //     // headITInfraAdId: 21,
+    //     // headERPName: "Md Razibur Rahman",
+    //     // headERPEmail: "razib@bergerbd.com",
+    //     // gmITName: "Mohammad Abu Nader Al Mokaddes",
+    //     // gmITEmail: "nader@bergerbd.com",
+
+    //     headITInfraName: "Kamal Infra",
+    //     headITInfraEmail: "kamal@bergerbd.com",
+    //     headITInfraAdId: 1026,
+    //     headERPName: "Kamal ERP",
+    //     headERPEmail: "kamal@bergerbd.com",
+    //     gmITName: "Kamal GM",
+    //     gmITEmail: "kamal@bergerbd.com",
+    //   }
+      
+    // }
 
   }
 
@@ -318,35 +361,200 @@ export class SupporthomeComponent implements OnInit {
 
   }
 
-  createNotification(templet?:any, to?:any, requestor?:any, pending?:any, title?:any, status?:any) {
+  createNotification(templet:any) {
     if (this.uId != "") {
-      this.reviewLink = 'https://portal.bergerbd.com/leaveauto/SitePages/CapexBudget.aspx?UniqueId=' + this.uId + "&mode=read";
-      this.approvalLink = 'https://portal.bergerbd.com/leaveauto/SitePages/CapexBudget.aspx?UniqueId=' + this.uId;
-      //this.reviewLink = this.webAbsoluteUrl + '/SitePages/SampleTest.aspx?UniqueId=' + this.uId + "&mode=read";
-      //this.approvalLink = this.webAbsoluteUrl + '/SitePages/SampleTest.aspx?UniqueId=' + this.uId;
+      this.reviewLink = this.webAbsoluteUrl + '/support?guid=' + this.uId + "&mode=read";
+      this.approvalLink = this.webAbsoluteUrl + '/support?guid=' + this.uId;
     }
 
     let emailFldData;
 
-    switch (templet) {
+    switch (templet.item.Templet) {
       case "Notification": {
         emailFldData = {
           Status: "Submitted",
-          ToId: { results: [to] },
-          CCId: { results: [] },
+          To: templet.item.Notifiers.approversEmail,
           ReviewLink: "",
           ApprovalLink: "",
-          Title: "Request for 'Capex Budget' workflow with ref# " + title + " has been initiated",
+          Subject: "Request for 'Support Request' workflow with ref# " + templet.item.Title + " has been initiated",
           __metadata: {
             "type": "SP.Data.NotificationListListItem"
           },
           Body: `
             <div style="padding-top:0px; margin-top: 0px; font-family: verdana; color: #030e81; font-size: 12px;">              
-              <p><b>Dear Mr./Ms. ${requestor},</b><br/>
-                Request for &quot;Capex Budget&quot; workflow has been initiated. Any review or update will be available in the requestor&#39;s My Process of Berger Portal.<br/>
-                <b>Request ID/Ref:&#160; ${title},</b><br/>
-                Status: ${status},<br/>
-                Pending with: Lab respectives,
+              <p><b>Dear Mr./Mrs. ${templet.item.Notifiers.approversName},</b><br/></p>
+              <p>Request for &quot;Support Request&quot; workflow has been initiated. Any review or update will be available in the requestor&#39;s My Process of Berger Tech Portal.</p>
+              
+              <p><b>Request ID/Ref:&#160; ${templet.item.Title},</b></p>
+              
+              <p>Status: ${templet.item.Status},</p>
+              
+              <p>Review Link : <a href="${templet.item.ReviewLink}">Review Link </a></p>
+              
+              <div style="font-family: verdana; color: #030e81; font-size: 12px;">
+                <p><b>Thanks & Regards,</b><br/>Berger Tech Consulting Limited,<br/>Email: info@bergertechbd.com<br/>
+                [This is a System Generated Email from Berger Tech Portal and no reply is required.]
+                </p>                          
+              </div>
+                            
+            </div>
+          `,
+          BodyBottomText:
+            `<div style="font-family: verdana; color: #030e81; font-size: 12px;">
+            <p><b>Thanks & Regards,</b><br/>Berger Tech Consulting Limited,<br/>Email: info@bergertechbd.com<br/>
+            [This is a System Generated Email from Berger Tech Portal and no reply is required.]
+            </p>                          
+          </div>`,
+        }
+        break;
+      }
+      case "Assigned": {
+        emailFldData = {
+          To: templet.item.Notifiers.approversEmail,
+          ReviewLink: this.reviewLink,
+          ApprovalLink: this.approvalLink,
+          Status: "Assigned",
+          Subject: "Request for 'Support request' workflow with ref# " + templet.item.Title + " is being assigned to you.",
+          __metadata: {
+            "type": "SP.Data.NotificationListListItem"
+          },
+          BodyBottomText:
+            `<div style="font-family: verdana; color: #030e81; font-size: 12px;">
+            <p><b>Thanks & Regards,</b><br/>IT Department,<br/>Berger Tech Consulting Limited,<br/>Email: info@bergertechbd.com<br/>
+            [This is a System Generated Email from Berger Portal and no reply is required.]
+            </p>                          
+          </div>`,
+          Body: `
+            <div style="padding-top:0px; margin-top: 0px; font-family: verdana; color: #030e81; font-size: 12px;">              
+              <p><b>Dear Concern,</b><br/></p>
+              <p>  Request for &quot;Support Request&quot; workflow is being assigned to you. Please process to continue either from Pending Approval of Berger Tech Portal or from the process link below.<br/>
+                <b>Request ID/Ref:&#160; ${templet.item.Title},</b><br/>
+                Status: ${templet.item.Status},<br/>
+                
+              </p>
+              <p>Process Link : <a href="${templet.item.ProcessLink}">Process Link </a></p>              
+            </div>
+
+            <div style="font-family: verdana; color: #030e81; font-size: 12px;">
+              <p><b>Thanks & Regards,</b><br/>Berger Tech Consulting Limited,<br/>Email: info@bergertechbd.com<br/>
+              [This is a System Generated Email from Berger Tech Portal and no reply is required.]
+              </p>                          
+            </div>
+          `,
+        }
+        break;
+      }
+      case "ReAssigned": {
+        emailFldData = {
+          To: templet.item.Notifiers.approversEmail,
+          ReviewLink: this.reviewLink,
+          ApprovalLink: this.approvalLink,
+          Status: "ReAssigned",
+          Subject: "Request for 'Support request' workflow with ref# " + templet.item.Title + " is being re-assigned to you.",
+          __metadata: {
+            "type": "SP.Data.NotificationListListItem"
+          },
+          BodyBottomText:
+            `<div style="font-family: verdana; color: #030e81; font-size: 12px;">
+            <p><b>Thanks & Regards,</b><br/>IT Department,<br/>Berger Tech Consulting Limited,<br/>Email: info@bergertechbd.com<br/>
+            [This is a System Generated Email from Berger Portal and no reply is required.]
+            </p>                          
+          </div>`,
+          Body: `
+            <div style="padding-top:0px; margin-top: 0px; font-family: verdana; color: #030e81; font-size: 12px;">              
+              <p><b>Dear Concern,</b><br/>
+                Request for &quot;Support Request&quot; workflow is being re-assigned to you. <br/>
+                Requestors UAT observation can be found in Comments field of <b>Process Log</b> section. <br/>
+                Please process to continue either from Pending Approval of Berger Tech Portal or from the process link below.<br/>
+                <b>Request ID/Ref:&#160; ${templet.item.Title},</b><br/>
+                Status: ${templet.item.Status},<br/>
+              </p>              
+            </div>
+          `,
+        }
+        break;
+      }
+      case "TaskPickedUp": {
+        emailFldData = {
+          To: templet.item.Notifiers.approversEmail,
+          ReviewLink: this.reviewLink,
+          ApprovalLink: this.approvalLink,
+          Status: "TaskPickedUp",
+          Subject: "Request for 'Support request' workflow with ref# " + templet.item.Title + " is being TaskPickedUp.",
+          __metadata: {
+            "type": "SP.Data.NotificationListListItem"
+          },
+          BodyBottomText:
+            `<div style="font-family: verdana; color: #030e81; font-size: 12px;">
+            <p><b>Thanks & Regards,</b><br/>IT Department,<br/>Berger Tech Consulting Limited,<br/>Email: info@bergertechbd.com<br/>
+            [This is a System Generated Email from Berger Portal and no reply is required.]
+            </p>                          
+          </div>`,
+          Body: `
+            <div style="padding-top:0px; margin-top: 0px; font-family: verdana; color: #030e81; font-size: 12px;">              
+              <p><b>Dear Concern,</b><br/>
+                Request for &quot;Support Request&quot; workflow is being picked up. Please process to continue either from Pending Approval of Berger Tech Portal or from the process link below.<br/>
+                <b>Request ID/Ref:&#160; ${templet.item.Title},</b><br/>
+                Status: ${templet.item.Status},<br/>
+              </p>              
+            </div>
+          `,
+        }
+        break;
+      }
+      case "Submitted": {
+        emailFldData = {
+          To: templet.item.Notifiers.approversEmail,
+          ReviewLink: this.reviewLink,
+          ApprovalLink: this.approvalLink,
+          Status: "Submitted",
+          Subject: "Request for 'Support Request' workflow with ref# " + templet.item.Title + " is being submitted to you.",
+          __metadata: {
+            "type": "SP.Data.NotificationListListItem"
+          },
+          BodyBottomText:
+            `<div style="font-family: verdana; color: #030e81; font-size: 12px;">
+            <p><b>Thanks & Regards,</b><br/>IT Department,<br/>Berger Tech Consulting Limited,<br/>Email: info@bergertechbd.com<br/>
+            [This is a System Generated Email from Berger Portal and no reply is required.]
+            </p>                          
+          </div>`,
+          Body: `
+            <div style="padding-top:0px; margin-top: 0px; font-family: verdana; color: #030e81; font-size: 12px;">              
+              <p><b>Dear Mr./Mrs. ${templet.item.Notifiers.approversName},</b><br/></p>
+              <p> Request for &quot;Support Request&quot; workflow is being submitted to you. Please process to continue either from Pending Approval of Berger Tech Portal or from the process link below.</p>
+              <br/>
+              <b>Request ID/Ref:&#160; ${templet.item.Title},</b><br/>
+                Status: ${templet.item.Status},<br/>
+                
+              </p> 
+              <p>Process Link : <a href="${templet.item.ProcessLink}">Process Link </a></p>                           
+            </div>
+
+            <div style="font-family: verdana; color: #030e81; font-size: 12px;">
+              <p><b>Thanks & Regards,</b><br/>Berger Tech Consulting Limited,<br/>Email: info@bergertechbd.com<br/>
+              [This is a System Generated Email from Berger Tech Portal and no reply is required.]
+              </p>                          
+            </div>
+          `,
+        }
+        break;
+      }
+      case "AssignedNotification": {
+        emailFldData = {
+          Status: "Assigned",
+          To: templet.item.Notifiers.approversEmail,
+          ReviewLink: this.reviewLink,
+          ApprovalLink: this.approvalLink,
+          Subject: "Request for 'Support Request' workflow with ref# " + templet.item.Title + " has been assigned",
+          __metadata: {
+            "type": "SP.Data.NotificationListListItem"
+          },
+          Body: `
+            <div style="padding-top:0px; margin-top: 0px; font-family: verdana; color: #030e81; font-size: 12px;">              
+              <p><b>Dear Mr./Mrs. ${templet.item.Notifiers.approversName},</b><br/>
+                Request for &quot;Support Request&quot; workflow has been assigned. Any review or update will be available in the requestor&#39;s My Process of Berger Tech Portal.<br/>
+                <b>Request ID/Ref:&#160; ${templet.item.Title},</b><br/>
+                Status: ${templet.item.Status},<br/>
               </p>              
             </div>
           `,
@@ -359,14 +567,100 @@ export class SupporthomeComponent implements OnInit {
         }
         break;
       }
-      case "Approval": {
+      case "TaskPickedUpNotification": {
         emailFldData = {
-          ToId: { results: [to] },
-          CCId: { results: [] },
+          Status: "TaskPickedUp",
+          To: templet.item.Notifiers.approversEmail,
           ReviewLink: this.reviewLink,
           ApprovalLink: this.approvalLink,
-          Status: "Submitted",
-          Title: "Request for 'Capex Budget' workflow with ref# " + title + " is waiting for your approval",
+          Subject: "Request for 'Support Request' workflow with ref# " + templet.item.Title + " has been picked up",
+          __metadata: {
+            "type": "SP.Data.NotificationListListItem"
+          },
+          Body: `
+            <div style="padding-top:0px; margin-top: 0px; font-family: verdana; color: #030e81; font-size: 12px;">              
+              <p><b>Dear Mr./Mrs. ${templet.item.Notifiers.approversName},</b><br/>
+                Request for &quot;Support Request&quot; workflow has been picked up. Any review or update will be available in the requestor&#39;s My Process of Berger Tech Portal.<br/>
+                <b>Request ID/Ref:&#160; ${templet.item.Title},</b><br/>
+                Status: ${templet.item.Status},<br/>
+                Pending with: Task respectives,
+              </p>              
+            </div>
+          `,
+          BodyBottomText:
+            `<div style="font-family: verdana; color: #030e81; font-size: 12px;">
+            <p><b>Thanks & Regards,</b><br/>Research & Development Center,<br/>Berger Paints Bangladesh Limited,<br/>Email: info@bergerbd.com<br/>
+            [This is a System Generated Email from Berger Portal and no reply is required.]
+            </p>                          
+          </div>`,
+        }
+        break;
+      }
+      case "ReadyforUATNotification": { 
+        emailFldData = {
+          Status: "ReadyforUAT",
+          To: templet.item.Notifiers.approversEmail,
+          ReviewLink: this.reviewLink,
+          ApprovalLink: this.approvalLink,
+          Subject: "Request for 'Support Request' workflow with ref# " + templet.item.Title + " has been ready for UAT",
+          __metadata: {
+            "type": "SP.Data.NotificationListListItem"
+          },
+          Body: `
+            <div style="padding-top:0px; margin-top: 0px; font-family: verdana; color: #030e81; font-size: 12px;">              
+              <p><b>Dear Mr./Mrs. ${templet.item.Notifiers.approversName},</b><br/>
+                Request for &quot;Support Request&quot; workflow is ready for UAT. Any review or update will be available in the requestor&#39;s My Process of Berger Tech Portal.<br/>
+                <b>Request ID/Ref:&#160; ${templet.item.Title},</b><br/>
+                Status: ${templet.item.Status},<br/>
+                Pending with: Task Reporter,
+              </p>              
+            </div>
+          `,
+          BodyBottomText:
+            `<div style="font-family: verdana; color: #030e81; font-size: 12px;">
+            <p><b>Thanks & Regards,</b><br/>Research & Development Center,<br/>Berger Paints Bangladesh Limited,<br/>Email: info@bergerbd.com<br/>
+            [This is a System Generated Email from Berger Portal and no reply is required.]
+            </p>                          
+          </div>`,
+        }
+        break;
+      }
+      case "UATRequestNotification": { 
+        emailFldData = {
+          Status: "UATRequest",
+          To: templet.item.Notifiers.approversEmail,
+          ReviewLink: this.reviewLink,
+          ApprovalLink: this.approvalLink,
+          Subject: "Request for 'Support Request' workflow with ref# " + templet.item.Title + " has been ready for UAT",
+          __metadata: {
+            "type": "SP.Data.NotificationListListItem"
+          },
+          Body: `
+            <div style="padding-top:0px; margin-top: 0px; font-family: verdana; color: #030e81; font-size: 12px;">              
+              <p><b>Dear Mr./Mrs. ${templet.item.Notifiers.approversName},</b><br/>
+                Request for &quot;Support Request&quot; workflow is ready for UAT. Any review or update will be available in the requestor&#39;s My Process of Berger Tech Portal.<br/>
+                <b>Request ID/Ref:&#160; ${templet.item.Title},</b><br/>
+                Status: ${templet.item.Status},<br/>
+                Pending with: ${templet.item.Notifiers.approversName},
+              </p>              
+            </div>
+          `,
+          BodyBottomText:
+            `<div style="font-family: verdana; color: #030e81; font-size: 12px;">
+            <p><b>Thanks & Regards,</b><br/>Research & Development Center,<br/>Berger Paints Bangladesh Limited,<br/>Email: info@bergerbd.com<br/>
+            [This is a System Generated Email from Berger Portal and no reply is required.]
+            </p>                          
+          </div>`,
+        }
+        break;
+      }
+      case "Approval": { 
+        emailFldData = {
+          To: templet.item.Notifiers.approversEmail,
+          ReviewLink: this.reviewLink,
+          ApprovalLink: this.approvalLink,
+          Status: "Assigned",
+          Subject: "Request for 'Support Request' workflow with ref# " + templet.item.Title + " is waiting for your approval",
           __metadata: {
             "type": "SP.Data.NotificationListListItem"
           },
@@ -378,11 +672,91 @@ export class SupporthomeComponent implements OnInit {
           </div>`,
           Body: `
             <div style="padding-top:0px; margin-top: 0px; font-family: verdana; color: #030e81; font-size: 12px;">              
-              <p><b>Dear Concern,</b><br/>
-                Request for &quot;Capex Budget&quot; workflow is waiting for your approval. Please process to continue either from Pending Approval of Berger Portal or from the process link below.<br/>
-                <b>Request ID/Ref:&#160; ${title},</b><br/>
-                Status: ${status},<br/>
+              <p><b>Dear Concern,</b><br/></p>
+              <p>  Request for &quot;Support Request&quot; workflow is waiting for your approval. Please process to continue either from Pending Approval of Berger Portal or from the process link below.<br/>
+                <b>Request ID/Ref:&#160; ${templet.item.Title},</b><br/>
+                Status: ${templet.item.Status},<br/>
+              </p> 
+              <p>Process Link : <a href="${templet.item.ProcessLink}">Process Link </a></p>                                        
+            </div>
+
+            <div style="font-family: verdana; color: #030e81; font-size: 12px;">
+              <p><b>Thanks & Regards,</b><br/>IT Department,<br/>Berger Paints Bangladesh Limited,<br/>Email: info@bergerbd.com<br/>
+              [This is a System Generated Email from Berger Portal and no reply is required.]
+              </p>                          
+            </div>
+          `,
+        }
+        break;
+      }
+      case "ReadyforUAT": { 
+        emailFldData = {
+          To: templet.item.Notifiers.approversEmail,
+          ReviewLink: this.reviewLink,
+          ApprovalLink: this.approvalLink,
+          Status: "ReadyforUAT",
+          Subject: "Request for 'Support Request' workflow with ref# " + templet.item.Title + " is ready for UAT",
+          __metadata: {
+            "type": "SP.Data.NotificationListListItem"
+          },
+          BodyBottomText:
+            `<div style="font-family: verdana; color: #030e81; font-size: 12px;">
+            <p><b>Thanks & Regards,</b><br/>IT Department,<br/>Berger Paints Bangladesh Limited,<br/>Email: info@bergerbd.com<br/>
+            [This is a System Generated Email from Berger Portal and no reply is required.]
+            </p>                          
+          </div>`,
+          Body: `
+            <div style="padding-top:0px; margin-top: 0px; font-family: verdana; color: #030e81; font-size: 12px;">              
+              <p><b>Dear Concern,</b><br/></p>
+              <p>  Request for &quot;Support Request&quot; workflow is ready for UAT. <br/>                
+                Please process to continue either from Pending Approval of Berger Portal or from the process link below or let us know for any assistance.<br/>
+                Looking forward for your kind UAT feedback. <br/>
+                <b>Request ID/Ref:&#160; ${templet.item.Title},</b><br/>
+                Status: ${templet.item.Status},<br/>
               </p>              
+            </div>
+
+            <div style="font-family: verdana; color: #030e81; font-size: 12px;">
+              <p><b>Thanks & Regards,</b><br/>IT Department,<br/>Berger Paints Bangladesh Limited,<br/>Email: info@bergerbd.com<br/>
+              [This is a System Generated Email from Berger Portal and no reply is required.]
+              </p>                          
+            </div>
+          `,
+        }
+        break;
+      }
+      case "UATRequestApvr": { 
+        emailFldData = {
+          To: templet.item.Notifiers.approversEmail,
+          ReviewLink: this.reviewLink,
+          ApprovalLink: this.approvalLink,
+          Status: "UATRequest",
+          Subject: "Request for 'Support Request' workflow with ref# " + templet.item.Title + " is ready for UAT",
+          __metadata: {
+            "type": "SP.Data.NotificationListListItem"
+          },
+          BodyBottomText:
+            `<div style="font-family: verdana; color: #030e81; font-size: 12px;">
+            <p><b>Thanks & Regards,</b><br/>IT Department,<br/>Berger Paints Bangladesh Limited,<br/>Email: info@bergerbd.com<br/>
+            [This is a System Generated Email from Berger Portal and no reply is required.]
+            </p>                          
+          </div>`,
+          Body: `
+            <div style="padding-top:0px; margin-top: 0px; font-family: verdana; color: #030e81; font-size: 12px;">              
+              <p><b>Dear Mr./Mrs.${templet.item.Notifiers.approversName},</b><br/></p>
+              <p>  Request for &quot;Support Request&quot; workflow is ready for UAT. <br/>                
+                Please process to continue either from Pending Approval of Berger Tech Portal or from the process link below or let us know for any assistance.<br/>
+                Looking forward for your kind UAT feedback. <br/>
+                <b>Request ID/Ref:&#160; ${templet.item.Title},</b><br/>
+                Status: ${templet.item.Status},<br/>
+              </p> 
+              <p>Process Link : <a href="${templet.item.ProcessLink}">Process Link </a></p>                                                     
+            </div>
+
+            <div style="font-family: verdana; color: #030e81; font-size: 12px;">
+              <p><b>Thanks & Regards,</b><br/>IT Department,<br/>Berger Paints Bangladesh Limited,<br/>Email: info@bergerbd.com<br/>
+              [This is a System Generated Email from Berger Portal and no reply is required.]
+              </p>                          
             </div>
           `,
         }
@@ -390,12 +764,11 @@ export class SupporthomeComponent implements OnInit {
       }
       case "PickedUp": {
         emailFldData = {
-          ToId: { results: [to] },
-          CCId: { results: [] },
+          To: templet.item.Notifiers.approversEmail,
           ReviewLink: "",
           ApprovalLink: "",
           Status: "Submitted",
-          Title: "Acknowledgement of Sample received for 'Capex Budget' workflow with ref# " + title + ".",
+          Subject: "Acknowledgement of Request received for 'Support Request' workflow with ref# " + templet.item.Title + ".",
           __metadata: {
             "type": "SP.Data.NotificationListListItem"
           },
@@ -408,9 +781,9 @@ export class SupporthomeComponent implements OnInit {
           Body: `
             <div style="padding-top:0px; margin-top: 0px; font-family: verdana; color: #030e81; font-size: 12px;">              
               <p><b>Dear Concern,</b><br/>
-                Sample has been received for &quot;Capex Budget&quot; workflow and is being picked up by respective lab personnel for testing.<br/>
-                <b>Request ID/Ref:&#160; ${title},</b><br/>
-                Status: "Sample Received",<br/>
+              Request has been picked for &quot;Support Request&quot; workflow and is being picked up by respective lab personnel for testing.<br/>
+                <b>Request ID/Ref:&#160; ${templet.item.Title},</b><br/>
+                Status: "Request Picked",<br/>
               </p>              
             </div>
           `,
@@ -422,13 +795,8 @@ export class SupporthomeComponent implements OnInit {
           __metadata: {
             "type": "SP.Data.NotificationListListItem"
           },
-          Title: "Request for 'Capex Budget' workflow with ref# " + title + " has been processed",
-          ToId: {
-            results: [to]
-          },
-          CCId: {
-            results: []
-          },          
+          Subject: "Request for 'Support Request' workflow with ref# " + templet.item.Title + " has been processed",
+          To: templet.item.Notifiers.approversEmail,
           ReviewLink: this.reviewLink,
           ApprovalLink: this.approvalLink,
           Status: "Completed",
@@ -440,12 +808,18 @@ export class SupporthomeComponent implements OnInit {
           </div>`,
           Body: `
             <div style="padding-top:0px; margin-top: 0px; font-family: verdana; color: #030e81; font-size: 12px;">              
-              <p><b>Dear Concern,</b><br/>
-                Request for &quot;Capex Budget&quot; workflow has been processed. It can be viewed either from My Process of Berger Portal or from the review link below.<br/>
-                <b>Request ID/Ref:&#160; ${title},</b><br/>
+              <p><b>Dear Concern,</b><br/></p>
+              <p>  Request for &quot;Support Request&quot; workflow has been processed. It can be viewed either from My Process of Berger Portal or from the review link below.<br/>
+                <b>Request ID/Ref:&#160; ${templet.item.Title},</b><br/>
                 Status: "Report Released",
               </p>
-              <p>For Customer Feedback: <a href="https://portal.bergerbd.com/leaveauto/SitePages/CapexBudget.aspx/?UniqueId=${this.uId}&mode=feedback"><b>click here</b></a></p>                            
+              
+            </div>
+
+            <div style="font-family: verdana; color: #030e81; font-size: 12px;">
+              <p><b>Thanks & Regards,</b><br/>IT Department,<br/>Berger Paints Bangladesh Limited,<br/>Email: info@bergerbd.com<br/>
+              [This is a System Generated Email from Berger Portal and no reply is required.]
+              </p>                          
             </div>
           `,
         }
@@ -456,13 +830,8 @@ export class SupporthomeComponent implements OnInit {
           __metadata: {
             "type": "SP.Data.NotificationListListItem"
           },
-          Title: "Request for 'Capex Budget' workflow with ref# " + title + " has been processed",
-          ToId: {
-            results: [to]
-          },
-          CCId: {
-            results: []
-          },          
+          Subject: "Request for 'Support Request' workflow with ref# " + templet.item.Title + " has been processed",
+          To: templet.item.Notifiers.approversEmail,      
           ReviewLink: this.reviewLink,
           ApprovalLink: this.approvalLink,
           Status: "FeedbackSubmitted",
@@ -475,11 +844,40 @@ export class SupporthomeComponent implements OnInit {
           Body: `
             <div style="padding-top:0px; margin-top: 0px; font-family: verdana; color: #030e81; font-size: 12px;">              
               <p><b>Dear Concern,</b><br/>
-                Customer feedback of &quot;Capex Budget&quot; WF has been submitted. It can be viewed from admin dashboard Feedback link.<br/>
-                <b>Request ID/Ref:&#160; ${title},</b><br/>
+                Customer feedback of &quot;Support Request&quot; WF has been submitted. It can be viewed from admin dashboard Feedback link.<br/>
+                <b>Request ID/Ref:&#160; ${templet.item.Title},</b><br/>
                 Status: "Feedback Submitted",<br/>
               </p>
-              <p>For Customer Feedback: <a href="https://portal.bergerbd.com/leaveauto/SitePages/CapexBudget.aspx/?UniqueId=${this.uId}&mode=feedback"><b>click here</b></a></p>              
+              
+            </div>
+          `,
+        }
+        break;
+      }
+      case "UATFeedbackFrmCustomer": {
+        emailFldData = {
+          __metadata: {
+            "type": "SP.Data.NotificationListListItem"
+          },
+          Subject: "UAT for 'Support Request' workflow with ref# " + templet.item.Title + " is being completed.",
+          To: templet.item.Notifiers.approversEmail,      
+          ReviewLink: this.reviewLink,
+          ApprovalLink: this.approvalLink,
+          Status: "UATFeedbackFrmCustomer",
+          BodyBottomText:
+            `<div style="font-family: verdana; color: #030e81; font-size: 12px;">
+            <p><b>Thanks & Regards,</b><br/>IT Department,<br/>Berger Paints Bangladesh Limited,<br/>Email: info@bergerbd.com<br/>
+            [This is a System Generated Email from Berger Portal and no reply is required.]
+            </p>                          
+          </div>`,
+          Body: `
+            <div style="padding-top:0px; margin-top: 0px; font-family: verdana; color: #030e81; font-size: 12px;">              
+              <p><b>Dear Concern,</b><br/>
+                Customer UAT feedback of &quot;Support Request&quot; WF has been submitted.<br/>
+                <b>Request ID/Ref:&#160; ${templet.item.Title},</b><br/>
+                Status: "UAT Feedback Submitted",<br/>
+              </p>
+              
             </div>
           `,
         }
@@ -488,21 +886,19 @@ export class SupporthomeComponent implements OnInit {
       case "OpmNotification": {
         emailFldData = {
           Status: "Submitted",
-          ToId: { results: [to] },
-          CCId: { results: [] },
+          To: templet.item.Notifiers.approversEmail,
           ReviewLink: "",
           ApprovalLink: "",
-          Title: "Request for 'Capex Budget' workflow with ref# " + title + " has been initiated",
+          Subject: "Request for 'Support Request' workflow with ref# " + templet.item.Title + " has been initiated",
           __metadata: {
             "type": "SP.Data.NotificationListListItem"
           },
           Body: `
             <div style="padding-top:0px; margin-top: 0px; font-family: verdana; color: #030e81; font-size: 12px;">              
               <p><b>Dear Concern,</b><br/>
-                Request for &quot;Capex Budget&quot; workflow has been initiated to your team. Lab respectives can find it in their Pending Approval option of SharePoint Portal or from provided link in their email and can Pick up to process this task.<br/>
-                <b>Request ID/Ref:&#160; ${title},</b><br/>
-                Status: ${status},<br/>
-                Pending with: Lab respectives,
+                Request for &quot;Support Request&quot; workflow has been initiated to your team.<br/>
+                <b>Request ID/Ref:&#160; ${templet.item.Title},</b><br/>
+                Status: ${templet.item.Status},<br/>
               </p>              
             </div>
           `,
@@ -526,88 +922,646 @@ export class SupporthomeComponent implements OnInit {
       item: emailFldData
     };
 
-    this.sharepointlistService.saveListItem(notificationlListInfo)
+    return new Promise((resolve:any, reject:any)=>{
+      this.sharepointlistService.saveListItem(notificationlListInfo)
       .then(
         (res:any) => {
-          console.log('res');
+          if(res.ID != ""){
+            resolve(res);
+            return res;
+          }else{
+            reject();
+          }
         })
+    })
+
+    
   }
 
-  async saveInNotificationList(title?: string, comments?: string) {
-    if (this.uId == "") {
-      let req = this.pendingApprovalListInfo.item;
-      //==========sending notification ===
-      this.createNotification("Notification", this.logedUserAdId, req.RequestedByName, "", req.Title, req.Status);
+  async saveInNotificationList(notificationInfo:any, title?: string, comments?: string) {
+    return await new Promise((resolve:any, reject:any)=>{
 
-      //approvers.push(this.allApprovers.headITInfraAdId);
+      try{
 
-      
-      // this.approvers.forEach(apvr => {
-      //   this.createNotification("Approval", apvr, req.RequestedByName, "", req.Title, req.Status);
-      // });
+        if (this.uId == "") {
 
+          if(notificationInfo.item.Approvers.length >0 ){
+            (notificationInfo.item.Approvers).forEach((apvr:any, index:number) => {
+              let notInfo = {
+                name: notificationInfo.name,
+                item: {
+                  Templet: "Submitted",
+                  Notifiers: apvr,
+                  Requestor: notificationInfo.item.Requestor, 
+                  Title: notificationInfo.item.Title, 
+                  Status: notificationInfo.item.Status,
+                  ProcessLink: notificationInfo.item.ProcessLink,
+                  ReviewLink: notificationInfo.item.ReviewLink 
+                }
+              };
+  
+              this.createNotification(notInfo).then((res:any)=>{
+                if(Object.prototype.hasOwnProperty.call(res, 'ID')){
+                  resolve(res);
+                  return res;
+                }else{
+                  reject('Failed');
+                  return 'Failed';
+                }
+              });
+  
+            });
+          }else{
+            resolve();
+          }
 
-
-      
-
-      //this.createNotification("Notification", this.logedUserAdId, "Mostafa Kamal", "Mostafa Kamal", "Mostafa Kamal", "Mostafa Kamal");
-      
-      setTimeout(function () {
-        let rpage = 'https://portal.bergerbd.com/leaveauto/SitePages/MyWFRequest.aspx';
-        //let rpage = this.webAbsoluteUrl + '/SitePages/MyWFRequest.aspx';
-        console.log('Redirect page url');
-        console.log(rpage);
-        window.location.href = "https://portal.bergerbd.com/PortalResources/Home.aspx";
-        //window.location.href = this.webAbsoluteUrl + "/SitePages/MyWFRequest.aspx";
-      }, 4000);
-    } else {
-      let req = this.pendingApprovalListInfo.item;
-      switch (this.childBtnClickAction) {
-        case "PickedUp": {
-          this.createNotification("PickedUp", this.parsedRequestInfo.RequestorAdId, this.parsedRequestInfo.RnDLabTest.Requestor.EmployeeName, "Lab personnel", this.parsedRequestInfo.Title, "PickedUp");
-
-          setTimeout(function () {
-            window.location.href = 'https://portal.bergerbd.com/_layouts/15/PendingApproval/PendingApproval.aspx';
-            //window.location.href = this.webAbsoluteUrl + '/SitePages/MyWFRequest.aspx';
-          }, 4000);
-
-          break;
-        }
-        // case "ResultSubmit": {
-        //   this.reportReleaseGrp.forEach(rRGrp => {
-        //     this.createNotification("Approval", rRGrp.AdId, this.parsedRequestInfo.RnDLabTest.Requestor.EmployeeName, "Report Release Group", this.parsedRequestInfo.Title, "Result Submited");
-        //   });
-          
-
-        //   setTimeout(function () {
-        //     window.location.href = 'https://portal.bergerbd.com/_layouts/15/PendingApproval/PendingApproval.aspx';
+         if(notificationInfo.item.Notifiers.length >0 ){
+          (notificationInfo.item.Notifiers).forEach((n:any) => {
+            let notInfo = {
+              name: notificationInfo.name,
+              item: {
+                Templet: "Notification",
+                Notifiers: n,
+                Requestor: notificationInfo.item.Requestor, 
+                Title: notificationInfo.item.Title, 
+                Status: notificationInfo.item.Status,
+                ProcessLink: notificationInfo.item.ProcessLink,
+                ReviewLink: notificationInfo.item.ReviewLink 
+              }
+            };
             
-        //   }, 4000);
+            this.createNotification(notInfo).then((res:any)=>{
+              if(Object.prototype.hasOwnProperty.call(res, 'ID')){
+                resolve(res);
+                return res;
+              }else{
+                reject('Failed');
+                return 'Failed';
+              }
+            });
+            
+          });
+         }else{
+          resolve();
+         }
+    
+         
+    
+    
+          
+        } else {
+          
+          switch (notificationInfo.item.Status) {
+            case "Assigned": {
+    
+              (notificationInfo.item.Approvers).forEach((apvr:any) => {
+                let notInfo = {
+                  name: notificationInfo.name,
+                  item: {
+                    Templet: "Assigned",
+                    Notifiers: apvr,
+                    Requestor: notificationInfo.item.Requestor, 
+                    Title: notificationInfo.item.Title, 
+                    Status: notificationInfo.item.Status,
+                    ProcessLink: notificationInfo.item.ProcessLink,
+                    ReviewLink: notificationInfo.item.ReviewLink 
+                  }
+                };
 
-        //   break;
-        // }
-        case "Completed": {
-          this.createNotification("Completed", this.parsedRequestInfo.RnDLabTest.Requestor.AdId, this.parsedRequestInfo.RnDLabTest.Requestor.EmployeeName, "", this.parsedRequestInfo.Title, "Completed");
+                this.createNotification(notInfo).then((res:any)=>{
+                  if(Object.prototype.hasOwnProperty.call(res, 'ID')){
+                    resolve(res);
+                    return res;
+                  }else{
+                    reject('Failed');
+                    return 'Failed';
+                  }
+                });
+              });
+        
+              (notificationInfo.item.Notifiers).forEach((n:any) => {
+                let notInfo = {
+                  name: notificationInfo.name,
+                  item: {
+                    Templet: "AssignedNotification",
+                    Notifiers: n,
+                    Requestor: notificationInfo.item.Requestor, 
+                    Title: notificationInfo.item.Title, 
+                    Status: notificationInfo.item.Status,
+                    ProcessLink: notificationInfo.item.ProcessLink,
+                    ReviewLink: notificationInfo.item.ReviewLink 
+                  }
+                };
 
-          setTimeout(function () {
-            window.location.href = 'https://portal.bergerbd.com/_layouts/15/PendingApproval/PendingApproval.aspx';
-            //window.location.href = this.webAbsoluteUrl + '/SitePages/MyWFRequest.aspx';
-          }, 4000);
+                this.createNotification(notInfo).then((res:any)=>{
+                  if(Object.prototype.hasOwnProperty(res, 'ID')){
+                    resolve(res);
+                    return res;
+                  }else{
+                    reject('Failed');
+                    return 'Failed';
+                  }
+                });
+              });
+        
+        
+              setTimeout(function () {
+                window.location.href = this.pendingtasksUrl ;
+              }, 40000);
+    
+              break;
+            }
+            case "ReAssigned": {
+    
+              (notificationInfo.item.Approvers).forEach((apvr:any) => {
+                let notInfo = {
+                  name: notificationInfo.name,
+                  item: {
+                    Templet: "Assigned",
+                    Notifiers: apvr,
+                    Requestor: notificationInfo.item.Requestor, 
+                    Title: notificationInfo.item.Title, 
+                    Status: notificationInfo.item.Status,
+                    ProcessLink: notificationInfo.item.ProcessLink,
+                    ReviewLink: notificationInfo.item.ReviewLink 
+                  }
+                };
 
-          break;
+                this.createNotification(notInfo).then((res:any)=>{
+                  if(Object.prototype.hasOwnProperty.call(res, 'ID')){
+                    resolve(res);
+                    return res;
+                  }else{
+                    reject('Failed');
+                    return 'Failed';
+                  }
+                });
+              });
+        
+              (notificationInfo.item.Notifiers).forEach((n:any) => {
+                let notInfo = {
+                  name: notificationInfo.name,
+                  item: {
+                    Templet: "AssignedNotification",
+                    Notifiers: n,
+                    Requestor: notificationInfo.item.Requestor, 
+                    Title: notificationInfo.item.Title, 
+                    Status: notificationInfo.item.Status,
+                    ProcessLink: notificationInfo.item.ProcessLink,
+                    ReviewLink: notificationInfo.item.ReviewLink 
+                  }
+                };
+
+                this.createNotification(notInfo).then((res:any)=>{
+                  if(Object.prototype.hasOwnProperty(res, 'ID')){
+                    resolve(res);
+                    return res;
+                  }else{
+                    reject('Failed');
+                    return 'Failed';
+                  }
+                });
+              });
+        
+        
+              setTimeout(function () {
+                window.location.href = this.pendingtasksUrl ;
+              }, 40000);
+    
+              break;
+            }
+            case "TaskPickedUp": {
+    
+              (notificationInfo.item.Approvers).forEach((apvr:any) => {
+                let notInfo = {
+                  name: notificationInfo.name,
+                  item: {
+                    Templet: "TaskPickedUp",
+                    Notifiers: apvr,
+                    Requestor: notificationInfo.item.Requestor, 
+                    Title: notificationInfo.item.Title, 
+                    Status: notificationInfo.item.Status,
+                    ProcessLink: notificationInfo.item.ProcessLink,
+                    ReviewLink: notificationInfo.item.ReviewLink 
+                  }
+                };
+
+                this.createNotification(notInfo).then((res:any)=>{
+                  if(Object.prototype.hasOwnProperty.call(res, 'ID')){
+                    resolve(res);
+                    return res;
+                  }else{
+                    reject('Failed');
+                    return 'Failed';
+                  }
+                });
+              });
+        
+              (notificationInfo.item.Notifiers).forEach((n:any) => {
+                let notInfo = {
+                  name: notificationInfo.name,
+                  item: {
+                    Templet: "TaskPickedUpNotification",
+                    Notifiers: n,
+                    Requestor: notificationInfo.item.Requestor, 
+                    Title: notificationInfo.item.Title, 
+                    Status: notificationInfo.item.Status,
+                    ProcessLink: notificationInfo.item.ProcessLink,
+                    ReviewLink: notificationInfo.item.ReviewLink 
+                  }
+                };
+
+                this.createNotification(notInfo).then((res:any)=>{
+                  if(Object.prototype.hasOwnProperty(res, 'ID')){
+                    resolve(res);
+                    return res;
+                  }else{
+                    reject('Failed');
+                    return 'Failed';
+                  }
+                });
+              });
+        
+        
+              setTimeout(function () {
+                window.location.href = this.pendingtasksUrl ;
+              }, 40000);
+    
+              break;
+            }
+            case "ReadyforUAT": {
+    
+              (notificationInfo.item.Approvers).forEach((apvr:any) => {
+                let notInfo = {
+                  name: notificationInfo.name,
+                  item: {
+                    Templet: "ReadyforUAT",
+                    Notifiers: apvr,
+                    Requestor: notificationInfo.item.Requestor, 
+                    Title: notificationInfo.item.Title, 
+                    Status: notificationInfo.item.Status,
+                    ProcessLink: notificationInfo.item.ProcessLink,
+                    ReviewLink: notificationInfo.item.ReviewLink 
+                  }
+                };
+
+                this.createNotification(notInfo).then((res:any)=>{
+                  if(Object.prototype.hasOwnProperty.call(res, 'ID')){
+                    resolve(res);
+                    return res;
+                  }else{
+                    reject('Failed');
+                    return 'Failed';
+                  }
+                });
+              });
+        
+              (notificationInfo.item.Notifiers).forEach((n:any) => {
+                let notInfo = {
+                  name: notificationInfo.name,
+                  item: {
+                    Templet: "ReadyforUATNotification",
+                    Notifiers: n,
+                    Requestor: notificationInfo.item.Requestor, 
+                    Title: notificationInfo.item.Title, 
+                    Status: notificationInfo.item.Status,
+                    ProcessLink: notificationInfo.item.ProcessLink,
+                    ReviewLink: notificationInfo.item.ReviewLink 
+                  }
+                };
+
+                this.createNotification(notInfo).then((res:any)=>{
+                  if(Object.prototype.hasOwnProperty(res, 'ID')){
+                    resolve(res);
+                    return res;
+                  }else{
+                    reject('Failed');
+                    return 'Failed';
+                  }
+                });
+              });
+        
+        
+              setTimeout(function () {
+                window.location.href = this.pendingtasksUrl ;
+              }, 40000);
+    
+              break;
+            }
+            case "UATRequest": {
+    
+              (notificationInfo.item.Approvers).forEach((apvr:any) => {
+                let notInfo = {
+                  name: notificationInfo.name,
+                  item: {
+                    Templet: "UATRequestApvr",
+                    Notifiers: apvr,
+                    Requestor: notificationInfo.item.Requestor, 
+                    Title: notificationInfo.item.Title, 
+                    Status: notificationInfo.item.Status,
+                    ProcessLink: notificationInfo.item.ProcessLink,
+                    ReviewLink: notificationInfo.item.ReviewLink 
+                  }
+                };
+
+                this.createNotification(notInfo).then((res:any)=>{
+                  if(Object.prototype.hasOwnProperty.call(res, 'ID')){
+                    resolve(res);
+                    return res;
+                  }else{
+                    reject('Failed');
+                    return 'Failed';
+                  }
+                });
+              });
+        
+              (notificationInfo.item.Notifiers).forEach((n:any) => {
+                let notInfo = {
+                  name: notificationInfo.name,
+                  item: {
+                    Templet: "UATRequestNotification",
+                    Notifiers: n,
+                    Requestor: notificationInfo.item.Requestor, 
+                    Title: notificationInfo.item.Title, 
+                    Status: notificationInfo.item.Status,
+                    ProcessLink: notificationInfo.item.ProcessLink,
+                    ReviewLink: notificationInfo.item.ReviewLink 
+                  }
+                };
+
+                this.createNotification(notInfo).then((res:any)=>{
+                  if(Object.prototype.hasOwnProperty(res, 'ID')){
+                    resolve(res);
+                    return res;
+                  }else{
+                    reject('Failed');
+                    return 'Failed';
+                  }
+                });
+              });
+        
+        
+              setTimeout(function () {
+                window.location.href = this.pendingtasksUrl;
+              }, 40000);
+    
+              break;
+            }
+            case "Reviewed": {
+    
+              (notificationInfo.item.Approvers).forEach((apvr:any) => {
+                let notInfo = {
+                  name: notificationInfo.name,
+                  item: {
+                    Templet: "Approval",
+                    Notifiers: apvr,
+                    Requestor: notificationInfo.item.Requestor, 
+                    Title: notificationInfo.item.Title, 
+                    Status: notificationInfo.item.Status,
+                    ProcessLink: notificationInfo.item.ProcessLink,
+                    ReviewLink: notificationInfo.item.ReviewLink 
+                  }
+                };
+
+                this.createNotification(notInfo).then((res:any)=>{
+                  if(Object.prototype.hasOwnProperty.call(res, 'ID')){
+                    resolve(res);
+                    return res;
+                  }else{
+                    reject('Failed');
+                    return 'Failed';
+                  }
+                });
+              });
+        
+              (notificationInfo.item.Notifiers).forEach((n:any) => {
+                let notInfo = {
+                  name: notificationInfo.name,
+                  item: {
+                    Templet: "Reviewed",
+                    Notifiers: n,
+                    Requestor: notificationInfo.item.Requestor, 
+                    Title: notificationInfo.item.Title, 
+                    Status: notificationInfo.item.Status,
+                    ProcessLink: notificationInfo.item.ProcessLink,
+                    ReviewLink: notificationInfo.item.ReviewLink 
+                  }
+                };
+
+                this.createNotification(notInfo).then((res:any)=>{
+                  if(Object.prototype.hasOwnProperty.call(res, 'ID')){
+                    resolve(res);
+                    return res;
+                  }else{
+                    reject('Failed');
+                    return 'Failed';
+                  }
+                });
+              });
+        
+        
+              setTimeout(function () {
+                window.location.href = this.pendingtasksUrl; 
+              }, 40000);
+    
+              break;
+            }
+            case "UATFeedbackFrmCustomer": {
+    
+              (notificationInfo.item.Approvers).forEach((apvr:any) => {
+                let notInfo = {
+                  name: notificationInfo.name,
+                  item: {
+                    Templet: "UATFeedbackFrmCustomer",
+                    Notifiers: apvr,
+                    Requestor: notificationInfo.item.Requestor, 
+                    Title: notificationInfo.item.Title, 
+                    Status: notificationInfo.item.Status,
+                    ProcessLink: notificationInfo.item.ProcessLink,
+                    ReviewLink: notificationInfo.item.ReviewLink 
+                  }
+                };
+
+                this.createNotification(notInfo).then((res:any)=>{
+                  if(Object.prototype.hasOwnProperty.call(res, 'ID')){
+                    resolve(res);
+                    return res;
+                  }else{
+                    reject('Failed');
+                    return 'Failed';
+                  }
+                });
+              });
+        
+              (notificationInfo.item.Notifiers).forEach((n:any) => {
+                let notInfo = {
+                  name: notificationInfo.name,
+                  item: {
+                    Templet: "UATFeedbackFrmCustomer",
+                    Notifiers: n,
+                    Requestor: notificationInfo.item.Requestor, 
+                    Title: notificationInfo.item.Title, 
+                    Status: notificationInfo.item.Status,
+                    ProcessLink: notificationInfo.item.ProcessLink,
+                    ReviewLink: notificationInfo.item.ReviewLink 
+                  }
+                };
+
+                this.createNotification(notInfo).then((res:any)=>{
+                  if(Object.prototype.hasOwnProperty.call(res, 'ID')){
+                    resolve(res);
+                    return res;
+                  }else{
+                    reject('Failed');
+                    return 'Failed';
+                  }
+                });
+              });
+        
+        
+              setTimeout(function () {
+                window.location.href = this.pendingtasksUrl ;
+              }, 40000);
+    
+              break;
+            }
+            case "ReleaseAssignee": {
+
+              if(notificationInfo.item.Notifiers.length > 0){
+
+                (notificationInfo.item.Notifiers).forEach((n:any) => {
+                  let notInfo = {
+                    name: notificationInfo.name,
+                    item: {
+                      Templet: "Completed",
+                      Notifiers: n,
+                      Requestor: notificationInfo.item.Requestor, 
+                      Title: notificationInfo.item.Title, 
+                      Status: notificationInfo.item.Status,
+                      ProcessLink: notificationInfo.item.ProcessLink,
+                      ReviewLink: notificationInfo.item.ReviewLink 
+                    }
+                  };
+  
+                  this.createNotification(notInfo).then((res:any)=>{
+                    if(Object.prototype.hasOwnProperty.call(res, 'ID')){
+                      resolve(res);
+                      return res;
+                    }else{
+                      reject('Failed');
+                      return 'Failed';
+                    }
+                  });
+                });
+          
+              }
+    
+              break;
+            }
+            case "Completed": {
+
+              if(notificationInfo.item.Notifiers.length > 0){
+
+                (notificationInfo.item.Notifiers).forEach((n:any) => {
+                  let notInfo = {
+                    name: notificationInfo.name,
+                    item: {
+                      Templet: "Completed",
+                      Notifiers: n,
+                      Requestor: notificationInfo.item.Requestor, 
+                      Title: notificationInfo.item.Title, 
+                      Status: notificationInfo.item.Status,
+                      ProcessLink: notificationInfo.item.ProcessLink,
+                      ReviewLink: notificationInfo.item.ReviewLink 
+                    }
+                  };
+  
+                  this.createNotification(notInfo).then((res:any)=>{
+                    if(Object.prototype.hasOwnProperty.call(res, 'ID')){
+                      resolve(res);
+                      return res;
+                    }else{
+                      reject('Failed');
+                      return 'Failed';
+                    }
+                  });
+                });
+          
+              }
+    
+              break;
+            }
+            case "QueryFrmAssignee": {
+    
+              (notificationInfo.item.Approvers).forEach((apvr:any) => {
+                let notInfo = {
+                  name: notificationInfo.name,
+                  item: {
+                    Templet: "ReadyforUAT",
+                    Notifiers: apvr,
+                    Requestor: notificationInfo.item.Requestor, 
+                    Title: notificationInfo.item.Title, 
+                    Status: notificationInfo.item.Status,
+                    ProcessLink: notificationInfo.item.ProcessLink,
+                    ReviewLink: notificationInfo.item.ReviewLink 
+                  }
+                };
+
+                this.createNotification(notInfo).then((res:any)=>{
+                  if(Object.prototype.hasOwnProperty.call(res, 'ID')){
+                    resolve(res);
+                    return res;
+                  }else{
+                    reject('Failed');
+                    return 'Failed';
+                  }
+                });
+              });
+        
+              (notificationInfo.item.Notifiers).forEach((n:any) => {
+                let notInfo = {
+                  name: notificationInfo.name,
+                  item: {
+                    Templet: "ReadyforUATNotification",
+                    Notifiers: n,
+                    Requestor: notificationInfo.item.Requestor, 
+                    Title: notificationInfo.item.Title, 
+                    Status: notificationInfo.item.Status,
+                    ProcessLink: notificationInfo.item.ProcessLink,
+                    ReviewLink: notificationInfo.item.ReviewLink 
+                  }
+                };
+
+                this.createNotification(notInfo).then((res:any)=>{
+                  if(Object.prototype.hasOwnProperty(res, 'ID')){
+                    resolve(res);
+                    return res;
+                  }else{
+                    reject('Failed');
+                    return 'Failed';
+                  }
+                });
+              });
+        
+        
+              setTimeout(function () {
+                window.location.href = this.pendingtasksUrl;
+              }, 40000);
+    
+              break;
+            }
+          }
         }
-        case "FeedbackSubmit": {
-          this.createNotification("FeedbackSubmitted", 255, this.parsedRequestInfo.RnDLabTest.Requestor.EmployeeName, "", this.parsedRequestInfo.Title, "FeedbackSubmitted");
+           
+      } 
+      catch(err){
 
-          setTimeout(function () {
-            window.location.href = 'https://portal.bergerbd.com/_layouts/15/PendingApproval/PendingApproval.aspx';
-            //window.location.href = this.webAbsoluteUrl + '/SitePages/MyWFRequest.aspx';
-          }, 4000);
+        reject('Failed');
+        console.log("Error: " + err);
 
-          break;
-        }
       }
-    }
+    })
+    
   }
 
 
@@ -620,500 +1574,1869 @@ export class SupporthomeComponent implements OnInit {
       Comments: comment
     }
     let auditLogListInfo = {
-      name: "CapexBudgetAuditLog",
+      name: "supportprocesslog",
       item: auditLogData
     }
     await this.sharepointlistService.saveListItem(auditLogListInfo).then(
       (res:any) => {})
   }
 
-  async createReqTitle(updatedMstrLstInfo:any) {
-    await this.sharepointlistService.updateListItem(updatedMstrLstInfo).then(
-      (res:any) => {
-        this.sharepointlistService.saveListItem(this.pendingApprovalListInfo)
-          .then(
-            (res:any) => {
-              this.createAuditLog(this.pendingApprovalListInfo.item.Title);
-            })
-          .then((res:any) => {
-            this.saveInNotificationList();
-          })
+  async createReqTitle(data:any) {
+    
+    await this.sharepointlistService.updateListItem(data.updatedMstrLstInfo).then((res:any) => { 
+      })
+      .then((res:any) => {
+
+        this.createProcessLog(data.processLogListInfo);
+
+      })
+      .then((res:any) => {
+
+          this.saveInPendingApvrList(data.pendingApprovalListInfo)
+
+      })
+      .then((res:any) => {
+
+        //===========save Attachments start ================
+        for(let a=0; a < data.attachmentListInfo.item.length; a++){
+          let file = data.attachmentListInfo.item[a];
+          let attachmentItem = {
+            Title: file.Title,
+            ActionBy: file.ActionBy,
+            ActionDate: new Date()
+          };
+
+          let attachmentListInfo = {
+            name: data.attachmentListInfo.name,
+            item: attachmentItem
+          };
+
+          this.createAttachment(attachmentListInfo, file.File);
+        }
+        //---------------attachment ends ------------
+          
+      })
+      .then((res:any) => {
+        this.saveInNotificationList(data.notificationListInfo);
+        
+      })
+      .then((res:any) => {
+
+        this.toastSucAlert('success', false, 'Request Submitted Successfully! For any update please follow View Incidents of Support Portal.');
+
+        //Swal.fire("Thank You...", "Request Submitted Successfully !", "success");
+
+        setTimeout(function () {
+          window.location.href = "https://support.bergertechbd.com/myrequests"; 
+        }, 40000);
       });
   }
 
   //========= update application having uId===
   async updateRequest(data:any) {
-    await this.sharepointlistService.updateListItem(data)
-      .then(
-        (res:any) => {
-          this.updateInPendingApvrList(this.pendingApprovalListInfo)
-        })
-      .then((res:any) => {
-        this.createAuditLog(this.parsedRequestInfo.Title, this.auditLogComments);
-      })
-      .then((res:any) => {
-        this.saveInNotificationList();
-      });
-  }
 
-  async getBtnClickAction(valFrmChild: any) {
+    if(this.emitedDataFrmChild.Status != "ReleaseAssignee" ){
+      await this.sharepointlistService.updateListItem(data.updatedMstrLstInfo)
+        .then(
+          (res:any) => {
+            if(res == 'Successful'){
+              console.log('Update in MstrLstInfo is Successful');
+            }else{
+              console.log('Update in MstrLstInfo is Failed');
+            }
+            
+          })
+    }
+
+    await this.createProcessLog(data.processLogListInfo)
+    .then(
+      (res:any) => {
+        if(res.ID != ''){
+          console.log('Update in PendingApproval List is Successful');
+        }else{
+          console.log('Update in PendingApproval is Failed');
+        }
+        
+      })
+      
+        await this.updateInPendingApvrList(data.pendingApprovalListInfo)
+        .then(
+          (res:any) => {
+            if(res == 'Successful'){
+              console.log('Update in PendingApproval List is Successful');
+            }else{
+              console.log('Update in PendingApproval is Failed');
+            }
+            
+          })
+     
+
+          
+          await this.saveInNotificationList(data.notificationListInfo)
+            .then(
+              (res:any) => {
+                if(res.ID != ''){
+                  console.log('Update in EmailNotification List is Successful');
+                }else{
+                  console.log('Update in EmailNotification List is Failed');
+                }
+                
+              })
+         
+         
+      
     
 
-    this.childBtnClickAction = valFrmChild;
+        if(this.emitedDataFrmChild.Status != "Submitted" 
+        && this.emitedDataFrmChild.Status != "Assigned" 
+        && this.emitedDataFrmChild.Status != "TaskPickedUp" 
+        && this.emitedDataFrmChild.Status != "ReleaseAssignee" 
+        && this.emitedDataFrmChild.Status != "UATRequest" 
+        && this.emitedDataFrmChild.Status != "UATFeedbackFrmCustomer" 
+        && this.emitedDataFrmChild.Status != "Reject" 
+        && this.emitedDataFrmChild.Status != "Completed"){
+          if(Object.prototype.hasOwnProperty.call(data, 'updatedDetailLstInfo')){
+            await this.updateInDetailList(data.updatedDetailLstInfo)
+            .then(
+              (res:any) => {
+                if(res == 'Successful'){
+                  console.log('Update in SystemDetail List is Successful');
+                }else{
+                  console.log('Update in SystemDetail List is Failed');
+                }
+                
+              })
+          }
+
+          if(Object.prototype.hasOwnProperty.call(data, 'newDetailLstInfo')){
+            await this.saveInDetailList(data.newDetailLstInfo)
+              .then(
+                (res:any) => {
+                  if(res.ID != ''){
+                    console.log('Save in SystemDetail List is Successful');
+                  }else{
+                    console.log('Save in SystemDetail List is Failed');
+                  }
+                  
+                })
+          }
+           
+        };
+
+        if(this.emitedDataFrmChild.Status == "Submitted"){
+          if(Object.prototype.hasOwnProperty.call(data, 'newAssignedTaskListInfo')){
+            await this.saveInAssignTaskList(data.newAssignedTaskListInfo)
+            .then(
+              (res:any) => {
+                if(res.ID != ''){
+                  console.log('Save in AssignedTasks List is Successful');
+                }else{
+                  console.log('Save in AssignedTasks List is Failed');
+                }
+                
+              }) 
+          };
+
+          if(Object.prototype.hasOwnProperty.call(data, 'newAssigneesListInfo')){
+            await this.saveInAssigneesList(data.newAssigneesListInfo)
+            .then(
+              (res:any) => {
+                if(res.ID != ''){
+                  console.log('Save in AssignedTasks List is Successful');
+                }else{
+                  console.log('Save in AssignedTasks List is Failed');
+                }
+                
+              }) 
+          }
+           
+        };
+
+        if(this.emitedDataFrmChild.Status == "Assigned" || this.emitedDataFrmChild.Status == "TaskPickedUp" || this.emitedDataFrmChild.Status == "ReleaseAssignee" || this.emitedDataFrmChild.Status == "UATFeedbackFrmCustomer"){          
+
+          if(Object.prototype.hasOwnProperty.call(data, 'updatedAssigneesListInfo')){
+            await this.updateInAssigneesList(data.updatedAssigneesListInfo)
+            .then(
+              (res:any) => {
+                if(res == 'Successful'){
+                  console.log('Save in Assignees List is Successful');
+                }else{
+                  console.log('Save in Assignees List is Failed');
+                }
+                
+              }) 
+          }
+           
+        };
+
+        if(this.emitedDataFrmChild.AppParameters.Action == "Query"){
+          if(Object.prototype.hasOwnProperty.call(data, 'queryResponseListInfo')){
+            await this.createProcessLog(data.queryResponseListInfo)
+            .then(
+              (res:any) => {
+                if(res.ID != ''){
+                  console.log('Update in QueryOrResponse List is Successful');
+                }else{
+                  console.log('Update in QueryOrResponse List is Failed');
+                }
+                
+              })
+          }
+        }
+      
+
+        if(this.emitedDataFrmChild.Status != "Completed" && this.emitedDataFrmChild.Status != "PickedUp" && this.emitedDataFrmChild.Status != "Assigned" && this.emitedDataFrmChild.Status != "TaskPickedUp" && this.emitedDataFrmChild.Status != "UATRequest" && this.emitedDataFrmChild.Status != "UATFeedbackFrmCustomer" ){
+          if(Object.prototype.hasOwnProperty.call(data, 'attachmentListInfo')){
+            await this.saveInAttachmentList(data.attachmentListInfo)
+              .then(
+                (res:any) => {
+                  console.log('Save in Attachment List is Successful');            
+                }) 
+
+                .then((res:any)=>{
+                  setTimeout(function () {
+                    window.location.href = "https://support.bergertechbd.com/pendingtasks";
+                  }, 40000);
+                })
+          }
+           
+        }; 
+     
+
+  }
+
+  async GetOutputVal(valFrmChild: any) {
+    
+    let btnClkAction = ""; 
+
+    if (this.uId == "") {
+
+      this.createReqInfoFrmChild.AppParameters.Requestor = valFrmChild.AppParameters.Requestor;
+      this.createReqInfoFrmChild.AppParameters.ProblemDescription = valFrmChild.AppParameters.ProblemDescription;
+      this.createReqInfoFrmChild.AppParameters.PriorityInfo = valFrmChild.AppParameters.PriorityInfo;
+      this.createReqInfoFrmChild.AppParameters.SystemDetail = valFrmChild.AppParameters.SystemDetail;
+      this.createReqInfoFrmChild.AppParameters.Attachments = valFrmChild.AppParameters.Attachments;
+      this.createReqInfoFrmChild.AppParameters.Action = valFrmChild.AppParameters.Action;
+      this.createReqInfoFrmChild.AppParameters.Comments = valFrmChild.AppParameters.Comments;
+      this.createReqInfoFrmChild.AppParameters.OnBehalfOf = valFrmChild.AppParameters.OnBehalfOf;
+      if(valFrmChild.AppParameters.OnBehalfOf){
+        this.createReqInfoFrmChild.AppParameters.Employee = valFrmChild.AppParameters.Employee;
+      }
+      // this.allApprovers = 
+      // { 
+      //   headITInfraName: "Kamal Infra",
+      //   headITInfraEmail: "kamal@bergerbd.com",
+      //   headITInfraAdId: 1026,
+      //   headERPName: "Kamal ERP",
+      //   headERPEmail: "kamal@bergerbd.com",
+      //   gmITName: "Kamal GM",
+      //   gmITEmail: "kamal@bergerbd.com",
+      // };
+
+      btnClkAction = this.createReqInfoFrmChild.AppParameters.Action;
+
+    }
+    else {
+      this.emitedDataFrmChild = valFrmChild;
+
+      // this.allApprovers = 
+      // {
+      //   headITInfraName: "Kamal Infra",
+      //   headITInfraEmail: "kamal@bergerbd.com",
+      //   headITInfraAdId: 1026,
+      //   headERPName: "Kamal ERP",
+      //   headERPEmail: "kamal@bergerbd.com",
+      //   gmITName: "Kamal GM",
+      //   gmITEmail: "kamal@bergerbd.com",
+      // };
+
+      btnClkAction = this.emitedDataFrmChild.AppParameters.Action;
+      
+    };
+
+    let _approvers = await this._getAllApprovers();
+
+    if(_approvers.value.length >0){
+      this.allApprovers = 
+      {
+        headITInfraName: _approvers.value[0].BusDevLeadName,
+        headITInfraEmail: _approvers.value[0].BusDevLeadEmail,
+        headERPName: _approvers.value[0].SAPProgLeadName,
+        headERPEmail: _approvers.value[0].SAPProgLeadEmail,
+        gmITName: _approvers.value[0].COOName,
+        gmITEmail: _approvers.value[0].COOEmail,
+      }
+    }else{
+      alert("Approver Info not found !");
+      return false;
+    }
+
+    
+
+    // this.allApprovers = 
+    // {
+    //   headITInfraName: "Kamal Infra",
+    //   headITInfraEmail: "kamal@bergerbd.com",
+    //   headITInfraAdId: 1026,
+    //   headERPName: "Kamal ERP",
+    //   headERPEmail: "kamal@bergerbd.com",
+    //   gmITName: "Kamal GM",
+    //   gmITEmail: "kamal@bergerbd.com",
+    // };
+
     let _status = '';
+    let _detailStatus = '';
     let _pendingWith:any = [];
     let _updatedMstrListData;
+    let _newDetailLstData = [];
+    let _updatedDetailLstData = [];
+    let _attachmentListData = [];
+    let _processLogData: IProcessLog;
+    let _queriesData: ISupportQuery;
     let _itemData;
+    let approvers:any = [];
+    let notifiers:any = [];
+    let _pendingApprovalItemData: any;
+    let _updatedAllLstsInfo:any;
+    let _newAssignTskItms:any = [];
+    let _newAssignees:any = [];
+    let _updatedAssignee:any = {};
 
-    switch (this.childBtnClickAction) {
+    switch (btnClkAction) {
       case "Submitted": {
         //==== validate whether requestor info is exist or not===
-        if(this.createReqInfoFrmChild.Requestor.EmployeeName == null
-          || this.createReqInfoFrmChild.Requestor.EmployeeId == null
-          || this.createReqInfoFrmChild.Requestor.Email == null){
+        if(this.createReqInfoFrmChild.AppParameters.Requestor.CustName == null
+          || this.createReqInfoFrmChild.AppParameters.Requestor.Cust1stEmail == null){
             alert("Requestor info is not found. Please try again later.");
             return false;
           }
-        //---- validate whether requestor info is exist or not ends ----
-        
+        //---- validate whether requestor info is exist or not ends ----       
 
-
-       
-
-        this.createReqInfoFrmChild.Requestor.AdId = this.logedUserAdId;
-        this.createReqInfoFrmChild.Requestor.RequestDate = new Date().toString().substring(4, 15);
+        //this.createReqInfoFrmChild.Requestor.AdId = this.logedUserAdId;
+        this.createReqInfoFrmChild.AppParameters.RequestDate = new Date().toString().substring(4, 15);
 
         //let approvalLink = "";
 
-        let approvers:any = [];
+        
 
-        let allItems = this.createReqInfoFrmChild.Datagridcrudhomeitems;
-        let _status = "SubmittedToITInfra";
+        
+        let _status = "Submitted";
+              
+        // //====get approval history===
+        // let actionComments = "";
+        // let actionlog = {
+        //   CustId: this.createReqInfoFrmChild.AppParameters.Requestor.CustId,
+        //   ActionDate: new Date(),
+        //   Status: _status,
+        //   ProcessByName: this.createReqInfoFrmChild.AppParameters.Requestor.CustName,
+        //   ProcessByEmail: this.createReqInfoFrmChild.AppParameters.Requestor.Cust1stEmail,
+        //   Comments: actionComments,
+        // }
+        // this.createReqInfoFrmChild.AppParameters.ProcessLogs.push(actionlog);
+        // //-------------------
 
-        for(let i = 0; i< allItems.length; i++){
-          if(this.createReqInfoFrmChild.Datagridcrudhomeitems[i]['ClassCode'] == 3200 || this.createReqInfoFrmChild.Datagridcrudhomeitems[i]['ClassCode'] == 6300){
-            approvers=[];
-            approvers.push(this.allApprovers.headITInfraAdId);
-            i = this.createReqInfoFrmChild.Datagridcrudhomeitems.length;
-          }else{
-            approvers.push(this.allApprovers.headAssetAdId);
-            _status = "SubmittedToCCAI";
+        let _custApprovers = await this._getCustomerApprovers( this.createReqInfoFrmChild.AppParameters.Requestor.CustId, this.createReqInfoFrmChild.AppParameters.SystemDetail.SystemType);
+
+        if(_custApprovers.value.length >0){
+          
+          if(this.createReqInfoFrmChild.AppParameters.SystemDetail.SystemType == "SAP"){
+            approvers.push({
+              approversName: _custApprovers.value[0].BergerTechIncharge,
+              approversEmail: _custApprovers.value[0].BergerTechInchargeEmail
+            });
+  
+            notifiers.push({
+              approversName: this.allApprovers.headITInfraName,
+              approversEmail: this.allApprovers.headITInfraEmail
+            });
+            notifiers.push({
+              approversName: this.allApprovers.gmITName,
+              approversEmail: this.allApprovers.gmITEmail
+            })
+  
+          }else{ 
+            approvers.push({
+              approversName: _custApprovers.value[0].BergerTechIncharge,
+              approversEmail: _custApprovers.value[0].BergerTechInchargeEmail
+            });
+  
+            notifiers.push({
+              approversName: this.allApprovers.headERPName,
+              approversEmail: this.allApprovers.headERPEmail
+            });
+            notifiers.push({
+              approversName: this.allApprovers.gmITName,
+              approversEmail: this.allApprovers.gmITEmail
+            });
+  
+            if(this.createReqInfoFrmChild.AppParameters.PriorityInfo.Priority == "Highest"){
+              notifiers.push({
+                approversName: this.createReqInfoFrmChild.AppParameters.PriorityInfo.EmergContact,
+                approversEmail: this.createReqInfoFrmChild.AppParameters.PriorityInfo.EmergContactEmail,
+              });
+            }
+          }
+
+        }else{
+
+          if(this.createReqInfoFrmChild.AppParameters.SystemDetail.SystemType == "SAP"){
+            approvers.push({
+              approversName: this.allApprovers.headERPName,
+              approversEmail: this.allApprovers.headERPEmail
+            });
+  
+            notifiers.push({
+              approversName: this.allApprovers.headITInfraName,
+              approversEmail: this.allApprovers.headITInfraEmail
+            });
+            notifiers.push({
+              approversName: this.allApprovers.gmITName,
+              approversEmail: this.allApprovers.gmITEmail
+            })
+  
+          }else{ 
+            approvers.push({
+              approversName: this.allApprovers.headITInfraName,
+              approversEmail: this.allApprovers.headITInfraEmail
+            });
+  
+            notifiers.push({
+              approversName: this.allApprovers.headERPName,
+              approversEmail: this.allApprovers.headERPEmail
+            });
+            notifiers.push({
+              approversName: this.allApprovers.gmITName,
+              approversEmail: this.allApprovers.gmITEmail
+            });
+  
+            if(this.createReqInfoFrmChild.AppParameters.PriorityInfo.Priority == "Highest"){
+              notifiers.push({
+                approversName: this.createReqInfoFrmChild.AppParameters.PriorityInfo.EmergContact,
+                approversEmail: this.createReqInfoFrmChild.AppParameters.PriorityInfo.EmergContactEmail,
+              });
+            }
+          }
+
+          // alert("Approver Info not found !");
+          // return false;
+        }
+
+
+        if(this.createReqInfoFrmChild.AppParameters.SystemDetail.SystemType == "SAP"){
+          approvers.push({
+            approversName: this.allApprovers.headERPName,
+            approversEmail: this.allApprovers.headERPEmail
+          });
+
+          notifiers.push({
+            approversName: this.allApprovers.headITInfraName,
+            approversEmail: this.allApprovers.headITInfraEmail
+          });
+          notifiers.push({
+            approversName: this.allApprovers.gmITName,
+            approversEmail: this.allApprovers.gmITEmail
+          })
+
+        }else{ 
+          approvers.push({
+            approversName: this.allApprovers.headITInfraName,
+            approversEmail: this.allApprovers.headITInfraEmail
+          });
+
+          notifiers.push({
+            approversName: this.allApprovers.headERPName,
+            approversEmail: this.allApprovers.headERPEmail
+          });
+          notifiers.push({
+            approversName: this.allApprovers.gmITName,
+            approversEmail: this.allApprovers.gmITEmail
+          });
+
+          if(this.createReqInfoFrmChild.AppParameters.PriorityInfo.Priority == "Highest"){
+            notifiers.push({
+              approversName: this.createReqInfoFrmChild.AppParameters.PriorityInfo.EmergContact,
+              approversEmail: this.createReqInfoFrmChild.AppParameters.PriorityInfo.EmergContactEmail,
+            });
           }
         }
 
-        // if(approvers.length == 0){
-        //   approvers.push(this.allApprovers.headAssetAdId)
-        // }  
         
-        //====get approval history===
-        let actionComments = "";
-        let actionlog = {
-          Date: new Date(),
-          ActionBy: this.createReqInfoFrmChild.Requestor.EmployeeName,
-          //ActionById: this.logedUserAdId,
-          Comments: actionComments
-        }
-        this.createReqInfoFrmChild.ApprovalHistory.push(actionlog);
-        //-------------------
 
         let itemData = {
+          CustId: this.createReqInfoFrmChild.AppParameters.Requestor.CustId,
+          CustName: this.createReqInfoFrmChild.AppParameters.Requestor.CustName,
+          CustCompanyName: this.createReqInfoFrmChild.AppParameters.Requestor.CustCompanyName,
+          CustCompany1stAddress: this.createReqInfoFrmChild.AppParameters.Requestor.CustCompany1stAddress,
+          CustDesignation: this.createReqInfoFrmChild.AppParameters.Requestor.CustDesignation,
+          Cust1stEmail: this.createReqInfoFrmChild.AppParameters.Requestor.Cust1stEmail,
+          Cust1stMobile: this.createReqInfoFrmChild.AppParameters.Requestor.Cust1stMobile,
+          
+          PendingTo: JSON.stringify(approvers),
           Status: _status,
-          CapexBudgetProposal: JSON.stringify(this.createReqInfoFrmChild),
-          PendingWithId: {
-            'results': approvers
-          },
+
+          RequestFor: this.createReqInfoFrmChild.AppParameters.ProblemDescription.RequestFor,
+          RequestCategory: this.createReqInfoFrmChild.AppParameters.ProblemDescription.RequestCategory,
+          Subject: this.createReqInfoFrmChild.AppParameters.ProblemDescription.Subject,
+          Description: this.createReqInfoFrmChild.AppParameters.ProblemDescription.Description,         
+          Priority: this.createReqInfoFrmChild.AppParameters.PriorityInfo.Priority,
+          EmergContact: this.createReqInfoFrmChild.AppParameters.PriorityInfo.EmergContact,
+          BusinessImpact: this.createReqInfoFrmChild.AppParameters.PriorityInfo.BusinessImpact,
+          EmergContactNumber: this.createReqInfoFrmChild.AppParameters.PriorityInfo.EmergContactNumber,
+          EmergContactEmail: this.createReqInfoFrmChild.AppParameters.PriorityInfo.EmergContactEmail,
+
+          SystemType: this.createReqInfoFrmChild.AppParameters.SystemDetail.SystemType,
+          SystemModule: this.createReqInfoFrmChild.AppParameters.SystemDetail.SystemModule,
+          SAPCustomerNumber: this.createReqInfoFrmChild.AppParameters.SystemDetail.SAPCustomerNumber,
+          SUser: this.createReqInfoFrmChild.AppParameters.SystemDetail.SUser,
+          Manufacturer: this.createReqInfoFrmChild.AppParameters.SystemDetail.Manufacturer,
+          Model: this.createReqInfoFrmChild.AppParameters.SystemDetail.Model,              
+          OperatingSystem: this.createReqInfoFrmChild.AppParameters.SystemDetail.OperatingSystem,
+          OSRelease: this.createReqInfoFrmChild.AppParameters.SystemDetail.OSRelease,
+          DatabaseName: this.createReqInfoFrmChild.AppParameters.SystemDetail.DatabaseName,
+          DatabaseRelease: this.createReqInfoFrmChild.AppParameters.SystemDetail.DatabaseRelease,
+          PersonIncharge: this.createReqInfoFrmChild.AppParameters.SystemDetail.PersonIncharge,
+          SIContactNo: this.createReqInfoFrmChild.AppParameters.SystemDetail.SIContactNo,
+          SIEmail: this.createReqInfoFrmChild.AppParameters.SystemDetail.SIEmail,
+
+          OnBehalfOf: this.createReqInfoFrmChild.AppParameters.OnBehalfOf
+
+        };
+
+        if(itemData.OnBehalfOf){
+          itemData.EmpId = this.createReqInfoFrmChild.AppParameters.Employee.EmpId;
+          itemData.EmpName = this.createReqInfoFrmChild.AppParameters.Employee.EmpName;
+          itemData.EmpCompanyName = this.createReqInfoFrmChild.AppParameters.Employee.EmpCompanyName;
+          itemData.EmpCompany1stAddress = this.createReqInfoFrmChild.AppParameters.Employee.EmpCompany1stAddress;
+          itemData.EmpDesignation = this.createReqInfoFrmChild.AppParameters.Employee.EmpDesignation;
+          itemData.Emp1stEmail = this.createReqInfoFrmChild.AppParameters.Employee.Emp1stEmail;
+          itemData.Emp1stMobile = this.createReqInfoFrmChild.AppParameters.Employee.Emp1stMobile;
         }
-        let listInfo ={
-          name: "CapexBudgetMaster",
+
+        let createMstrLstInfo ={
+          name: "supportmaster",
           item: itemData
         }
 
         //====== 1.  save Masterlist ======
-        await this.sharepointlistService.saveListItem(listInfo)
+        await this.sharepointlistService.saveListItem(createMstrLstInfo)
           .then(
             (res) => {
-              this.reviewLink = 'https://portaldv.bergerbd.com/leaveauto/SitePages/CapexBudget.aspx?UniqueId=' + res.GUID + "&mode=read";
-              this.approvalLink = 'https://portaldv.bergerbd.com/leaveauto/SitePages/CapexBudget.aspx?UniqueId=' + res.GUID ;
+              this.reviewLink = this.webAbsoluteUrl + '/support?guid=' + res.GUID + "&mode=read";
+              this.approvalLink = this.webAbsoluteUrl + '/support?guid=' + res.GUID ;
               
-              //====get approval history===
-              let actionComments = "";
-              let actionlog = {
-                Data: new Date(),
-                ActionBy: this.createReqInfoFrmChild.Requestor.Name,
-                Comments: actionComments
-              }
-              this.createReqInfoFrmChild.ApprovalHistory.push(actionlog);
+              
+
+              _updatedMstrListData = { 
+                Title: "SR-" + res.ID,
+                ProcessLink: this.approvalLink
+              };              
+
+              this.updatedMstrLstInfo = {
+                name: "supportmaster",
+                rId: res.ID,
+                item: _updatedMstrListData
+              };                           
+              
+              //=== Audit log/Process Log data =====
+              _processLogData = {
+                Title: _updatedMstrListData.Title,
+                ActionDate: new Date(),
+                Status: _status,
+                ProcessByName: this.createReqInfoFrmChild.AppParameters.Requestor.CustName,
+                ProcessByEmail: this.createReqInfoFrmChild.AppParameters.Requestor.Cust1stEmail,
+                Comments: this.createReqInfoFrmChild.AppParameters.Comments
+              };
+
+              this.processLogListInfo = {
+                name: "supportprocesslog",
+                item: _processLogData
+              };
               //-------------------
 
-              let itemData = {
-                Title: "CBP-" + res.ID,
-                CapexBudgetProposal: JSON.stringify(this.createReqInfoFrmChild),
-                ApprovalLink: this.approvalLink 
-                // PendingWithId: {
-                //   'results': this.labResponsibles
-                // },
-              }
-              this.updatedMstrLstInfo = {
-                name: "CapexBudgetMaster",
-                rId: res.ID,
-                item: itemData
-              }
-
               
-              let pendingApprovalItemData = {
-                Title: "CBP-" + res.ID,
-                ProcessName: "CapexBudget",
-                RequestedByName: this.createReqInfoFrmChild.Requestor.EmployeeName,
-                Status: "SubmittedToITInfra",
-                EmployeeID: this.createReqInfoFrmChild.Requestor.EmployeeId,
-                RequestedByEmail: this.createReqInfoFrmChild.Requestor.Email,
-                PendingWithId: {
-                  'results': approvers
-                },
+              _pendingApprovalItemData = {    
+                Title: _updatedMstrListData.Title,
+                ProcessName: "SupportRequest",
+                RequestedByName: this.createReqInfoFrmChild.AppParameters.Requestor.CustName,
+                Status: "Submitted",
+                RequestedByEmail: this.createReqInfoFrmChild.AppParameters.Requestor.Cust1stEmail,
+                PendingTo: JSON.stringify(approvers),
                 RequestLink: this.approvalLink
               };
 
               this.pendingApprovalListInfo = {
                 name: "PendingApproval",
-                item: pendingApprovalItemData
+                item: _pendingApprovalItemData
               };
+
+              (this.createReqInfoFrmChild.AppParameters.Attachments).forEach((file:any) => {
+                _attachmentListData.push({
+                  Title: _updatedMstrListData.Title,
+                  ActionBy: this.createReqInfoFrmChild.AppParameters.Requestor.CustName,
+                  ActionDate: new Date(),
+                  File: file
+                })
+              });  
+
+              this.attachmentListInfo = {
+                name: "supportattachment",
+                item: _attachmentListData
+              };          
+
+              this.notificationListInfo = {  
+                name: "NotificationList",
+                item: {
+                  Approvers: approvers,
+                  Notifiers: notifiers,
+                  Requestor: this.createReqInfoFrmChild.AppParameters.Requestor.CustName, 
+                  Title: _updatedMstrListData.Title, 
+                  Status: _status,
+                  ProcessLink: this.approvalLink,
+                  ReviewLink: this.reviewLink 
+                }
+              };
+
+              _updatedAllLstsInfo = {
+                updatedMstrLstInfo: this.updatedMstrLstInfo,
+                pendingApprovalListInfo: this.pendingApprovalListInfo,
+                processLogListInfo: this.processLogListInfo,
+                attachmentListInfo: this.attachmentListInfo,
+                notificationListInfo: this.notificationListInfo
+              };
+
+              
             }
           ).then((res:any) => {
-            this.createReqTitle(this.updatedMstrLstInfo);
+            this.createReqTitle(_updatedAllLstsInfo);
           });
-      }
-      case "Approved": {
-        //===========validation start 
-        if(this.emitedDataFrmChild.Status == "SubmittedToITInfra" ){
-          _pendingWith = [this.allApprovers.headAssetAdId];
-          _status = "SubmittedToCCAI";
-        }else{
-          _pendingWith = [];
-          _status = "Completed";
-        }
-        //-------validation ends --------
-        // headITInfraEmail: "shoaib@bergerbd.com",
-        // headITInfraAdId: 21,
-        // headITInfraEmpId: "",
-        // headIAssetName: "Mahbubur Rahman",
-        // headAssetEmail: "mrahman@bergerbd.com",
-        // headAssetAdId: 129,
-        // headAssetEmpId: ""
-        let updatedCapexBudgetItms = [this.emitedDataFrmChild.CapexBudgetProposal, this.emitedDataFrmChild.CapexBudgetProposal]
 
+          break;
+      }
+      case "Assigned": {
+
+        if( localStorage.getItem('logedEmpName') == "" || localStorage.getItem('logedEmpEmail') == "" ){
+          this.router.navigate(['/login']);
+        }
+
+        this.reviewLink = this.webAbsoluteUrl + '/support?guid=' + this.emitedDataFrmChild.uId + "&mode=read";
+        this.approvalLink = this.webAbsoluteUrl + '/support?guid=' + this.emitedDataFrmChild.uId ;
+
+        let asTsks = this.emitedDataFrmChild.AppParameters.AssignedTasks;
+
+        asTsks.forEach(at => {
+          let assignees = at.Assignees;
+
+          assignees.forEach(as => {
+            approvers.push({
+              approversName: as.AssignedToName,
+              approversEmail: as.AssignedToEmail
+            });
+          });
+        });
+
+        notifiers.push({
+          approversName: this.emitedDataFrmChild.Requestor.CustName,
+          approversEmail: this.emitedDataFrmChild.Requestor.Cust1stEmail
+        });
+        
+
+        _status = "Assigned";
 
         _updatedMstrListData = {
-          CapexBudgetProposal: JSON.stringify(updatedCapexBudgetItms),
-          PendingWithId: {
-            'results': _pendingWith
-          },
-          Status: _status
+          PendingTo: JSON.stringify(approvers),
+          Status: _status          
         };
 
         this.updatedMstrLstInfo = {
-          name: "CapexBudgetMaster",
-          rId: this.parsedRequestInfo.ID,
+          name: "supportmaster",
+          rId: this.emitedDataFrmChild.ID,
           item: _updatedMstrListData
         }
 
-        this.pendingApprovalListInfo = _updatedMstrListData;
+        _pendingApprovalItemData = { 
+          Status: _status,
+          PendingTo: JSON.stringify(approvers)
+        };
 
-        //-----------sample received comments -----
-        this.auditLogComments = "Report has been released";
+        this.pendingApprovalListInfo = {
+          priKey: this.emitedDataFrmChild.Title,
+          name: "PendingApproval",
+          item: _pendingApprovalItemData
+        };       
 
-        //=========calling function to update data ======
-        this.updateRequest(this.updatedMstrLstInfo);
+        //---------- comments -----
+        _processLogData = {
+          Title: this.emitedDataFrmChild.Title,
+          ActionDate: new Date(),
+          Status: _status,
+          ProcessByName: localStorage.getItem('logedEmpName'),
+          ProcessByEmail: localStorage.getItem('logedEmpEmail'),
+          Comments: this.emitedDataFrmChild.AppParameters.Comments
+        };        
 
-        //=====Email notification =======
-        //this.createNotification("Completed", 1026, "Mostafa Kamal", "Mostafa Kamal", "ST-50", "Submitted");
-
-        break;
-      }
-      case "PickedUp": {
-        let leftResspective;
-        let a1 = this.parsedRequestInfo.PendingWith.results;  
-        let allTPGrps:any =[];
-
-        for (let s = 0; s < this.parsedRequestInfo.RnDLabTest.TestParameters.length; s++) {
-          allTPGrps.push(this.parsedRequestInfo.RnDLabTest.TestParameters[s].Title.RnDSection)
-        }
-
-        // get array with unique value
-        allTPGrps.filter((v:any, i:any) => allTPGrps.indexOf(v) == i);
-
-        //or
-        //let dup = [...new Set(allTPGrps)];
+        this.processLogListInfo = {
+          name: "supportprocesslog",
+          item: _processLogData
+        }; 
+        
         
 
-        for (let n = 0; n < this.parsedTestParameters.TestParameters.length; n++) {
-          
-          if (this.parsedTestParameters.TestParameters[n].Title.Title == this.emitedDataFrmChild.Title) {
-            this._testParamNode = n;
-
-            //update respective of picked test param only
-            let a3 = this.parsedTestParameters.TestParameters[n].Title.Respectives;
-
-            if(this.parsedRequestInfo.RnDLabTest.length == 1){
-              _pendingWith.push(this.logedUserAdId);
-            }
-            else if(allTPGrps.length==1 ){
-              if(this.requestInfo.RnDLabTest.length == 1){
-                let result = a1.filter((u:any) => !a3.some((user:any) => user.RAdId == u.ID)); //removing own grouped respectives from all PendingWiths
-  
-                result.forEach((element:any) => {
-                  _pendingWith.push(element.ID);
-                });
-                _pendingWith.push(this.logedUserAdId);    
-                
-              }
-            }
-            else{
-              let result = a1.filter((u:any) => !a3.some((user:any) => user.RAdId == u.ID)); //removing own grouped respectives from all PendingWiths
-
-              result.forEach((element:any) => {
-                _pendingWith.push(element.ID);
-              });
-              _pendingWith.push(this.logedUserAdId);   
-              
-            }
-            
-
-            //filter out all respectives except picked by person of this picked test
-            leftResspective = a3.filter((u:any) => (u.RAdId == this.logedUserAdId));
-            this.parsedRequestInfo.RnDLabTest.TestParameters[n].Title.Respectives = leftResspective;
-
-            if (this.parsedRequestInfo.RnDLabTest.TestParameters[n].hasOwnProperty('TestParameterStatus')) {
-              this.parsedRequestInfo.RnDLabTest.TestParameters[n].TestParameterStatus = "PickedUp";
-            } else {
-              //======adding 'TestParameterStatus' object element inside the existing 'TestParameters' object with spread operator ======
-              this.parsedRequestInfo.RnDLabTest.TestParameters[n] = { ...this.parsedRequestInfo.RnDLabTest.TestParameters[n], TestParameterStatus: "PickedUp" };
-            }
-          }
-        }
-
-        _itemData = {
-          RnDLabTest: JSON.stringify(this.parsedRequestInfo.RnDLabTest),
-          PendingWithId: {
-            'results': _pendingWith
-          },
-          Status: "PickedUp"
-        }
-
-        this.updatedMstrLstInfo = {
-          name: "RnDLabTestMaster",
-          rId: this.parsedRequestInfo.ID,
-          item: _itemData
-        }
-
-        //======= update PendingApprovalList start=======
-        this.pendingApprovalListInfo = {
-          Status: "Picked",
-          PendingWithId: {
-            'results': _pendingWith
-          },
-        }
-
-        //-----------sample received comments -----
-        this.auditLogComments = "Sample has been received by '" + this.emitedDataFrmChild.Title + "' lab personnel";
-
-        //=========calling function to update data ======
-        this.updateRequest(this.updatedMstrLstInfo);
-
-        break;
-      }
-      case "ResultSubmit": {
-        if(this.emitedDataFrmChild.PackageCondition == null
-          || this.emitedDataFrmChild.TestPeriodFrom == null
-          || this.emitedDataFrmChild.TestPeriodTo == null){
-            alert("All of PackageCondition, TestPeriodFrom and TestPeriodTo are required !");
-            return false;
-          }
-        //=====validation start ======
-        for (let n = 0; n < this.emitedDataFrmChild.TestResults.length; n++) {
-          for (let r = 0; r < this.emitedDataFrmChild.TestResults[n].Results.length; r++) {
-            if(this.emitedDataFrmChild.TestResults[n].Results[r].Parameter == ""
-            || this.emitedDataFrmChild.TestResults[n].Results[r].TestResult == ""
-            || this.emitedDataFrmChild.TestResults[n].Results[r].Unit == ""){
-              alert("All of Parameter, TestResult and Unit are required in the Test Results fields !")
-              return false;
-            }
-          } 
-        }
-        //---validation ends ---------
 
 
-        //======set pending with =
-        let a1 = this.parsedRequestInfo.PendingWith.results; //get all pendingWith people 
-        let result = a1.filter((u:any) => u.ID != this.logedUserAdId); //removing own grouped respectives from all PendingWiths
+        //this.notificationListInfo = { 
+        // let notInfo = {  
+        //   name: "NotificationList",
+        //   item: {
+        //     Approvers: approvers,
+        //     Notifiers: approvers,
+        //     Requestor: this.emitedDataFrmChild.AppParameters.Requestor.CustName, 
+        //     Title: this.emitedDataFrmChild.AppParameters.Requestor.CustId, 
+        //     Status: _status,
+        //     ProcessLink: this.approvalLink,
+        //     ReviewLink: this.reviewLink 
+        //   }
+        // }
 
-        result.forEach((element:any) => {
-          _pendingWith.push(element.ID); //including other group pendingWith people
+      
+
+       
+        
+        
+        this.emitedDataFrmChild.AppParameters.AssignedTasks.forEach((ati:any, i:index) => {
+          _newAssignTskItms.push({
+            ProcessName: "Support Request",
+            Title: this.emitedDataFrmChild.Title,
+            TaskId: this.emitedDataFrmChild.Title + "T"+(1+i),
+            TaskTitle: ati.TaskTitle, 
+            ExpectedStartDate: ati.ExpectedStartDate, 
+            ExpectedEndDate: ati.ExpectedEndDate,
+            ReporterName:  localStorage.getItem('logedEmpName'),
+            ReporterEmail:  localStorage.getItem('logedEmpEmail')
+          });
+
+          ati.Assignees.forEach(eass => {
+            _newAssignees.push({
+              Title: this.emitedDataFrmChild.Title,
+              TaskId: this.emitedDataFrmChild.Title + "T"+(1+i),
+              AssignedToName: eass.AssignedToName,
+              AssignedToEmail: eass.AssignedToEmail,
+              AssignedToDesignation: eass.AssignedToDesignation,
+              ExpectedTimeTaken: eass.ExpectedTimeTaken,
+              ActualTimeTaken: eass.ActualTimeTaken,
+              AssignedTaskStatus: "Assigned"
+            })
+          });
+
         });
 
-        // this.reportReleaseGrp.forEach(rGrp => {
-        //   _pendingWith.push(rGrp.AdId); //including report release group responsibles
-        // });
 
-
-        for (let n = 0; n < this.parsedTestParameters.TestParameters.length; n++) {
-          if (this.parsedTestParameters.TestParameters[n].Title.Title == this.emitedDataFrmChild.Title) {
-
-            if (this.parsedRequestInfo.RnDLabTest.TestParameters[n].TestParameterStatus &&
-              this.parsedRequestInfo.RnDLabTest.TestParameters[n].TestParameterStatus == "PickedUp") {
-
-              this.parsedRequestInfo.RnDLabTest.TestParameters[n].TestResults = this.emitedDataFrmChild.TestResults;
-              this.parsedRequestInfo.RnDLabTest.TestParameters[n].PackageCondition = this.emitedDataFrmChild.PackageCondition;
-              this.parsedRequestInfo.RnDLabTest.TestParameters[n].PacComments = this.emitedDataFrmChild.PacComments;
-              this.parsedRequestInfo.RnDLabTest.TestParameters[n].TestPeriodFrom = this.emitedDataFrmChild.TestPeriodFrom;
-              this.parsedRequestInfo.RnDLabTest.TestParameters[n].TestPeriodTo = this.emitedDataFrmChild.TestPeriodTo;
-              this.parsedRequestInfo.RnDLabTest.TestParameters[n].TestParameterStatus = "Reported";
-            }
-
-          }
-        }
-
-        for (let n = 0; n < this.parsedRequestInfo.RnDLabTest.TestParameters.length; n++) {
-          if (this.parsedRequestInfo.RnDLabTest.TestParameters[n].hasOwnProperty("TestParameterStatus")) {
-            if (this.parsedRequestInfo.RnDLabTest.TestParameters[n].TestParameterStatus == "PickedUp") {
-              _status = "PartiallyReported";
-            } else { _status = "Reported"; }
-          } else {
-            _status = "PartiallyReported";
-          }
-        }
-
-        _itemData = {
-          RnDLabTest: JSON.stringify(this.parsedRequestInfo.RnDLabTest),
-          PendingWithId: {
-            'results': _pendingWith
+        
+        _updatedAllLstsInfo = {
+          updatedMstrLstInfo: this.updatedMstrLstInfo,
+          pendingApprovalListInfo: this.pendingApprovalListInfo,
+          processLogListInfo: this.processLogListInfo,
+          //attachmentListInfo: this.attachmentListInfo,
+          notificationListInfo: {
+              name: "NotificationList",
+              item: {
+                Approvers: approvers,
+                Notifiers: approvers,
+                Requestor: this.emitedDataFrmChild.Requestor.CustName, 
+                Title: this.emitedDataFrmChild.Title, 
+                Status: _status,
+                ProcessLink: this.approvalLink,
+                ReviewLink: this.reviewLink 
+              }
           },
-          Status: _status
-        }
-
-        this.updatedMstrLstInfo = {
-          name: "RnDLabTestMaster",
-          rId: this.parsedRequestInfo.ID,
-          item: _itemData
-        }
-
-        //======= update PendingApprovalList start=======
-        this.pendingApprovalListInfo = {
-          Status: _status,
-          PendingWithId: {
-            'results': _pendingWith
+          newAssignedTaskListInfo: {
+            name: "SupportAssignedTasks",
+            item: _newAssignTskItms
           },
-        }
-        //-----------update PendingApprovalList ends -----
+          newAssigneesListInfo: {
+            name: "SupportTaskAssignee",
+            item: _newAssignees
+          }
 
-        //-----------sample received comments -----
-        this.auditLogComments = "Report has been released by '" + this.emitedDataFrmChild.Title + "' lab personnel";
+
+
+          
+        }
+
+        if(this.emitedDataFrmChild.AppParameters.Attachments.length > 0){
+          (this.emitedDataFrmChild.AppParameters.Attachments).forEach((file:any) => {
+            _attachmentListData.push({
+              Title: "SR-" + res.ID,
+              ActionBy: this.emitedDataFrmChild.Requestor.CustName,
+              ActionDate: new Date(),
+              File: file
+            })
+          });  
+  
+          this.attachmentListInfo = {
+            name: "supportattachment",
+            item: _attachmentListData
+          };
+
+          _updatedAllLstsInfo.attachmentListInfo= this.attachmentListInfo;
+        }
 
         //=========calling function to update data ======
-        this.updateRequest(this.updatedMstrLstInfo);
+        this.updateRequest(_updatedAllLstsInfo);
 
         break;
       }
-      case "Completed": {
-        //===========validation start 
-        if(this.emitedDataFrmChild.RnDLabTest.ReportNote == ""){
-          alert( "Report Note is required !" );
-          return false;
+
+      case "PickedUp": {
+
+        if( localStorage.getItem('logedEmpName') == "" || localStorage.getItem('logedEmpEmail') == "" ){
+          this.router.navigate(['/login']);
         }
-        //-------validation ends --------
-        _pendingWith = [];
+
+        this.reviewLink = this.webAbsoluteUrl + '/support?guid=' + this.emitedDataFrmChild.uId + "&mode=read";
+        this.approvalLink = this.webAbsoluteUrl + '/support?guid=' + this.emitedDataFrmChild.uId ;
+
+        let asTsks = this.emitedDataFrmChild.AppParameters.AssignedTasks;
+
+        asTsks.forEach(at => {
+
+          if(at.TaskId == this.emitedDataFrmChild.AppParameters.ChildInfo.TaskId){
+            let assignees = at.Assignees;
+
+            assignees.forEach(as => {
+
+              if(as.AssignedToEmail != this.emitedDataFrmChild.AppParameters.ChildInfo.AssignedToEmail){
+                notifiers.push({
+                  approversName: as.AssignedToName,
+                  approversEmail: as.AssignedToEmail
+                });
+              }
+
+            });
+
+          }
+          
+        });
+
+
+        approvers.push({
+          approversName: this.emitedDataFrmChild.AppParameters.ChildInfo.AssignedToName, 
+          approversEmail: this.emitedDataFrmChild.AppParameters.ChildInfo.AssignedToEmail 
+        });
+
+                
+
+        _status = "TaskPickedUp";
+
+        _updatedMstrListData = {
+          PendingTo: JSON.stringify(approvers),
+          Status: _status          
+        };
+
+        this.updatedMstrLstInfo = {
+          name: "supportmaster",
+          rId: this.emitedDataFrmChild.ID,
+          item: _updatedMstrListData
+        }
+
+        _pendingApprovalItemData = { 
+          Status: _status,
+          PendingTo: JSON.stringify(approvers)
+        };
+
+        this.pendingApprovalListInfo = {
+          priKey: this.emitedDataFrmChild.Title,
+          name: "PendingApproval",
+          item: _pendingApprovalItemData
+        };       
+
+        //-----------comments -----
+        _processLogData = {
+          Title: this.emitedDataFrmChild.Title,
+          ActionDate: new Date(),
+          Status: _status,
+          ProcessByName: localStorage.getItem('logedEmpName'),
+          ProcessByEmail: localStorage.getItem('logedEmpEmail'),
+          Comments: this.emitedDataFrmChild.AppParameters.Comments
+        };        
+
+        this.processLogListInfo = {
+          name: "supportprocesslog",
+          item: _processLogData
+        };        
+
+        _updatedAssignee = {
+          ExpectedTimeTaken: this.emitedDataFrmChild.AppParameters.ChildInfo.ExpectedTimeTaken,
+          AssignedTaskStatus: "TaskPickedUp"
+        };     
+        
+        _updatedAllLstsInfo = {
+          updatedMstrLstInfo: this.updatedMstrLstInfo,
+          pendingApprovalListInfo: this.pendingApprovalListInfo,
+          processLogListInfo: this.processLogListInfo,
+          notificationListInfo: {
+              name: "NotificationList",
+              item: {
+                Approvers: approvers,
+                Notifiers: approvers,
+                Requestor: this.emitedDataFrmChild.Requestor.CustName, 
+                Title: this.emitedDataFrmChild.Title, 
+                Status: _status,
+                ProcessLink: this.approvalLink,
+                ReviewLink: this.reviewLink 
+              }
+          },
+          updatedAssigneesListInfo: {
+            name: "SupportTaskAssignee",
+            rId: this.emitedDataFrmChild.AppParameters.ChildInfo.rowId,
+            item: _updatedAssignee
+          }
+
+
+
+          
+        }
+
+        //=========calling function to update data ======
+        this.updateRequest(_updatedAllLstsInfo);
+
+        break;
+      }
+
+      case "ReadyforUAT": {
+
+        if( localStorage.getItem('logedEmpName') == "" || localStorage.getItem('logedEmpEmail') == "" ){
+          this.router.navigate(['/login']);
+        }
+
+        this.reviewLink = this.webAbsoluteUrl + '/support?guid=' + this.emitedDataFrmChild.uId + "&mode=read";
+        this.approvalLink = this.webAbsoluteUrl + '/support?guid=' + this.emitedDataFrmChild.uId ;
+
+        let asTsks = this.emitedDataFrmChild.AppParameters.AssignedTasks;
+
+        asTsks.forEach(at => {
+
+          if(at.TaskId == this.emitedDataFrmChild.AppParameters.ChildInfo.TaskId){
+            
+            approvers.push({
+              approversName: at.ReporterName, 
+              approversEmail: at.ReporterEmail 
+            });
+
+            notifiers.push({
+              approversName: at.ReporterName, //should be fix up
+              approversEmail: at.ReporterEmail //should be fix up
+            });
+
+          }
+          
+        });                
+
+        _status = "ReadyforUAT";
+
+        _updatedMstrListData = {
+          PendingTo: JSON.stringify(approvers),
+          Status: _status          
+        };
+
+        this.updatedMstrLstInfo = {
+          name: "supportmaster",
+          rId: this.emitedDataFrmChild.ID,
+          item: _updatedMstrListData
+        }
+
+        _pendingApprovalItemData = { 
+          Status: _status,
+          PendingTo: JSON.stringify(approvers)
+        };
+
+        this.pendingApprovalListInfo = {
+          priKey: this.emitedDataFrmChild.Title,
+          name: "PendingApproval",
+          item: _pendingApprovalItemData
+        };       
+
+        //----------- comments -----
+        _processLogData = {
+          Title: this.emitedDataFrmChild.Title,
+          ActionDate: new Date(),
+          Status: _status,
+          ProcessByName: localStorage.getItem('logedEmpName'),
+          ProcessByEmail: localStorage.getItem('logedEmpEmail'),
+          Comments: this.emitedDataFrmChild.AppParameters.Comments
+        };        
+
+        this.processLogListInfo = {
+          name: "supportprocesslog",
+          item: _processLogData
+        };        
+
+        _updatedAssignee = {
+          ExpectedTimeTaken: this.emitedDataFrmChild.AppParameters.ChildInfo.ExpectedTimeTaken,
+          ActualTimeTaken: this.emitedDataFrmChild.AppParameters.ChildInfo.ActualTimeTaken,
+          AssignedTaskStatus: "ReadyforUAT",
+        };     
+        
+        _updatedAllLstsInfo = {
+          updatedMstrLstInfo: this.updatedMstrLstInfo,
+          pendingApprovalListInfo: this.pendingApprovalListInfo,
+          processLogListInfo: this.processLogListInfo,
+          notificationListInfo: {
+              name: "NotificationList",
+              item: {
+                Approvers: approvers,
+                Notifiers: approvers,
+                Requestor: this.emitedDataFrmChild.Requestor.CustName, 
+                Title: this.emitedDataFrmChild.Title, 
+                Status: _status,
+                ProcessLink: this.approvalLink,
+                ReviewLink: this.reviewLink 
+              }
+          },
+          updatedAssigneesListInfo: {
+            name: "SupportTaskAssignee",
+            rId: this.emitedDataFrmChild.AppParameters.ChildInfo.rowId,
+            item: _updatedAssignee
+          }
+
+
+
+          
+        }
+
+        //=========calling function to update data ======
+        this.updateRequest(_updatedAllLstsInfo);
+
+        break;
+      }
+
+      case "UATRequest": {
+
+        
+        if( localStorage.getItem('logedEmpName') == "" || localStorage.getItem('logedEmpEmail') == "" ){
+          this.router.navigate(['/login']);
+        }
+
+        this.reviewLink = this.webAbsoluteUrl + '/support?guid=' + this.emitedDataFrmChild.uId! + "&mode=read";
+        this.approvalLink = this.webAbsoluteUrl + '/support?guid=' + this.emitedDataFrmChild.uId! ;
+
+        let asTsks = this.emitedDataFrmChild.AppParameters.AssignedTasks;
+
+        approvers.push({
+          approversName: this.emitedDataFrmChild.AppParameters.SystemDetail.PersonIncharge, 
+          approversEmail: this.emitedDataFrmChild.AppParameters.SystemDetail.SIEmail 
+        });
+
+        notifiers.push({
+          approversName: this.emitedDataFrmChild.Requestor.CustName, 
+          approversEmail: this.emitedDataFrmChild.Requestor.Cust1stEmail 
+        });  
+        
+        notifiers.push({
+          approversName: this.allApprovers.gmITName,
+          approversEmail: this.allApprovers.gmITEmail
+        });
+
+        _status = "UATRequest";
+
+        _updatedMstrListData = {
+          PendingTo: JSON.stringify(approvers),
+          Status: _status          
+        };
+
+        this.updatedMstrLstInfo = {
+          name: "supportmaster",
+          rId: this.emitedDataFrmChild.ID,
+          item: _updatedMstrListData
+        }
+
+        _pendingApprovalItemData = { 
+          Status: _status,
+          PendingTo: JSON.stringify(approvers)
+        };
+
+        this.pendingApprovalListInfo = {
+          priKey: this.emitedDataFrmChild.Title,
+          name: "PendingApproval",
+          item: _pendingApprovalItemData
+        };       
+
+        //----------- comments -----
+        _processLogData = {
+          Title: this.emitedDataFrmChild.Title,
+          ActionDate: new Date(),
+          Status: _status,
+          ProcessByName: localStorage.getItem('logedEmpName'),
+          ProcessByEmail: localStorage.getItem('logedEmpEmail'),
+          Comments: this.emitedDataFrmChild.AppParameters.Comments
+        };        
+
+        this.processLogListInfo = {
+          name: "supportprocesslog",
+          item: _processLogData
+        };        
+
+        _updatedAssignee = {
+          ExpectedTimeTaken: this.emitedDataFrmChild.AppParameters.ChildInfo.ExpectedTimeTaken,
+          ActualTimeTaken: this.emitedDataFrmChild.AppParameters.ChildInfo.ActualTimeTaken,
+          AssignedTaskStatus: "ReadyforUAT",
+        };     
+        
+        _updatedAllLstsInfo = {
+          updatedMstrLstInfo: this.updatedMstrLstInfo,
+          pendingApprovalListInfo: this.pendingApprovalListInfo,
+          processLogListInfo: this.processLogListInfo,
+          notificationListInfo: {
+              name: "NotificationList",
+              item: {
+                Approvers: approvers,
+                Notifiers: approvers,
+                Requestor: this.emitedDataFrmChild.Requestor.CustName, 
+                Title: this.emitedDataFrmChild.Title, 
+                Status: _status,
+                ProcessLink: this.approvalLink,
+                ReviewLink: this.reviewLink 
+              }
+          },
+          updatedAssigneesListInfo: {
+            name: "SupportTaskAssignee",
+            rId: this.emitedDataFrmChild.AppParameters.ChildInfo.rowId,
+            item: _updatedAssignee
+          }
+
+
+
+          
+        }
+
+        //=========calling function to update data ======
+        this.updateRequest(_updatedAllLstsInfo);
+
+        break;
+      }
+
+      case "Query": {
+
+        
+        if( localStorage.getItem('logedEmpName') == null || localStorage.getItem('logedEmpEmail') == null ){
+          this.router.navigate(['/login']);
+        }
+
+        this.reviewLink = this.webAbsoluteUrl + '/support?guid=' + this.emitedDataFrmChild.uId! + "&mode=read";
+        this.approvalLink = this.webAbsoluteUrl + '/support?guid=' + this.emitedDataFrmChild.uId! ;
+
+        let asTsks = this.emitedDataFrmChild.AppParameters.AssignedTasks;
+
+        approvers.push({
+          approversName: this.emitedDataFrmChild.AppParameters.SystemDetail.PersonIncharge, 
+          approversEmail: this.emitedDataFrmChild.AppParameters.SystemDetail.SIEmail 
+        });
+
+        notifiers.push({
+          approversName: this.emitedDataFrmChild.Requestor.CustName, 
+          approversEmail: this.emitedDataFrmChild.Requestor.Cust1stEmail 
+        });  
+        
+        notifiers.push({
+          approversName: this.allApprovers.gmITName,
+          approversEmail: this.allApprovers.gmITEmail
+        });
+
+        _status = "Query";
+
+        _updatedMstrListData = {
+          PendingTo: JSON.stringify(approvers),
+          Status: _status,
+          LastStatus: this.emitedDataFrmChild.Status,
+          LastApproverName: localStorage.getItem('logedEmpName'),
+          LastApproverEmail: localStorage.getItem('logedEmpEmail'),
+                    
+        };
+
+        this.updatedMstrLstInfo = {
+          name: "supportmaster",
+          rId: this.emitedDataFrmChild.ID,
+          item: _updatedMstrListData
+        }
+
+        _pendingApprovalItemData = { 
+          Status: _status,
+          PendingTo: JSON.stringify(approvers)
+        };
+
+        this.pendingApprovalListInfo = {
+          priKey: this.emitedDataFrmChild.Title,
+          name: "PendingApproval",
+          item: _pendingApprovalItemData
+        };       
+
+        //----------- comments -----
+        _processLogData = {
+          Title: this.emitedDataFrmChild.Title,
+          ActionDate: new Date(),
+          Status: _status,
+          ProcessByName: localStorage.getItem('logedEmpName'),
+          ProcessByEmail: localStorage.getItem('logedEmpEmail'),
+          Comments: this.emitedDataFrmChild.AppParameters.Comments
+        };       
+
+        this.processLogListInfo = {
+          name: "supportprocesslog",
+          item: _processLogData
+        };  
+        
+        //========for Query start =====
+        _queriesData = {
+          Title: this.emitedDataFrmChild.Title,
+          ActionDate: new Date(),
+          Status: _status,
+          ProcessByName: localStorage.getItem('logedEmpName'),
+          ProcessByEmail: localStorage.getItem('logedEmpEmail'),
+          QueryOrResponse: this.emitedDataFrmChild.AppParameters.Comments
+        };        
+
+        this.queryResponseListInfo = {
+          name: "SupportRequestQueries",
+          item: _queriesData
+        }; 
+        //-------- for query ends -----
+
+        _updatedAssignee = {
+          ExpectedTimeTaken: this.emitedDataFrmChild.AppParameters.ChildInfo.ExpectedTimeTaken,
+          ActualTimeTaken: this.emitedDataFrmChild.AppParameters.ChildInfo.ActualTimeTaken,
+          AssignedTaskStatus: "ReadyforUAT",
+        };     
+        
+        _updatedAllLstsInfo = {
+          updatedMstrLstInfo: this.updatedMstrLstInfo,
+          pendingApprovalListInfo: this.pendingApprovalListInfo,
+          processLogListInfo: this.processLogListInfo,
+          queryResponseListInfo: this.queryResponseListInfo,
+          notificationListInfo: {
+              name: "NotificationList",
+              item: {
+                Approvers: approvers,
+                Notifiers: approvers,
+                Requestor: this.emitedDataFrmChild.Requestor.CustName, 
+                Title: this.emitedDataFrmChild.Title, 
+                Status: _status,
+                ProcessLink: this.approvalLink,
+                ReviewLink: this.reviewLink 
+              }
+          },
+          updatedAssigneesListInfo: {
+            name: "SupportTaskAssignee",
+            rId: this.emitedDataFrmChild.AppParameters.ChildInfo.rowId,
+            item: _updatedAssignee
+          }
+
+
+
+          
+        }
+
+        //=========calling function to update data ======
+        this.updateRequest(_updatedAllLstsInfo);
+
+        break;
+      }
+
+      case "UATFeedbackFrmCustomer": {
+
+        this.reviewLink = this.webAbsoluteUrl + '/support?guid=' + this.emitedDataFrmChild.uId + "&mode=read";
+        this.approvalLink = this.webAbsoluteUrl + '/support?guid=' + this.emitedDataFrmChild.uId ;
+
+        let asTsks = this.emitedDataFrmChild.AppParameters.AssignedTasks;
+
+        let apvr = [];
+
+        asTsks.forEach(at => {
+            
+          apvr.push({
+            approversName: at.ReporterName, 
+            approversEmail: at.ReporterEmail 
+          });         
+          
+        });
+
+        let uapvr = this._removeDuplicateObjects(apvr);
+        approvers = uapvr;
+
+        notifiers.push({
+          approversName: this.allApprovers.gmITName,
+          approversEmail: this.allApprovers.gmITEmail
+        });                
+
+        _status = "UATFeedbackFrmCustomer";
+
+        _updatedMstrListData = {
+          PendingTo: JSON.stringify(approvers),
+          Status: _status          
+        };
+
+        this.updatedMstrLstInfo = {
+          name: "supportmaster",
+          rId: this.emitedDataFrmChild.ID,
+          item: _updatedMstrListData
+        }
+
+        _pendingApprovalItemData = { 
+          Status: _status,
+          PendingTo: JSON.stringify(approvers)
+        };
+
+        this.pendingApprovalListInfo = {
+          priKey: this.emitedDataFrmChild.Title,
+          name: "PendingApproval",
+          item: _pendingApprovalItemData
+        };       
+
+        //-----------comments -----
+        _processLogData = {
+          Title: this.emitedDataFrmChild.Title,
+          ActionDate: new Date(),
+          Status: _status,
+          ProcessByName: this.emitedDataFrmChild.Requestor.CustName,//should be replaced by logged user Name
+          ProcessByEmail: this.emitedDataFrmChild.Requestor.Cust1stEmail,//should be replaced by logged user email
+          Comments: this.emitedDataFrmChild.AppParameters.Comments
+        };        
+
+        this.processLogListInfo = {
+          name: "supportprocesslog",
+          item: _processLogData
+        };        
+
+        _updatedAssignee = {
+          ExpectedTimeTaken: this.emitedDataFrmChild.AppParameters.ChildInfo.ExpectedTimeTaken,
+          ActualTimeTaken: this.emitedDataFrmChild.AppParameters.ChildInfo.ActualTimeTaken,
+          AssignedTaskStatus: "ReadyforUAT",
+        };     
+        
+        _updatedAllLstsInfo = {
+          updatedMstrLstInfo: this.updatedMstrLstInfo,
+          pendingApprovalListInfo: this.pendingApprovalListInfo,
+          processLogListInfo: this.processLogListInfo,
+          notificationListInfo: {
+              name: "NotificationList",
+              item: {
+                Approvers: approvers,
+                Notifiers: approvers,
+                Requestor: this.emitedDataFrmChild.Requestor.CustName, 
+                Title: this.emitedDataFrmChild.Title, 
+                Status: _status,
+                ProcessLink: this.approvalLink,
+                ReviewLink: this.reviewLink 
+              }
+          },
+          updatedAssigneesListInfo: {
+            name: "SupportTaskAssignee",
+            rId: this.emitedDataFrmChild.AppParameters.ChildInfo.rowId,
+            item: _updatedAssignee
+          }
+
+
+
+          
+        }
+
+        //=========calling function to update data ======
+        this.updateRequest(_updatedAllLstsInfo);
+
+        break;
+      }
+
+      case "ReleaseAssignee": {
+
+        if( localStorage.getItem('logedEmpName') == "" || localStorage.getItem('logedEmpEmail') == "" ){
+          this.router.navigate(['/login']);
+        }
+
+        this.reviewLink = this.webAbsoluteUrl + '/support?guid=' + this.emitedDataFrmChild.uId + "&mode=read";
+        this.approvalLink = this.webAbsoluteUrl + '/support?guid=' + this.emitedDataFrmChild.uId ;
+
+        let asTsks = this.emitedDataFrmChild.AppParameters.AssignedTasks;
+
+        approvers.push({
+          approversName: this.emitedDataFrmChild.AppParameters.ChildInfo.AssignedToName, 
+          approversEmail: this.emitedDataFrmChild.AppParameters.ChildInfo.AssignedToEmail, 
+        });
+
+        notifiers.push({
+          approversName: this.emitedDataFrmChild.AppParameters.ChildInfo.AssignedToName,
+          approversEmail: this.emitedDataFrmChild.AppParameters.ChildInfo.AssignedToEmail,
+        });                
+
+        _status = "ReadyforUAT";
+        _detailStatus = "ReleaseAssignee";
+
+        _updatedMstrListData = {
+          PendingTo: JSON.stringify(approvers),
+          Status: _status          
+        };
+
+        this.updatedMstrLstInfo = {
+          name: "supportmaster",
+          rId: this.emitedDataFrmChild.ID,
+          item: _updatedMstrListData
+        }
+
+        _pendingApprovalItemData = { 
+          Status: _status,
+          PendingTo: JSON.stringify(approvers)
+        };
+
+        this.pendingApprovalListInfo = {
+          priKey: this.emitedDataFrmChild.Title,
+          name: "PendingApproval",
+          item: _pendingApprovalItemData
+        };       
+
+        //-----------comments -----
+        _processLogData = {
+          Title: this.emitedDataFrmChild.Title,
+          ActionDate: new Date(),
+          Status: _detailStatus,
+          ProcessByName: localStorage.getItem('logedEmpName'),
+          ProcessByEmail: localStorage.getItem('logedEmpEmail'),
+          Comments: _detailStatus
+        };        
+
+        this.processLogListInfo = {
+          name: "supportprocesslog",
+          item: _processLogData
+        };        
+
+        _updatedAssignee = {
+          ExpectedTimeTaken: this.emitedDataFrmChild.AppParameters.ChildInfo.ExpectedTimeTaken,
+          AcceptedTimeTaken: this.emitedDataFrmChild.AppParameters.ChildInfo.ExpectedTimeTaken,
+          AssignedTaskStatus: _detailStatus,
+        };     
+        
+        _updatedAllLstsInfo = {
+          updatedMstrLstInfo: this.updatedMstrLstInfo,
+          pendingApprovalListInfo: this.pendingApprovalListInfo,
+          processLogListInfo: this.processLogListInfo,
+          notificationListInfo: {
+              name: "NotificationList",
+              item: {
+                Approvers: approvers,
+                Notifiers: approvers,
+                Requestor: this.emitedDataFrmChild.Requestor.CustName, 
+                Title: this.emitedDataFrmChild.Title, 
+                Status: _detailStatus,
+                ProcessLink: this.approvalLink,
+                ReviewLink: this.reviewLink 
+              }
+          },
+          updatedAssigneesListInfo: {
+            name: "SupportTaskAssignee",
+            rId: this.emitedDataFrmChild.AppParameters.ChildInfo.rowId,
+            item: _updatedAssignee
+          }
+
+
+
+          
+        }
+
+        //=========calling function to update data ======
+        this.updateRequest(_updatedAllLstsInfo);
+
+        break;
+      }
+
+      case "QueryFrmAssignee": {
+
+        if( localStorage.getItem('logedEmpName') == "" || localStorage.getItem('logedEmpEmail') == "" ){
+          this.router.navigate(['/login']);
+        }
+
+        this.reviewLink = this.webAbsoluteUrl + '/support?guid=' + this.emitedDataFrmChild.uId + "&mode=read";
+        this.approvalLink = this.webAbsoluteUrl + '/support?guid=' + this.emitedDataFrmChild.uId ;
+
+        let asTsks = this.emitedDataFrmChild.AppParameters.AssignedTasks;          
+            
+        approvers.push({
+          approversName: this.emitedDataFrmChild.AppParameters.SystemDetail.PersonIncharge, 
+          approversEmail: this.emitedDataFrmChild.AppParameters.SystemDetail.SIEmail 
+        });
+
+        notifiers.push({
+          approversName: this.emitedDataFrmChild.Requestor.CustName, 
+          approversEmail: this.emitedDataFrmChild.Requestor.Cust1stEmail,
+        });                  
+
+        _status = "QueryFrmAssignee";
+
+        _updatedMstrListData = {
+          PendingTo: JSON.stringify(approvers),
+          Status: _status          
+        };
+
+        this.updatedMstrLstInfo = {
+          name: "supportmaster",
+          rId: this.emitedDataFrmChild.ID,
+          item: _updatedMstrListData
+        }
+
+        _pendingApprovalItemData = { 
+          Status: _status,
+          PendingTo: JSON.stringify(approvers)
+        };
+
+        this.pendingApprovalListInfo = {
+          priKey: this.emitedDataFrmChild.Title,
+          name: "PendingApproval",
+          item: _pendingApprovalItemData
+        };       
+
+        //-----------comments -----
+        _processLogData = {
+          Title: this.emitedDataFrmChild.Title,
+          ActionDate: new Date(),
+          Status: _status,
+          ProcessByName: localStorage.getItem('logedEmpName'),
+          ProcessByEmail: localStorage.getItem('logedEmpEmail'),
+          Comments: this.emitedDataFrmChild.AppParameters.Comments
+        };        
+
+        this.processLogListInfo = {
+          name: "supportprocesslog",
+          item: _processLogData
+        };        
+
+        _updatedAssignee = {
+          AssigneeQuery: this.emitedDataFrmChild.AppParameters.ChildInfo.AssigneeQuery,
+          AssignedTaskStatus: "QueryFrmAssignee",
+        };     
+        
+        _updatedAllLstsInfo = {
+          updatedMstrLstInfo: this.updatedMstrLstInfo,
+          pendingApprovalListInfo: this.pendingApprovalListInfo,
+          processLogListInfo: this.processLogListInfo,
+          notificationListInfo: {
+              name: "NotificationList",
+              item: {
+                Approvers: approvers,
+                Notifiers: approvers,
+                Requestor: this.emitedDataFrmChild.Requestor.CustName, 
+                Title: this.emitedDataFrmChild.Title, 
+                Status: _status,
+                ProcessLink: this.approvalLink,
+                ReviewLink: this.reviewLink 
+              }
+          },
+          updatedAssigneesListInfo: {
+            name: "SupportTaskAssignee",
+            rId: this.emitedDataFrmChild.AppParameters.ChildInfo.rowId,
+            item: _updatedAssignee
+          }
+
+
+
+          
+        }
+
+        //=========calling function to update data ======
+        this.updateRequest(_updatedAllLstsInfo);
+
+        break;
+      }
+
+      case "ReAssign": {
+
+        if( localStorage.getItem('logedEmpName') == null || localStorage.getItem('logedEmpEmail') == null ){
+          this.router.navigate(['/login']);
+        }
+
+        this.reviewLink = this.webAbsoluteUrl + '/support?guid=' + this.emitedDataFrmChild.uId + "&mode=read";
+        this.approvalLink = this.webAbsoluteUrl + '/support?guid=' + this.emitedDataFrmChild.uId ;
+
+        let asTsks = this.emitedDataFrmChild.AppParameters.AssignedTasks;
+
+        asTsks.forEach(at => {
+
+          if(at.TaskId == this.emitedDataFrmChild.AppParameters.ChildInfo.TaskId){
+            
+            approvers.push({
+              approversName: this.emitedDataFrmChild.AppParameters.ChildInfo.AssignedToName, 
+              approversEmail: this.emitedDataFrmChild.AppParameters.ChildInfo.AssignedToEmail, 
+            });
+
+            notifiers.push({
+              approversName: this.emitedDataFrmChild.Requestor.CustName,
+              approversEmail: this.emitedDataFrmChild.Requestor.Cust1stEmail
+            });
+
+            notifiers.push({
+              approversName: this.allApproversgmITName, 
+              approversEmail: this.allApproversgmITEmail 
+            });
+
+          }
+          
+        });                
+
+        _status = "ReAssigned";
+
+        _updatedMstrListData = {
+          PendingTo: JSON.stringify(approvers),
+          Status: _status          
+        };
+
+        this.updatedMstrLstInfo = {
+          name: "supportmaster",
+          rId: this.emitedDataFrmChild.ID,
+          item: _updatedMstrListData
+        }
+
+        _pendingApprovalItemData = { 
+          Status: _status,
+          PendingTo: JSON.stringify(approvers)
+        };
+
+        this.pendingApprovalListInfo = {
+          priKey: this.emitedDataFrmChild.Title,
+          name: "PendingApproval",
+          item: _pendingApprovalItemData
+        };       
+
+        //----------- comments -----
+        _processLogData = {
+          Title: this.emitedDataFrmChild.Title,
+          ActionDate: new Date(),
+          Status: _status,
+          ProcessByName: localStorage.getItem('logedEmpName'),
+          ProcessByEmail: localStorage.getItem('logedEmpEmail'),
+          Comments: this.emitedDataFrmChild.AppParameters.Comments
+        };        
+
+        this.processLogListInfo = {
+          name: "supportprocesslog",
+          item: _processLogData
+        };        
+
+        _updatedAssignee = {
+          //ExpectedTimeTaken: this.emitedDataFrmChild.AppParameters.ChildInfo.ExpectedTimeTaken,
+          //ActualTimeTaken: this.emitedDataFrmChild.AppParameters.ChildInfo.ActualTimeTaken,
+          AssignedTaskStatus: "ReAssigned",
+        };     
+        
+        _updatedAllLstsInfo = {
+          updatedMstrLstInfo: this.updatedMstrLstInfo,
+          pendingApprovalListInfo: this.pendingApprovalListInfo,
+          processLogListInfo: this.processLogListInfo,
+          notificationListInfo: {
+              name: "NotificationList",
+              item: {
+                Approvers: approvers,
+                Notifiers: approvers,
+                Requestor: this.emitedDataFrmChild.Requestor.CustName, 
+                Title: this.emitedDataFrmChild.Title, 
+                Status: _status,
+                ProcessLink: this.approvalLink,
+                ReviewLink: this.reviewLink 
+              }
+          },
+          updatedAssigneesListInfo: {
+            name: "SupportTaskAssignee",
+            rId: this.emitedDataFrmChild.AppParameters.ChildInfo.rowId,
+            item: _updatedAssignee
+          }
+
+
+
+          
+        }
+
+        //=========calling function to update data ======
+        this.updateRequest(_updatedAllLstsInfo);
+
+        break;
+      }
+
+      case "Completed": {
+
+        this.reviewLink = this.webAbsoluteUrl + this.emitedDataFrmChild.uId + "&mode=read";
+        this.approvalLink = this.webAbsoluteUrl + this.emitedDataFrmChild.uId ;
+
+        notifiers.push({
+          approversName: this.allApprovers.headITInfraName,
+          approversEmail: this.allApprovers.headITInfraEmail
+        });
+
+        notifiers.push({
+          approversName: this.allApprovers.headERPName,
+          approversEmail: this.allApprovers.headERPEmail
+        });
+
+        notifiers.push({
+          approversName: this.allApprovers.gmITName,
+          approversEmail: this.allApprovers.gmITEmail
+        });
+
+        notifiers.push({
+          approversName: this.emitedDataFrmChild.AppParameters.SystemDetail.PersonIncharge, 
+          approversEmail: this.emitedDataFrmChild.AppParameters.SystemDetail.SIEmail
+        });
+
+        notifiers.push({
+          approversName: this.emitedDataFrmChild.Requestor.CustName, 
+          approversEmail: this.emitedDataFrmChild.Requestor.Cust1stEmail
+        });
+        
+
         _status = "Completed";
 
         _updatedMstrListData = {
-          RnDLabTest: JSON.stringify(this.emitedDataFrmChild.RnDLabTest),
-          PendingWithId: {
-            'results': _pendingWith
-          },
-          Status: _status
+          PendingTo: JSON.stringify(approvers),
+          Status: _status          
         };
 
         this.updatedMstrLstInfo = {
-          name: "RnDLabTestMaster",
-          rId: this.parsedRequestInfo.ID,
+          name: "supportmaster",
+          rId: this.emitedDataFrmChild.ID,
           item: _updatedMstrListData
         }
 
-        this.pendingApprovalListInfo = _updatedMstrListData;
+        _pendingApprovalItemData = { 
+          Status: _status,
+          PendingTo: JSON.stringify(approvers)
+        };
 
-        //-----------sample received comments -----
-        this.auditLogComments = "Report has been released";
+        this.pendingApprovalListInfo = {
+          priKey: this.emitedDataFrmChild.AppParameters.Requestor.CustId,
+          name: "PendingApproval",
+          item: _pendingApprovalItemData
+        };       
 
-        //=========calling function to update data ======
-        this.updateRequest(this.updatedMstrLstInfo);
-
-        //=====Email notification =======
-        //this.createNotification("Completed", 1026, "Mostafa Kamal", "Mostafa Kamal", "ST-50", "Submitted");
-
-        break;
-      }
-      case "FeedbackSubmit": {
-        _pendingWith = [];
-        _status = "FeedbackSubmitted";
-
-        _itemData = {
-          RnDLabTest: JSON.stringify(this.parsedRequestInfo.RnDLabTest),          
-          Status: _status
+        // ## === processLogData === ##
+        if(localStorage.getItem('logedCustEmail') != null){
+          _processLogData = {
+            Title: this.emitedDataFrmChild.Title,
+            ActionDate: new Date(),
+            Status: _status,
+            ProcessByName: localStorage.getItem('logedCustName'),
+            ProcessByEmail: localStorage.getItem('logedCustEmail'),
+            Comments: this.emitedDataFrmChild.AppParameters.Comments
+          }; 
+        }else{
+          _processLogData = {
+            Title: this.emitedDataFrmChild.Title,
+            ActionDate: new Date(),
+            Status: _status,
+            ProcessByName: localStorage.getItem('logedEmpName'),
+            ProcessByEmail: localStorage.getItem('logedEmpEmail'),
+            Comments: this.emitedDataFrmChild.AppParameters.Comments
+          }; 
         }
+               
 
+        this.processLogListInfo = {
+          name: "supportprocesslog",
+          item: _processLogData
+        }; 
+
+        // this.notificationListInfo = {
+        //   name: "NotificationList",
+        //   item: {
+        //     Approvers: approvers,
+        //     Notifiers: notifiers,
+        //     Requestor: this.emitedDataFrmChild.AppParameters.Requestor.CustName, 
+        //     Title: this.emitedDataFrmChild.AppParameters.Requestor.CustId, 
+        //     Status: _status,
+        //     ProcessLink: this.approvalLink,
+        //     ReviewLink: this.reviewLink 
+        //   }
+        // }
+
+        if(this.emitedDataFrmChild.AppParameters.Attachments.length >0 ){
+          (this.emitedDataFrmChild.AppParameters.Attachments).forEach((file:any) => {
+            _attachmentListData.push({
+              CustId: this.emitedDataFrmChild.AppParameters.Requestor.CustId,
+              ActionBy: this.emitedDataFrmChild.AppParameters.Requestor.CustName,
+              ActionDate: new Date(),
+              File: file
+            })
+          }); 
+        }
+         
+
+        this.attachmentListInfo = {
+          name: "supportattachment",
+          item: _attachmentListData
+        }; 
         
-
-        _updatedMstrListData = {
-          RnDLabTest: JSON.stringify(this.emitedDataFrmChild.RnDLabTest),
-          PendingWithId: {
-            'results': _pendingWith
-          },
-          Status: _status
-        };
-
-        this.updatedMstrLstInfo = {
-          name: "RnDLabTestMaster",
-          rId: this.parsedRequestInfo.ID,
-          item: _updatedMstrListData
+        _updatedAllLstsInfo = {
+          updatedMstrLstInfo: this.updatedMstrLstInfo,          
+          pendingApprovalListInfo: this.pendingApprovalListInfo,
+          processLogListInfo: this.processLogListInfo,
+          attachmentListInfo: this.attachmentListInfo,
+          notificationListInfo: {
+            name: "NotificationList",
+            item: {
+              Approvers: approvers,
+              Notifiers: notifiers,
+              Requestor: this.emitedDataFrmChild.AppParameters.Requestor.CustName, 
+              Title: this.emitedDataFrmChild.AppParameters.Requestor.CustId, 
+              Status: _status,
+              ProcessLink: this.approvalLink,
+              ReviewLink: this.reviewLink 
+            }
+          }
+          
         }
 
-        this.pendingApprovalListInfo = _updatedMstrListData;
-
-        //-----------sample received comments -----
-        this.auditLogComments = "Feedback has been submitted.";
-
         //=========calling function to update data ======
-        this.updateRequest(this.updatedMstrLstInfo);
-        //alert("Action is undefined for this feedback type of click event !!");
+        this.updateRequest(_updatedAllLstsInfo);
+
         break;
       }
+
       default: {
-        alert("Action is undefined for this type of click event !!");
+        alert("Action is undefined for this type of click event !!!");
         break;
       }
       
     }
   }
 
-  updateInPendingApvrList(itemData:any) {
-    this.listInfo.name = "PendingApproval";
-    this.listInfo.select = 'ID' + "," + 'Title';
-    this.listInfo.expand = 'Author' + "," + 'PendingWith';
-    this.listInfo.filterBy = 'Title';
-    this.listInfo.filterWith = this.parsedRequestInfo.Title;
-    this.listInfo.top = 1;
+  updateInPendingApvrList(itemData:any) {  
+    
+    return new Promise((resolve:any, reject:any)=>{
 
-    from(
-      this.sharepointlistService.getFilteredItemsWithoutExpand(this.listInfo)
-    ).subscribe(
-      (res) => {
-        let listInfo = {
-          name: "PendingApproval",
-          rId: res[0].ID,
-          item: itemData
+      try{
+
+        let penListInfo = {
+          name: itemData.name,
+          select: 'ID' + "," + 'Title',
+          filterBy: 'Title',
+          filterWith: itemData.priKey,
+          top: 1
         }
 
-        this.sharepointlistService.updateListItem(listInfo);
+        from(
+          this.sharepointlistService.getFilteredItemsWithoutExpand(penListInfo)
+        ).subscribe(
+          (res:any) => {
+            let listInfo = {
+              name: "PendingApproval",
+              rId: res[0].ID,
+              item: itemData.item
+            }
+
+            this.sharepointlistService.updateListItem(listInfo).then((res:any)=>{
+              resolve(res);
+            });
+          }
+        ) 
+      } 
+      catch(err){
+        reject('Failed');
+        console.log("Error: " + err);
       }
-    )
+    })
+
+    
   }
 
   //=============for customer feedback =========
@@ -1175,6 +3498,465 @@ export class SupporthomeComponent implements OnInit {
     }
 
   }
+
+  async createProcessLog(logListInfo: any) {
+
+    return await new Promise((resolve:any, reject:any)=>{
+
+      try{
+
+        this.sharepointlistService.saveListItem(logListInfo).then(
+          (res:any) => {
+            if(res.ID != null){
+              resolve(res);
+            }
+          })
+           
+      } 
+      catch(err){
+
+        reject('Failed');
+        console.log("Error: " + err);
+
+      }
+    })    
+
+  }
+
+  async saveInPendingApvrList(pendingListInfo: any) {
+
+    await this.sharepointlistService.saveListItem(pendingListInfo).then(
+      (res:any) => {})
+
+      return new Promise((resolve, reject)=>{
+        try{
+          this.sharepointlistService.saveListItem(pendingListInfo).then((res) =>{ 
+                
+                resolve(res.ID);               
+                                
+              },    
+              (err) => {
+                  reject('PendingApvrList Add failed !');
+                  console.log(err)
+              },
+            ); 
+        } 
+        catch(err){
+          reject('Retrieve data failed !');
+          console.log("Error: " + err);
+        }
+      })
+
+  }
+
+  async createAttachment(attachmentInfo, file) {
+
+    return new Promise((resolve, reject)=>{
+      try{
+          this.sharepointlistService.saveListItem(attachmentInfo).then((res) =>{ 
+              let fileList ={
+                name: "supportattachment",
+                id: res.ID,
+                arrayBuffer: file.arrayBuffer,
+                attachmentName: file.name
+              }
+
+              this.sharepointlistService.addAttachment(fileList).then(res =>{
+                resolve(res.ID);
+              }) 
+                              
+            },    
+            (err) => {
+                reject('Attachment Add failed !');
+                console.log(err)
+            },
+          ); 
+      } 
+      catch(err){
+        reject('Retrieve data failed !');
+        console.log("Error: " + err);
+      }
+    })
+  };
+
+  async saveDetailItem(detListInfo: any) {    
+
+    return await new Promise((resolve:any, reject:any)=>{
+
+      try{
+
+        this.sharepointlistService.saveListItem(detListInfo).then(
+          (res:any) => {
+            if(res.ID != ""){
+              resolve(res);
+              return res;
+            }
+          })
+      } 
+      catch(err){
+
+        reject('Failed');
+        return 'Failed';
+        console.log("Error: " + err);
+
+      }
+    })
+
+  };
+
+  async saveAssignTaskItem(detListInfo: any) {    
+
+    return await new Promise((resolve:any, reject:any)=>{
+
+      try{
+
+        this.sharepointlistService.saveListItem(detListInfo).then(
+          (res:any) => {
+            if(res.ID != ""){
+              resolve(res);
+              return res;
+            }
+          })
+      } 
+      catch(err){
+
+        reject('Failed');
+        return 'Failed';
+        console.log("Error: " + err);
+
+      }
+    })
+
+  };
+
+  async saveAssigneesItem(detListInfo: any) {    
+
+    return await new Promise((resolve:any, reject:any)=>{
+
+      try{
+
+        this.sharepointlistService.saveListItem(detListInfo).then(
+          (res:any) => {
+            if(res.ID != ""){
+              resolve(res);
+              return res;
+            }
+          })
+      } 
+      catch(err){
+
+        reject('Failed');
+        return 'Failed';
+        console.log("Error: " + err);
+
+      }
+    })
+
+  };
+
+  async updateInDetailList(itemsData:any) {  
+    
+    return await new Promise((resolve:any, reject:any)=>{
+
+      try{
+
+        if(itemsData.item.length > 0){
+          for(let ud=0; ud < itemsData.item.length; ud++){
+
+            let listInfo = {
+              name: itemsData.name,
+              rId: itemsData.item[ud].rowId,
+              item: itemsData.item[ud].rowItems
+            };
+  
+            this.sharepointlistService.updateListItem(listInfo).then((res:any) => {
+              if(res == 'Successful'){
+                resolve('Successful');
+                console.log('Update in SystemDetail List is Successful');
+              }else{
+                reject('Failed');
+                console.log('Update in SystemDetail is Failed');
+              }
+            });
+            
+          }
+        }else{
+          resolve('Successful');
+          console.log('No Item found to update in SystemDetail List');
+        } 
+      } 
+      catch(err){
+        reject('Failed');
+        console.log("Error: " + err);
+      }
+    })
+
+    
+  };
+
+  async updateInAssigneesList(itemsData:any) {  
+    
+    return await new Promise((resolve:any, reject:any)=>{
+
+      try{
+
+        if(itemsData != undefined ){
+          //for(let ud=0; ud < itemsData.item.length; ud++){
+
+            let listInfo = {
+              name: itemsData.name,
+              rId: itemsData.rId,
+              item: itemsData.item
+            };
+  
+            this.sharepointlistService.updateListItem(listInfo).then((res:any) => {
+              if(res == 'Successful'){
+                resolve('Successful');
+                console.log('Update in Assignees List is Successful');
+              }else{
+                reject('Failed');
+                console.log('Update in Assignees is Failed');
+              }
+            });
+            
+          //}
+        }else{
+          resolve('Successful');
+          console.log('No Item found to update in SystemDetail List');
+        } 
+      } 
+      catch(err){
+        reject('Failed');
+        console.log("Error: " + err);
+      }
+    })
+
+    
+  };
+
+  async saveInDetailList(itemsData:any) {  
+    
+    return await new Promise((resolve:any, reject:any)=>{
+
+      try{
+
+        if(itemsData.item.length > 0){
+          for(let sd=0; sd < itemsData.item.length; sd++){
+
+            let listInfo = {
+              name: itemsData.name,
+              item: itemsData.item[sd]
+            }; 
+            
+            this.saveDetailItem(listInfo).then((res:any) => {             
+              
+              if(Object.prototype.hasOwnProperty.call(res, 'ID')){
+                resolve(res);
+              }else{
+                reject('Failed');
+              }
+            }); 
+            
+          }
+        }else{
+          resolve({ID: 0, GUID: "0"});
+          console.log('No Item found to update in SystemDetail List');
+        }
+      } 
+      catch(err){
+        reject('Failed');
+        console.log("Error: " + err);
+      }
+    })
+
+    
+  };
+
+  async saveInAssignTaskList(itemsData:any) {  
+    
+    return await new Promise((resolve:any, reject:any)=>{
+
+      try{
+
+        if(itemsData.item.length > 0){
+          for(let sd=0; sd < itemsData.item.length; sd++){
+
+            let listInfo = {
+              name: itemsData.name,
+              item: itemsData.item[sd]
+            }; 
+            
+            this.saveAssignTaskItem(listInfo).then((res:any) => {             
+              
+              if(Object.prototype.hasOwnProperty.call(res, 'ID')){
+                resolve(res);
+              }else{
+                reject('Failed');
+              }
+            }); 
+            
+          }
+        }else{
+          resolve({ID: 0, GUID: "0"});
+          console.log('No Item found to update in SystemDetail List');
+        }
+      } 
+      catch(err){
+        reject('Failed');
+        console.log("Error: " + err);
+      }
+    })
+
+    
+  };
+
+  async saveInAssigneesList(itemsData:any) {  
+    
+    return await new Promise((resolve:any, reject:any)=>{
+
+      try{
+
+        if(itemsData.item.length > 0){
+          for(let sd=0; sd < itemsData.item.length; sd++){
+
+            let listInfo = {
+              name: itemsData.name,
+              item: itemsData.item[sd]
+            }; 
+            
+            this.saveAssigneesItem(listInfo).then((res:any) => {             
+              
+              if(Object.prototype.hasOwnProperty.call(res, 'ID')){
+                resolve(res);
+              }else{
+                reject('Failed');
+              }
+            }); 
+            
+          }
+        }else{
+          resolve({ID: 0, GUID: "0"});
+          console.log('No Item found to update in SystemDetail List');
+        }
+      } 
+      catch(err){
+        reject('Failed');
+        console.log("Error: " + err);
+      }
+    })
+
+    
+  };
+
+  async saveInAttachmentList(attachmentListInfo:any) {  
+    
+    return await new Promise((resolve:any, reject:any)=>{
+
+      try{
+
+        if(attachmentListInfo.item.length > 0){
+          for(let a=0; a < attachmentListInfo.item.length; a++){
+            let file = attachmentListInfo.item[a];
+            let attachmentItem = {
+              Title: file.Title,
+              ActionBy: file.ActionBy,
+              ActionDate: new Date()
+            };
+  
+            let attachListInfo = {
+              name: "supportattachment",
+              item: attachmentItem
+            };
+  
+            this.createAttachment(attachListInfo, file.File);
+
+            resolve();
+          }
+        }else{
+          resolve();
+          console.log('No Attachment found to add in Attachment List');
+        }
+      } 
+      catch(err){
+        reject('Failed');
+        console.log("Error: " + err);
+      }
+    })
+
+    
+  };
+
+  private _removeDuplicateObjects(array: any[]) {
+    return [...new Set(array.map(s => JSON.stringify(s)))]
+      .map(s => JSON.parse(s));
+  };
+
+  
+  //ERROR='error', SUCCESS='success', WARNING='warning', INFO='info', QUESTION='question' 
+  toastSucAlert(typeIcon = 'success', timerProgressBar: boolean = false, title) {
+    Swal.fire({
+      toast: true,
+      position: 'top',
+      showConfirmButton: false,
+      icon: typeIcon,
+      timerProgressBar,
+      timer: 9000,
+      title: title,
+    });
+  };
+
+  private _getAllApprovers(title:any){
+
+    return new Promise((resolve, reject)=>{
+      try{ 
+        this.httpClient.get(`https://bergerpaintsbd.sharepoint.com/sites/BergerTech/_api/web/lists/getByTitle('BergerTechApproversInfo')/items?&$top=2000&$select=*`) 
+        .subscribe(
+          (res:any)=>{
+            if(res.value.length > 0){               
+              resolve(res);
+              return res;
+            }else{
+              resolve(res);
+              return res;
+            }           
+            
+        })            
+      } 
+      catch(err){
+        reject('Get Approver from BergerTechApproversInfo failed !');
+        console.log("Error: " + err);
+      }
+    })
+  };
+
+  private _getCustomerApprovers(custId:any, systemType:any){
+
+    return new Promise((resolve, reject)=>{
+      try{ 
+        this.httpClient.get(`https://bergerpaintsbd.sharepoint.com/sites/BergerTech/_api/web/lists/getByTitle('ApproversOfCustomers')/items?&$top=2000&$select=*&$filter=((CustId eq '${custId}') and (SystemType eq '${systemType}')) `) 
+        //this.httpClient.get(`https://bergerpaintsbd.sharepoint.com/sites/BergerTech/_api/web/lists/getByTitle('ApproversOfCustomers')/items?&$top=2000&$select=*&$filter=(CustId eq '${custId}') and (SystemModule eq '${systemModule}') and To ge '${new Date().toISOString()}'`) 
+        .subscribe(
+          (res:any)=>{
+            if(res.value.length > 0){               
+              resolve(res);
+              return res;
+            }else{
+              resolve(res);
+              return res;
+            }           
+            
+        })            
+      } 
+      catch(err){
+        reject('Get Approver from BergerTechApproversInfo failed !');
+        console.log("Error: " + err);
+      }
+    })
+  };
+
+  ngOnDestroy(){
+    this.appDataSubscription.unsubscribe();
+  };
 
 }
 

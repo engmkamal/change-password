@@ -1,0 +1,119 @@
+{
+  "projectType": "application",
+  "sourceRoot": "apps/supportreqdashboard/src",
+  "prefix": "portal",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/angular:webpack-browser",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/supportreqdashboard",
+        "index": "apps/supportreqdashboard/src/index.html",
+        "main": "apps/supportreqdashboard/src/main.ts",
+        "polyfills": "apps/supportreqdashboard/src/polyfills.ts",
+        "tsConfig": "apps/supportreqdashboard/tsconfig.app.json",
+        "inlineStyleLanguage": "scss",
+        "assets": [
+          "apps/supportreqdashboard/src/favicon.ico",
+          "apps/supportreqdashboard/src/assets"
+        ],
+        "styles": ["apps/supportreqdashboard/src/styles.scss"],
+        "scripts": [],
+        "customWebpackConfig": {
+          "path": "apps/supportreqdashboard/webpack.config.js"
+        }
+      },
+      "configurations": {
+        "production": {
+          "budgets": [
+            {
+              "type": "initial",
+              "maximumWarning": "8000mb",
+              "maximumError": "9000mb"
+            },
+            {
+              "type": "anyComponentStyle",
+              "maximumWarning": "8000kb",
+              "maximumError": "9000kb"
+            }
+          ],
+          "fileReplacements": [
+            {
+              "replace": "apps/supportreqdashboard/src/environments/environment.ts",
+              "with": "apps/supportreqdashboard/src/environments/environment.prod.ts"
+            }
+          ],
+          "outputHashing": "all",
+          "customWebpackConfig": {
+            "path": "apps/supportreqdashboard/webpack.prod.config.js"
+          }
+        },
+        "development": {
+          "buildOptimizer": false,
+          "optimization": false,
+          "vendorChunk": true,
+          "extractLicenses": false,
+          "sourceMap": true,
+          "namedChunks": true
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "serve": {
+      "executor": "@nrwl/angular:webpack-server",
+      "configurations": {
+        "production": {
+          "browserTarget": "supportreqdashboard:build:production"
+        },
+        "development": {
+          "browserTarget": "supportreqdashboard:build:development"
+        }
+      },
+      "defaultConfiguration": "development",
+      "options": {
+        "port": 4214,
+        "publicHost": "http://localhost:4214"
+      }
+    },
+    "extract-i18n": {
+      "executor": "@angular-devkit/build-angular:extract-i18n",
+      "options": {
+        "browserTarget": "supportreqdashboard:build"
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "options": {
+        "lintFilePatterns": [
+          "apps/supportreqdashboard/**/*.ts",
+          "apps/supportreqdashboard/**/*.html"
+        ]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/apps/supportreqdashboard"],
+      "options": {
+        "jestConfig": "apps/supportreqdashboard/jest.config.ts",
+        "passWithNoTests": true
+      }
+    },
+    "serve-static": {
+      "executor": "@nrwl/angular:file-server",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "supportreqdashboard:build",
+        "port": 4214
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "supportreqdashboard:build:development"
+        },
+        "production": {
+          "buildTarget": "supportreqdashboard:build:production"
+        }
+      }
+    }
+  },
+  "tags": []
+}

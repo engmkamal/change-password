@@ -127,7 +127,9 @@ export class ParentdashboardlandingComponent implements OnInit, AfterViewInit {
   tg = new Tablegrid();
   
   //siteAbsoluteUrl = window.location.origin;
-  siteAbsoluteUrl = "https://portal.bergerbd.com/";
+  siteAbsoluteUrl = "https://portal.bergerbd.com/leaveauto";
+  //webAbsoluteUrl = window.location.origin + "/sites/BergerTech/";
+  webAbsoluteUrl = "https://portal.bergerbd.com/leaveauto";
   //public rowDataCM: string;
   public rowDataWP: any;
   mpTG = new Tablegrid();
@@ -1417,13 +1419,10 @@ export class ParentdashboardlandingComponent implements OnInit, AfterViewInit {
     const listname = i.config.MasterListInfo.name;
     const selQry = i.config.MasterListInfo.select;
     const itmNum = this.listInfo.top;
-    let apiUrl = `https://portal.bergerbd.com/leaveauto/_api/web/lists/getByTitle('${listname}')/items?&$top=${itmNum}&$select=${selQry} `; 
+    let apiUrl = `${this.webAbsoluteUrl}/_api/web/lists/getByTitle('${listname}')/items?&$top=${itmNum}&$select=${selQry} `; 
     return new Promise((resolve, reject)=>{ 
       if(this.logedInUser.access != 'NoAccess'){
 
-        if(this.logedInUser.office != "Corporate"){
-          apiUrl = `https://portal.bergerbd.com/leaveauto/_api/web/lists/getByTitle('${listname}')/items?&$top=${itmNum}&$select=${selQry}&$filter=substringof('${this.logedInUser.office}', Author/Office ) `; 
-        }
           try {
             this.httpClient.get<any[]>(apiUrl)
             //.pipe(map((res:any) => res.filter((res:any) => res.value.Title == null))
@@ -1872,7 +1871,7 @@ export class ParentdashboardlandingComponent implements OnInit, AfterViewInit {
 
     // //////-------------testing ends ---------------
     //const dbListsInfoUrl = "https://portal.bergerbd.com/Style Library/Dashboard/V1/assets/dashboardslistsinfo.ts";
-    const dbListsInfoUrl = "http://localhost:4204/assets/dashboardslistsinfo.ts";
+    const dbListsInfoUrl = "https://portal.bergerbd.com/Style Library/WorkshopProposalReport/V1/assets/dashboardslistsinfo.ts";
     this.httpClient.get(dbListsInfoUrl).subscribe(data =>{
       this.dashboardsListsInfo = data;
       if(this.dashboardsListsInfo.length >0){

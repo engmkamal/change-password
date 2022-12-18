@@ -1,0 +1,10 @@
+@import '~ag-grid-community/dist/styles/ag-grid.css';
+@import '~ag-grid-community/dist/styles/ag-theme-alpine.css';
+
+.ag-theme-material .ag-paging-panel{
+    height: 10px;
+}
+
+.ag-paging-panel {
+    float: left;
+  }

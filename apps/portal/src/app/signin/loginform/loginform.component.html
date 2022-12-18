@@ -1,0 +1,168 @@
+
+<br/>
+
+<div style="margin: auto; min-width: 300px;" fxLayout="column" 
+    fxFlex="20"
+    fxFlex.lg="21"
+    fxFlex.md="25"
+    fxFlex.sm="32" 
+    fxFlex.xs="55">
+    <mat-card style="min-width: 240px;">
+        <div style="background-color: #81bddbf7; min-width: 230px;" >
+
+            <form [formGroup]="loginFormGroup" (ngSubmit)="login()" #loginForm >
+
+                <div style="margin: auto; color:#81bddbf7; height:25px; ">
+                    <div style="font-weight: bolder; font-family: Arial; font-size: 20px; color:navy; text-align: center; ">
+                        User Login
+                    </div>
+                </div>                
+
+                <div
+                    style="background-color: whitesmoke; margin-left: 2px; margin-right: 2px; padding: 5px;">
+                    <div>                        
+                        
+                        <div style="background-color: whitesmoke; margin:auto;">
+                            <div mat-dialog-content formGroupName="Customer" *ngIf="_swCustLoginfrm">
+                                <div style="margin:10px;" fxLayout="column" fxLayoutGap="0px" >
+                                    <div fxLayout="column" fxLayoutAlign="start stretch" fxLayoutGap="-10px">
+
+                                        <div fxLayout="row" fxFlex="100"
+                                        fxFlex.lg="100"
+                                        fxFlex.md="100"
+                                        fxFlex.sm="100" 
+                                        fxFlex.xs="100">
+                                            <mat-form-field appearance="outline" class="lowHeight">
+                                                <mat-label>Customer Id:</mat-label>
+                                                <input type="text" matInput name="CustId"
+                                                    formControlName="CustId"
+                                                    placeholder="CustId">
+                                                <mat-error>
+                                                </mat-error>
+                                            </mat-form-field>
+                                        </div>                                    
+
+                                        <div fxLayout="row" fxFlex="100"
+                                        fxFlex.lg="100"
+                                        fxFlex.md="100"
+                                        fxFlex.sm="100" 
+                                        fxFlex.xs="100">
+                                            <mat-form-field appearance="outline" class="lowHeight">
+                                                <mat-label>Password:</mat-label>
+                                                <input type="text" matInput name="CustPassword"
+                                                    formControlName="CustPassword"
+                                                    placeholder="Password">
+                                                <mat-error>
+                                                </mat-error>
+                                            </mat-form-field>
+                                        </div>
+
+                                        <div fxLayout="row" fxFlex="100"
+                                        fxFlex.lg="50"
+                                        fxFlex.md="50"
+                                        fxFlex.sm="50" 
+                                        fxFlex.xs="100">
+                                            <button mat-button type="submit" class="mat-raised-button mat-primary" (click)="login()">Log in</button >                                    
+                                        </div>
+                                        
+                                    </div> 
+
+                                    <mat-divider ></mat-divider> 
+                                    
+                                    <div style="display: flex; justify-content: center;" >
+                                        <div class="socialLogin-box">
+                                        <div style="margin-top:10px;" >
+                                            <!-- <div style="display: flex; align-items: center">
+                                            <div>Continue&nbsp;with</div>
+                                            <div>
+                                                <button type="submit" id="tpa-google-button" name="tpaProvider" value="google" class="pure-button sc-button items-1 sc-google sc-google-button" data-rapid-tracking="true" data-ylk="elm:btn;slk:google-btn;mKey:google-social-btn" style="text-align: center;" >
+                                                    <div style="display: flex; align-items: center">
+                                                    <img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB3aWR0aD0iMjBweCIgaGVpZ2h0PSIyMHB4IiB2aWV3Qm94PSIwIDAgMjAgMjAiIHZlcnNpb249IjEuMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayI+CiAgICA8IS0tIEdlbmVyYXRvcjogU2tldGNoIDU4ICg4NDY2MykgLSBodHRwczovL3NrZXRjaC5jb20gLS0+CiAgICA8dGl0bGU+R29vZ2xlPC90aXRsZT4KICAgIDxkZXNjPkNyZWF0ZWQgd2l0aCBTa2V0Y2guPC9kZXNjPgogICAgPGcgaWQ9IkFjY291bnQtQWNjZXNzIiBzdHJva2U9Im5vbmUiIHN0cm9rZS13aWR0aD0iMSIgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj4KICAgICAgICA8ZyBpZD0iQU9MX1NvY2lhbExvZ2luIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgtNTQuMDAwMDAwLCAtNTE0LjAwMDAwMCkiIGZpbGwtcnVsZT0ibm9uemVybyI+CiAgICAgICAgICAgIDxnIGlkPSJHb29nbGUiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDU0LjAwMDAwMCwgNTE0LjAwMDAwMCkiPgogICAgICAgICAgICAgICAgPHBhdGggZD0iTTYuNzE2MDM5NTYsMC41NDU5MjA5MjIgQzQuMjg3MDg1MTQsMS4zNzcwMjAxMiAyLjIxNzM4MDA1LDMuMTk0NzE0NDkgMS4wNjQ1NjUwMyw1LjQ5NDk4MjU4IEMwLjY2MjQyMDI2MSw2LjI4ODU0ODI3IDAuMzcyODc2MDI1LDcuMTMwMzcxMzIgMC4xOTU5MzIzMjUsOC4wMDQzNjU5NiBDLTAuMjQzNzQ1OTU5LDEwLjE3MDU4NTggMC4wNjE4ODQwNjc2LDEyLjQ4MTU3NzggMS4wNTkyMDMxLDE0LjQ1NDc2ODEgQzEuNzA3OTk2NjcsMTUuNzQxNjMxNCAyLjY0MDk3MjU0LDE2Ljg4OTA4NDUgMy43NjY5Nzc5LDE3Ljc4NDUyNjggQzQuODM0MDAyMDMsMTguNjMxNzExOCA2LjA3MjYwNzkzLDE5LjI2NDQxOTYgNy4zOTE2NDI3OCwxOS42MTI5NDUxIEM5LjA1Mzg0MTE3LDIwLjA1Nzk4NTMgMTAuODIzMjc4MiwyMC4wNDcyNjE0IDEyLjQ5NjIwMDQsMTkuNjY2NTY0NCBDMTQuMDA4MjY0OCwxOS4zMTgwMzg5IDE1LjQzOTkwMDIsMTguNTk0MTc4MyAxNi41ODE5OTEzLDE3LjU0MzI0IEMxNy43ODg0MjU2LDE2LjQzMzMyMDQgMTguNjUxNjk2NCwxNC45NzQ4NzUzIDE5LjEwNzQ2MDUsMTMuNDAzODI5OCBDMTkuNjA2MTIsMTEuNjkzMzc0IDE5LjY3MDQ2MzIsOS44NjQ5NTU3NyAxOS4zNTk0NzEyLDguMTA2MjQyNjQgQzE2LjIzMzQ2NTgsOC4xMDYyNDI2NCAxMy4xMDIwOTg1LDguMTA2MjQyNjQgOS45NzYwOTMxOCw4LjEwNjI0MjY0IEM5Ljk3NjA5MzE4LDkuNDAzODI5NzcgOS45NzYwOTMxOCwxMC43MDE0MTY5IDkuOTc2MDkzMTgsMTEuOTk5MDA0IEMxMS43ODg0MjU2LDExLjk5OTAwNCAxMy42MDA3NTgxLDExLjk5OTAwNCAxNS40MTMwOTA1LDExLjk5OTAwNCBDMTUuMjAzOTc1MiwxMy4yNDI5NzE5IDE0LjQ2NDAyODgsMTQuMzc5NzAxMSAxMy40MTg0NTI0LDE1LjA4MjExNCBDMTIuNzU4OTM1LDE1LjUyNzE1NDIgMTIuMDAyOTAyOCwxNS44MTEzMzY1IDExLjIyMDA2MSwxNS45NTA3NDY3IEMxMC40MzcyMTkyLDE2LjA4NDc5NDkgOS42MjIyMDU3OCwxNi4xMDA4ODA3IDguODM5MzYzOTYsMTUuOTQ1Mzg0NyBDOC4wNDA0MzYzNSwxNS43ODQ1MjY4IDcuMjg0NDA0MTcsMTUuNDUyMDg3MSA2LjYxOTUyNDgyLDE0Ljk4NTU5OTIgQzUuNTU3ODYyNjIsMTQuMjQwMjkwOSA0Ljc0ODIxMTE1LDEzLjE1MTgxOSA0LjMzNTM0MjUxLDExLjkyMzkzNyBDMy45MTE3NTAwMiwxMC42NzQ2MDcyIDMuOTA2Mzg4MDksOS4yODU4NjczIDQuMzM1MzQyNTEsOC4wNDE4OTk0NyBDNC42MzU2MTA2MSw3LjE2MjU0MjkxIDUuMTI4OTA4Miw2LjM1Mjg5MTQzIDUuNzgzMDYzNjksNS42ODgwMTIwNyBDNi41ODczNTMyNCw0Ljg2MjI3NDgxIDcuNjMyOTI5NjQsNC4yNzI0NjI0OCA4Ljc2NDI5Njk0LDQuMDMxMTc1NjEgQzkuNzI5NDQ0MzksMy44Mjc0MjIyNiAxMC43NDgyMTExLDMuODY0OTU1NzcgMTEuNjkxOTEwOSw0LjE0OTEzODA4IEMxMi40OTYyMDA0LDQuMzkwNDI0OTQgMTMuMjM2MTQ2OCw0LjgzNTQ2NTE2IDEzLjg0MjA0NDksNS40MTQ1NTM2MyBDMTQuNDUzMzA1LDQuODAzMjkzNTggMTUuMDY0NTY1LDQuMTkyMDMzNTIgMTUuNjc1ODI1MSwzLjU4MDc3MzQ3IEMxNS45OTc1NDA5LDMuMjUzNjk1NzIgMTYuMzM1MzQyNSwyLjkzNzM0MTgzIDE2LjY0NjMzNDUsMi41OTk1NDAyMiBDMTUuNzE4NzIwNSwxLjc0MTYzMTM4IDE0LjYyNDg4NjcsMS4wNDk5NDIzNyAxMy40MzQ1MzgyLDAuNjEwMjY0MDg1IEMxMS4yODk3NjYxLC0wLjE4MzMwMTU5OCA4Ljg3Njg5NzQ3LC0wLjE5OTM4NzM4OSA2LjcxNjAzOTU2LDAuNTQ1OTIwOTIyIFoiIGlkPSJQYXRoIiBmaWxsPSIjRkZGRkZGIj48L3BhdGg+CiAgICAgICAgICAgICAgICA8cGF0aCBkPSJNNi43MTYwMzk1NiwwLjU0NTkyMDkyMiBDOC44NzE1MzU1NCwtMC4xOTkzODczODkgMTEuMjg5NzY2MSwtMC4xODMzMDE1OTggMTMuNDM0NTM4MiwwLjYwNDkwMjE1NSBDMTQuNjI0ODg2NywxLjA0NDU4MDQ0IDE1LjcxMzM1ODYsMS43MzA5MDc1MiAxNi42NDYzMzQ1LDIuNTk0MTc4MjkgQzE2LjMzNTM0MjUsMi45MzE5Nzk5IDE1Ljk5NzU0MDksMy4yNDgzMzM3OSAxNS42NzU4MjUxLDMuNTc1NDExNTQgQzE1LjA2NDU2NSw0LjE4NjY3MTU5IDE0LjQ1MzMwNSw0Ljc5NzkzMTY1IDEzLjg0MjA0NDksNS40MDkxOTE3IEMxMy4yMzYxNDY4LDQuODMwMTAzMjMgMTIuNDk2MjAwNCw0LjM5MDQyNDk0IDExLjY5MTkxMDksNC4xNDM3NzYxNSBDMTAuNzQ4MjExMSwzLjg1OTU5Mzg0IDkuNzI5NDQ0MzksMy44MTY2OTg0IDguNzY0Mjk2OTQsNC4wMjU4MTM2OCBDNy42MzgyOTE1Nyw0LjI2NzEwMDU1IDYuNTkyNzE1MTcsNC44NTY5MTI4OCA1Ljc4MzA2MzY5LDUuNjgyNjUwMTQgQzUuMTI4OTA4Miw2LjM0MjE2NzU3IDQuNjM1NjEwNjEsNy4xNTcxODA5OCA0LjMzNTM0MjUxLDguMDM2NTM3NTQgQzMuMjQ2ODcwNjYsNy4xODkzNTI1NiAyLjE1ODM5ODgxLDYuMzQ3NTI5NSAxLjA2NDU2NTAzLDUuNTAwMzQ0NTEgQzIuMjE3MzgwMDUsMy4xOTQ3MTQ0OSA0LjI4NzA4NTE0LDEuMzc3MDIwMTIgNi43MTYwMzk1NiwwLjU0NTkyMDkyMiBaIiBpZD0iUGF0aCIgZmlsbD0iI0VBNDMzNSI+PC9wYXRoPgogICAgICAgICAgICAgICAgPHBhdGggZD0iTTAuMjAxMjk0MjU1LDcuOTk5MDA0MDMgQzAuMzc4MjM3OTU1LDcuMTMwMzcxMzIgMC42Njc3ODIxOTEsNi4yODMxODYzNCAxLjA2OTkyNjk2LDUuNDg5NjIwNjUgQzIuMTU4Mzk4ODEsNi4zMzY4MDU2NCAzLjI0Njg3MDY2LDcuMTc4NjI4NyA0LjM0MDcwNDQ0LDguMDI1ODEzNjggQzMuOTExNzUwMDIsOS4yNzUxNDM0NCAzLjkxMTc1MDAyLDEwLjY2Mzg4MzQgNC4zNDA3MDQ0NCwxMS45MDc4NTEyIEMzLjI1MjIzMjU5LDEyLjc1NTAzNjIgMi4xNjM3NjA3NCwxMy42MDIyMjEyIDEuMDc1Mjg4ODksMTQuNDQ0MDQ0MiBDMC4wNjcyNDU5OTc5LDEyLjQ3NjIxNTggLTAuMjM4Mzg0MDI5LDEwLjE2NTIyMzkgMC4yMDEyOTQyNTUsNy45OTkwMDQwMyBaIiBpZD0iUGF0aCIgZmlsbD0iI0ZCQkMwNSI+PC9wYXRoPgogICAgICAgICAgICAgICAgPHBhdGggZD0iTTkuOTc2MDkzMTgsOC4xMDA4ODA3MSBDMTMuMTAyMDk4NSw4LjEwMDg4MDcxIDE2LjIzMzQ2NTgsOC4xMDA4ODA3MSAxOS4zNTk0NzEyLDguMTAwODgwNzEgQzE5LjY3MDQ2MzIsOS44NTQyMzE5MSAxOS42MDA3NTgxLDExLjY4MjY1MDEgMTkuMTA3NDYwNSwxMy4zOTg0Njc4IEMxOC42NTE2OTY0LDE0Ljk2OTUxMzQgMTcuNzg4NDI1NiwxNi40Mjc5NTg1IDE2LjU4MTk5MTMsMTcuNTM3ODc4IEMxNS41MjU2OTEsMTYuNzE3NTAyNyAxNC40NjkzOTA4LDE1Ljg5NzEyNzQgMTMuNDEzMDkwNSwxNS4wNzY3NTIgQzE0LjQ1ODY2NjksMTQuMzc0MzM5MiAxNS4xOTg2MTMzLDEzLjIzNzYwOTkgMTUuNDA3NzI4NiwxMS45OTM2NDIxIEMxMy41OTUzOTYxLDExLjk5MzY0MjEgMTEuNzgzMDYzNywxMS45OTM2NDIxIDkuOTcwNzMxMjUsMTEuOTkzNjQyMSBDOS45NzYwOTMxOCwxMC42OTYwNTUgOS45NzYwOTMxOCw5LjM5ODQ2Nzg0IDkuOTc2MDkzMTgsOC4xMDA4ODA3MSBaIiBpZD0iUGF0aCIgZmlsbD0iIzQyODVGNCI+PC9wYXRoPgogICAgICAgICAgICAgICAgPHBhdGggZD0iTTEuMDY0NTY1MDMsMTQuNDQ5NDA2MiBDMi4xNTMwMzY4OCwxMy42MDc1ODMxIDMuMjQxNTA4NzMsMTIuNzYwMzk4MSA0LjMyOTk4MDU4LDExLjkxMzIxMzEgQzQuNzQ4MjExMTUsMTMuMTQxMDk1MiA1LjU1MjUwMDY5LDE0LjIyOTU2NyA2LjYxNDE2Mjg5LDE0Ljk3NDg3NTMgQzcuMjc5MDQyMjQsMTUuNDQxMzYzMyA4LjA0MDQzNjM1LDE1Ljc3MzgwMyA4LjgzNDAwMjAzLDE1LjkzNDY2MDkgQzkuNjE2ODQzODUsMTYuMDk1NTE4OCAxMC40MjY0OTUzLDE2LjA3NDA3MTEgMTEuMjE0Njk5MSwxNS45NDAwMjI4IEMxMS45OTc1NDA5LDE1LjgwMDYxMjYgMTIuNzUzNTczMSwxNS41MTY0MzAzIDEzLjQxMzA5MDUsMTUuMDcxMzkwMSBDMTQuNDY5MzkwOCwxNS44OTE3NjU0IDE1LjUyNTY5MSwxNi43MTIxNDA4IDE2LjU4MTk5MTMsMTcuNTMyNTE2MSBDMTUuNDM5OTAwMiwxOC41ODg4MTY0IDE0LjAwODI2NDgsMTkuMzA3MzE1IDEyLjQ5NjIwMDQsMTkuNjU1ODQwNSBDMTAuODIzMjc4MiwyMC4wMzY1Mzc1IDkuMDUzODQxMTcsMjAuMDQ3MjYxNCA3LjM5MTY0Mjc4LDE5LjYwMjIyMTIgQzYuMDcyNjA3OTMsMTkuMjUzNjk1NyA0LjgzNDAwMjAzLDE4LjYyNjM0OTkgMy43NjY5Nzc5LDE3Ljc3MzgwMyBDMi42NDYzMzQ0NywxNi44ODM3MjI1IDEuNzEzMzU4NiwxNS43MzYyNjk0IDEuMDY0NTY1MDMsMTQuNDQ5NDA2MiBaIiBpZD0iUGF0aCIgZmlsbD0iIzM0QTg1MyI+PC9wYXRoPgogICAgICAgICAgICA8L2c+CiAgICAgICAgPC9nPgogICAgPC9nPgo8L3N2Zz4=" />
+                                                    &nbsp;
+                                                    <label >Google</label>
+                                                    </div>                                                    
+                                                </button>
+                                                </div>
+                                                
+                                            </div>
+                                            <br/> -->
+                                            <div><a>Forgot Id/Password?</a></div>
+                                            <br/>
+                                            <div><a routerLink="/user/registration">Create New Registration</a></div>
+                                            <br/>
+                                            <div (click)="showEmployeeloginForm()">
+                                            <button style="text-align: center;" >
+                                                <div style="display: flex; align-items: center">
+                                                <label >Login as Berger Employee</label>
+                                                </div>                                                    
+                                            </button>
+                                            </div>             
+                                        </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div mat-dialog-content formGroupName="Employee" *ngIf="_swEmpLoginfrm">
+                                <div style="margin:10px;" fxLayout="column" fxLayoutGap="0px" >
+                                    <div fxLayout="column" fxLayoutAlign="start stretch" fxLayoutGap="-10px">
+
+                                        <div fxLayout="row" fxFlex="100"
+                                        fxFlex.lg="100"
+                                        fxFlex.md="100"
+                                        fxFlex.sm="100" 
+                                        fxFlex.xs="100">
+                                            <mat-form-field appearance="outline" class="lowHeight">
+                                                <mat-label>Employee Email:</mat-label>
+                                                <input type="text" matInput name="EmpEmail"
+                                                    formControlName="EmpEmail"
+                                                    placeholder="EmpEmail">
+                                                <mat-error>
+                                                </mat-error>
+                                            </mat-form-field>
+                                        </div>
+
+                                        <div fxLayout="row" fxFlex="100"
+                                        fxFlex.lg="100"
+                                        fxFlex.md="100"
+                                        fxFlex.sm="100" 
+                                        fxFlex.xs="100">
+                                            <mat-form-field appearance="outline" class="lowHeight">
+                                                <mat-label>Password:</mat-label>
+                                                <input type="text" matInput name="EmpId"
+                                                    formControlName="EmpId"
+                                                    placeholder="Password">
+                                                <mat-error>
+                                                </mat-error>
+                                            </mat-form-field>
+                                        </div>                                    
+
+
+
+                                        <div fxLayout="row" fxFlex="100"
+                                        fxFlex.lg="50"
+                                        fxFlex.md="50"
+                                        fxFlex.sm="50" 
+                                        fxFlex.xs="100">
+                                            <button mat-button type="submit" class="mat-raised-button mat-primary" (click)="loginAsEmployee()">Login as Employee</button >
+                                        </div>
+                                        
+                                    </div> 
+                                </div>
+                            </div>
+                        </div> 
+                    </div>
+
+                </div>
+
+                
+
+                <!-- <pre>{{_form.value | json}}</pre> -->
+
+                
+            </form>
+            <br>
+        </div>
+    </mat-card>
+</div>
+

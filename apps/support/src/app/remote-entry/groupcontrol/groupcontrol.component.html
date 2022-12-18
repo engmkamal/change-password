@@ -1,0 +1,48 @@
+<form [formGroup]="childForm" >
+    <fieldset>
+      <legend style="font-size: 16px; font-family:Arial;">{{formLabel}}</legend>
+      <div FxLayout="column">
+        <ng-container >
+          <portal-action-buttons-bar (remove)="remove.emit()" (addGroup)="_addGroup()" (addCondition)="_addCondition()" [requestInfo]="requestInfo">
+          </portal-action-buttons-bar>
+        </ng-container>
+        <br>
+        <ng-container >
+          <portal-taskassigneeselect [formGroup]="childForm" [formControlName]="formControlName" [requestInfo]="requestInfo" (outputToParent)="GetOutputVal($event)" >
+          </portal-taskassigneeselect>
+        </ng-container>
+        <!-- <ng-container [formGroup]="childForm" formArrayName="Assignees">
+          <portal-condition-form *ngFor="let c of _conditionsFormArray?.controls; index as j" (remove)="_deleteCondition(j)"
+            [formLabel]="'Assisn To ' + (j+1)" [requestInfo]="requestInfo" [childGroup]="c" >
+          </portal-condition-form>
+        </ng-container> -->
+
+        <!-- <div fxLayout="row" fxLayout.xs="column" fxLayoutGap="5px">
+          <div fxFlex="1 1 20" fxLayoutAlign="space-between Center">
+              <div fxFlex="1 1 98">
+                  <mat-label>Task Title</mat-label>
+                  <label style="color:red">*</label>
+              </div>
+              <div fxFlex="1 1 2">
+                  <mat-label>:</mat-label>
+              </div>
+          </div>
+          <div fxFlex="1 1 79" fxLayout="row" fxLayoutAlign="space-between Center">
+              <div fxFlex="1 1 99" class="material">                   
+
+                  <mat-form-field appearance="outline" fxFlex="100" class="mFFldMargin">
+                      <input type="text" matInput formControlName="TaskTitle" >
+                  </mat-form-field>
+              </div>
+          </div>
+      </div> -->
+
+        
+        
+      </div>
+      
+      
+    </fieldset>
+
+    
+</form>

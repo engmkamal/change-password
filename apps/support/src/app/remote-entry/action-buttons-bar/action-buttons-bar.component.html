@@ -1,0 +1,49 @@
+<!-- <link href="https://unpkg.com/@angular/material/prebuilt-themes/indigo-pink.css" rel="stylesheet">
+<style>			
+  .fix-this {
+      all: unset;
+  }	  
+</style> -->
+<!-- <div style="display: flex;" 
+  fxLayout="row" 
+  fxLayout.sm="column" 
+  fxLayout.xs="column" 
+  fxLayoutGap="5px" 
+  fxLayoutAlign="start center"
+  fxFlex="0 1 calc(100% - 20px)"
+  fxFlex.md="0 1 calc(100% - 20px)"
+  fxFlex.sm="0 1 calc(100% - 20px)"
+  fxFlex.xs="100">
+	
+
+	<button type="button" (click)="addCondition.emit()">
+    Add Assignee
+  </button>
+  
+	<button type="button" (click)="remove.emit()">
+    Delete Task
+  </button>
+</div> -->
+
+
+<div fxLayout="column" fxLayoutGap="0px">
+  
+    <div fxFlex="1 1 30"
+      fxFlex.md="1 1 50"
+      fxFlex.sm="1 1 100"
+      fxFlex.xs="1 1 100">
+      <!-- <button type="button" (click)="addGroup.emit()">
+        add nested TestParameter
+      </button> -->
+        
+      <button type="button" (click)="addCondition.emit()" *ngIf="_showAddAssigneeBtn" >
+        Add Assignee
+      </button>
+    
+      <button type="button" (click)="remove.emit()" style="margin-left: 5px;" *ngIf="_showDeleteTaskBtn">
+        Delete Task
+      </button>
+      
+    </div>
+    <br/>
+</div>

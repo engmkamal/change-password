@@ -1,8 +1,11 @@
 import { MediaMatcher } from '@angular/cdk/layout';
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, EventEmitter, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { from, of } from 'rxjs'; 
 import { groupBy, map, mergeMap, reduce, toArray } from 'rxjs/operators';
-import { SplistcrudService, BreakpointObserverService } from '@portal/core';
+import { 
+  //SplistcrudService, 
+  BreakpointObserverService 
+} from '@portal/core';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout'
 
 
@@ -44,7 +47,7 @@ interface IMatCard{
     logedUserAdId: number;
     MatcardInfo: {            
       matCardTitle: string;
-      matCardSubtitle: string;
+      matCardSubtitle: any;
       matCardContent: string;
       matCardImage: string;
       matCardActions: string;
@@ -63,6 +66,8 @@ interface IMatCard{
   styleUrls: ['./homemenus.component.scss'],
 })
 export class HomemenusComponent implements OnInit, OnDestroy, AfterViewInit {
+
+  windowOrigin = window.location.origin;
 
   @ViewChild('homeMenusDiv') homeMenusDiv!: ElementRef;
 
@@ -161,71 +166,73 @@ export class HomemenusComponent implements OnInit, OnDestroy, AfterViewInit {
 
   categorizedWorkflow:any[] = [];
 
+  imagePath:string = "https://bergerpaintsbd.sharepoint.com/sites/BergerTech/Style Library/bergertechportal/PortalHome/V1/";
+
   workflowSource: IWorkflow[] = [
     {      
       ID: 1, 
       Category: 'Report Incident', 
       SubCategory: 'Report Incident', 
-      PageURL: 'support', 
+      PageURL: '/support', 
       ChildSubCategory: 'Report Incident',
-      BgImage: '../../../assets/homemenus/deshboard.png'     
+      BgImage: this.imagePath + 'assets/homemenus/deshboard.png'     
     },
     {      
       ID: 2, 
       Category: 'View Incidents', 
       SubCategory: 'View Incidents', 
-      PageURL: 'myrequests', 
+      PageURL: '/myrequests', 
       ChildSubCategory: 'View Incidents',
-      BgImage: '../../../assets/homemenus/myIncidents.png'
+      BgImage: this.imagePath + 'assets/homemenus/myIncidents.png'
     },
     {      
       ID: 3, 
       Category: 'Pending Tasks', 
       SubCategory: 'Fixed Asset Acquisition', 
-      PageURL: 'pendings', 
+      PageURL: '/pendingtasks', 
       ChildSubCategory: 'Pending Tasks',
-      BgImage: '../../../assets/homemenus/deshboard.png'
-    },
+      BgImage: this.imagePath + 'assets/homemenus/deshboard.png'
+    },    
     {      
       ID: 4, 
-      Category: 'Task Delegation', 
-      SubCategory: 'Task Delegation', 
-      PageURL: 'delegation', 
-      ChildSubCategory: 'Task Delegation',
-      BgImage: '../../../assets/homemenus/deshboard.png'
+      Category: 'Change Password', 
+      SubCategory: 'Change Password', 
+      PageURL: 'changepass', 
+      ChildSubCategory: 'Change Password',
+      BgImage: this.imagePath + 'assets/homemenus/deshboard.png'
     },
     {      
       ID: 5, 
       Category: 'Support Request Dashboard', 
       SubCategory: 'Support Request Dashboard', 
-      PageURL: 'supportdb', 
+      PageURL: '/supportdb', 
       ChildSubCategory: 'Support Request Dashboard',
-      BgImage: '../../../assets/homemenus/deshboard.png'
+      BgImage: this.imagePath + 'assets/homemenus/deshboard.png'
     },
     {      
       ID: 6, 
       Category: 'Tasks Board', 
       SubCategory: 'Tasks Board', 
-      PageURL: 'tasksboard', 
+      PageURL: '/tasksboard', 
       ChildSubCategory: 'Tasks Board',
-      BgImage: '../../../assets/homemenus/deshboard.png'
+      BgImage: this.imagePath + 'assets/homemenus/deshboard.png'
     },
     {      
       ID: 7, 
-      Category: 'Edite System Data', 
+      Category: 'Customer Registration Dashboard', 
       SubCategory: 'Edite System Data', 
-      PageURL: 'systemdata', 
+      PageURL: '/registrationdb', 
       ChildSubCategory: 'Edite System Data',
-      BgImage: '../../../assets/homemenus/deshboard.png'
+      BgImage: this.imagePath + 'assets/homemenus/delegate.png'
     },
     {      
       ID: 8, 
-      Category: 'Change Password', 
-      SubCategory: 'Change Password', 
-      PageURL: 'changepass', 
-      ChildSubCategory: 'Change Password',
-      BgImage: '../../../assets/homemenus/deshboard.png'
-    }
+      Category: 'Task Delegation', 
+      SubCategory: 'Task Delegation', 
+      PageURL: 'delegation', 
+      ChildSubCategory: 'Task Delegation',
+      BgImage: this.imagePath + 'assets/homemenus/deshboard.png'
+    },
     
   ];
 
@@ -250,12 +257,15 @@ export class HomemenusComponent implements OnInit, OnDestroy, AfterViewInit {
 
   allWFsDivH = 600;
 
+  @Output() 
+  menueOutputToParent = new EventEmitter<any>();
+
   //@ViewChild(DragndresizableComponent, {static : true}) child : DragndresizableComponent;
 
   constructor(
     changeDetectorRef: ChangeDetectorRef, 
     media: MediaMatcher, 
-    private splistcrudService: SplistcrudService,
+    //private splistcrudService: SplistcrudService,
     private breakpointObserverService: BreakpointObserverService) {
     this.mobileQuery = media.matchMedia('(max-width: 600px)');
     this._mobileQueryListener = () => changeDetectorRef.detectChanges();
@@ -305,24 +315,26 @@ export class HomemenusComponent implements OnInit, OnDestroy, AfterViewInit {
     this.workflows = this.workflowSource;
     
 
-    this.splistcrudService.getSPLoggedInUser().then((res) => {
-      this._logedUserAdId = res;      
-      const wfQuery = `getbytitle('BusinessProcess')/items?&$top=200&$select=Category,SubCategory,ChildSubCategory,PageURL`;
+    // this.splistcrudService.getSPLoggedInUser().then((res) => {
+    //   this._logedUserAdId = res;      
+    //   const wfQuery = `getbytitle('BusinessProcess')/items?&$top=200&$select=Category,SubCategory,ChildSubCategory,PageURL`;
 
-        from(
-          this.splistcrudService.getListItems(wfQuery)
-          ).subscribe(
-            (res) =>{ 
-              //this.workflowSource = res;//activate for importing from any DB
-              //this.onDeptWiseWorkflow(res);                 
-              this.onDeptWiseWorkflow(this.workflowSource);                  
-            },    
-            (err) => {
-                console.log(err)
-            },
-          );     
+    //     from(
+    //       this.splistcrudService.getListItems(wfQuery)
+    //       ).subscribe(
+    //         (res) =>{ 
+    //           //this.workflowSource = res;//activate for importing from any DB
+    //           //this.onDeptWiseWorkflow(res);                 
+    //           this.onDeptWiseWorkflow(this.workflowSource);                  
+    //         },    
+    //         (err) => {
+    //             console.log(err)
+    //         },
+    //       );     
 
-    });
+    // });
+
+    this.onDeptWiseWorkflow(this.workflowSource); //should be implemented role based authentication
 
     // this.splistcrudService.getSPLoggedInUser().then((res) => {
     //   this._logedUserAdId = res;
@@ -433,7 +445,8 @@ export class HomemenusComponent implements OnInit, OnDestroy, AfterViewInit {
         logedUserAdId: 0,
         MatcardInfo: {            
           matCardTitle: obs.key,
-          matCardSubtitle: items.length,
+          matCardSubtitle: null,
+          //matCardSubtitle: items.length,
           matCardContent: '',
           matCardImage: items[0].BgImage,
           matCardActions: '',
@@ -443,7 +456,7 @@ export class HomemenusComponent implements OnInit, OnDestroy, AfterViewInit {
             overflow: 'hidden',
             width: '240px',
             height: '90px',
-            background: 'lightblue'
+            background: '#34618f'
           },
           styleTitle:{
             textAlign: 'center', 
@@ -472,7 +485,8 @@ export class HomemenusComponent implements OnInit, OnDestroy, AfterViewInit {
         logedUserAdId: 0,
         MatcardInfo: {            
           matCardTitle: obs.key,
-          matCardSubtitle: items.length,
+          matCardSubtitle: null,
+          //matCardSubtitle: items.length,
           matCardContent: '',
           matCardImage: items[0].BgImage, 
           matCardActions: '',
@@ -482,7 +496,7 @@ export class HomemenusComponent implements OnInit, OnDestroy, AfterViewInit {
             overflow: 'hidden',
             width: '240px',
             height: '100px',
-            background: 'lightblue'
+            background: '#396b9c'
           },
           styleTitle:{
             textAlign: 'center', 
@@ -758,6 +772,11 @@ export class HomemenusComponent implements OnInit, OnDestroy, AfterViewInit {
     this.allWorkflows.push(card);
 
     this.allWFsDivH = 180 * this.rowNo;
+  };
+
+  openPage(pageUrl:any){
+    this.menueOutputToParent.emit(pageUrl);
+    //window.location.href = this.windowOrigin + pageUrl ;
   }
 
 }

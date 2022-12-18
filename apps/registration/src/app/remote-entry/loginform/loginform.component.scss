@@ -1,0 +1,33 @@
+.login-box {
+    box-sizing: border-box;
+    background-color: #fff;
+    color: #26282a;
+    box-shadow: 0 2px 4px 0 rgb(0 0 0 / 30%);
+    width: 220px;
+    right: 0;
+    min-height: 210px;
+    z-index: 1;
+    border: 1px solid transparent;
+    border-top: 1px solid #f1f1f5;
+    font-family: Arial;
+}
+
+:host ::ng-deep {
+  .lowHeight { 
+    .mat-form-field-flex > .mat-form-field-infix { padding: 0.4em 0 !important;}
+    .mat-form-field-label-wrapper { top: -1.5em; }
+
+    &.mat-form-field-appearance-outline.mat-form-field-can-float.mat-form-field-should-float .mat-form-field-label {
+      transform: translateY(-1.1em) scale(.75);
+      width: 133.33333%;
+    }
+  }
+}
+
+
+.mat-divider {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    /*border-top-color: grey;*/
+}
+

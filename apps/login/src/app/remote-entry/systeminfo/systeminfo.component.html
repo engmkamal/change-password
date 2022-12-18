@@ -1,0 +1,206 @@
+<p>systeminfo works!</p>
+<!-- <div style="background-color: whitesmoke; padding: 15px; margin:auto;">
+    <div mat-dialog-content formGroupName="Requestor">
+        <div style="margin-left:10px;">
+            <div fxLayout="row wrap" fxLayoutAlign="start stretch"
+                fxLayoutGap="20px">
+
+                <div fxLayout="column" fxFlex.md="0 1 calc(50% - 20px)"
+                    fxFlex="0 1 calc(50% - 20px)"
+                    fxFlex.sm="0 1 calc(50% - 20px)" fxFlex.xs="100">
+                    <mat-form-field>
+                        <mat-label>System Type:</mat-label>
+                        <input type="text" matInput name="System Type"
+                            formControlName="SystemType"
+                            placeholder="System Type"
+                            [(ngModel)]="supModel.SystemType"
+                            (keyup)="isIdAvailable(supModel.SystemType)"
+                            maxlength="24">
+                        <mat-error >
+                        </mat-error>
+                    </mat-form-field>
+                </div>
+
+               
+
+                <div fxLayout="column" fxFlex.md="0 1 calc(50% - 20px)"
+                    fxFlex="0 1 calc(50% - 20px)"
+                    fxFlex.sm="0 1 calc(50% - 20px)" fxFlex.xs="100">
+                    <mat-form-field>
+                        <mat-label>SAP Customer Number:</mat-label>
+                        <input type="text" matInput name="SAPCustomerNumber"
+                            formControlName="SAPCustomerNumber"
+                            placeholder="SAPCustomerNumber"
+                            [(ngModel)]="supModel.SAPCustomerNumber"
+                            (keyup)="isIdAvailable(supModel.SAPCustomerNumber)"
+                            maxlength="256">
+                        <mat-error>
+                        </mat-error>
+                    </mat-form-field>
+                </div>
+
+                <div fxLayout="column" fxFlex.md="0 1 calc(100% - 20px)"
+                    fxFlex="0 1 calc(100% - 20px)"
+                    fxFlex.sm="0 1 calc(100% - 20px)" fxFlex.xs="100">
+                    <mat-form-field>
+                        <mat-label>S-User:</mat-label>
+                        <input type="text" matInput name="SUser"
+                            formControlName="SUser"
+                            placeholder="SUser"
+                            [(ngModel)]="supModel.SUser">
+                        <mat-error>
+
+                        </mat-error>
+                    </mat-form-field>
+                </div>
+
+                <p>Hardware</p>
+                <div fxLayout="column" fxFlex.md="0 1 calc(100% - 20px)"
+                    fxFlex="0 1 calc(100% - 20px)"
+                    fxFlex.sm="0 1 calc(100% - 20px)" fxFlex.xs="100">
+                    
+                    <mat-form-field>
+                        <mat-label>Manufacturer:</mat-label>
+                        <input type="text" matInput name="Manufacturer"
+                            formControlName="Manufacturer"
+                            placeholder="Manufacturer"
+                            [(ngModel)]="supModel.Manufacturer">
+                        <mat-error>
+
+                        </mat-error>
+                    </mat-form-field>
+                </div>
+
+                <div fxLayout="column" fxFlex.md="0 1 calc(100% - 20px)"
+                    fxFlex="0 1 calc(100% - 20px)"
+                    fxFlex.sm="0 1 calc(100% - 20px)" fxFlex.xs="100">
+                    <mat-form-field>
+                        <mat-label>Model:</mat-label>
+                        <input type="text" matInput
+                            name="Model"
+                            formControlName="Model"
+                            placeholder="Model"
+                            [(ngModel)]="supModel.Model">
+                        <mat-error>
+
+                        </mat-error>
+                    </mat-form-field>
+                </div>
+
+                
+
+                <div fxLayout="column" fxFlex.md="0 1 calc(100% - 20px)"
+                    fxFlex="0 1 calc(100% - 20px)"
+                    fxFlex.sm="0 1 calc(100% - 20px)" fxFlex.xs="100"
+                    *ngIf="addMoreAddress">
+                    <mat-form-field class="w-100">
+                        <mat-label>Operating System:</mat-label>
+                        <input type="text" matInput
+                            name="Operating System"
+                            formControlName="Operating System"
+                            placeholder="Operating System"
+                            [(ngModel)]="supModel.Operating System">
+                        <mat-error>
+
+                        </mat-error>
+                    </mat-form-field>
+                </div>
+
+                <div fxLayout="column" fxFlex.md="0 1 calc(100% - 20px)"
+                    fxFlex="0 1 calc(100% - 20px)"
+                    fxFlex.sm="0 1 calc(100% - 20px)" fxFlex.xs="100"
+                    *ngIf="addMoreAddress">
+                    <mat-form-field class="w-100">
+                        <mat-label>OS Release:</mat-label>
+                        <input type="text" matInput
+                            name="OSRelease"
+                            formControlName="OSRelease"
+                            placeholder="OS Release"
+                            [(ngModel)]="supModel.OSRelease">
+                        <mat-error>
+
+                        </mat-error>
+                    </mat-form-field>
+                </div>
+
+                <p>Database:</p>
+                <div fxLayout="column" fxFlex.md="0 1 calc(100% - 20px)"
+                    fxFlex="0 1 calc(100% - 20px)"
+                    fxFlex.sm="0 1 calc(100% - 20px)" fxFlex.xs="100">
+                    <mat-form-field class="w-100">
+                        <mat-label>Database Name:</mat-label>
+                        <input type="text" matInput name="DatabaseName"
+                            formControlName="DatabaseName"
+                            placeholder="Database Name"
+                            [(ngModel)]="supModel.DatabaseName">
+                        <mat-error>
+
+                        </mat-error>
+                    </mat-form-field>
+                </div>
+
+                <div fxLayout="column" fxFlex.md="0 1 calc(25% - 20px)"
+                    fxFlex="0 1 calc(20% - 20px)"
+                    fxFlex.sm="0 1 calc(33% - 20px)" fxFlex.xs="100">
+                    <mat-form-field class="w-100">
+                        <mat-label>Database Release:</mat-label>
+                        <input type="text" matInput name="DatabaseRelease"
+                            formControlName="DatabaseRelease"
+                            placeholder="Database Release"
+                            [(ngModel)]="supModel.DatabaseRelease">
+                        <mat-error>
+
+                        </mat-error>
+                    </mat-form-field>
+                </div>
+
+                
+
+                <div fxLayout="column" fxFlex.md="0 1 calc(25% - 20px)"
+                    fxFlex="0 1 calc(20% - 20px)"
+                    fxFlex.sm="0 1 calc(33% - 20px)" fxFlex.xs="100"
+                    *ngIf="addMoreEmail">
+                    <mat-form-field class="w-100">
+                        <mat-label>Person Incharge:</mat-label>
+                        <input type="text" matInput name="PersonIncharge"
+                            formControlName="PersonIncharge"
+                            placeholder="Person Incharge"
+                            [(ngModel)]="supModel.PersonIncharge">
+                        <mat-error>
+                        </mat-error>
+                    </mat-form-field>
+                </div>
+
+                <div fxLayout="column" fxFlex.md="0 1 calc(25% - 20px)"
+                    fxFlex="0 1 calc(20% - 20px)"
+                    fxFlex.sm="0 1 calc(33% - 20px)" fxFlex.xs="100">
+                    <mat-form-field class="w-100">
+                        <mat-label>Contact No:</mat-label>
+                        <input type="text" matInput name="SIContactNo"
+                            formControlName="SIContactNo"
+                            placeholder="Contact No"
+                            [(ngModel)]="supModel.SIContactNo">
+                        <mat-error>
+
+                        </mat-error>
+                    </mat-form-field>
+                </div>               
+
+                <div fxLayout="column" fxFlex.md="0 1 calc(25% - 20px)"
+                    fxFlex="0 1 calc(20% - 20px)"
+                    fxFlex.sm="0 1 calc(33% - 20px)" fxFlex.xs="100">
+                    <mat-form-field class="w-100">
+                        <mat-label>System Incharge Email:</mat-label>
+                        <input type="text" matInput name="SIEmail"
+                            formControlName="Cust1stMobile"
+                            placeholder="System Incharge Email"
+                            [(ngModel)]="supModel.SIEmail">
+                        <mat-error>
+                        </mat-error>
+                    </mat-form-field>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<br /> -->

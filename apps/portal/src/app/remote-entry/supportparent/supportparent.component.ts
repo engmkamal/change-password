@@ -1,24 +1,9 @@
-// import { Component, OnInit } from '@angular/core';
-
-// @Component({
-//   selector: 'portal-supportparent',
-//   templateUrl: './supportparent.component.html',
-//   styleUrls: ['./supportparent.component.scss']
-// })
-// export class SupportparentComponent implements OnInit {
-
-//   constructor() { }
-
-//   ngOnInit(): void {
-//   }
-
-// }
-//=============================================
 import { MediaMatcher } from '@angular/cdk/layout';
 import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 import { Schema } from "@dashjoin/json-schema-form";
+import { LoginService } from '@portal/shared/data-access-user';
 //import {MatAccordion} from '@angular/material/expansion';
 
 @Component({
@@ -194,7 +179,8 @@ export class SupportparentComponent implements OnInit {
   constructor(
     private formBuilder: FormBuilder,
     media: MediaMatcher,
-    changeDetectorRef: ChangeDetectorRef,) {
+    changeDetectorRef: ChangeDetectorRef
+    ) {
     this.openedStartDrawer = false;
     this.openedEndDrawer = true;
 

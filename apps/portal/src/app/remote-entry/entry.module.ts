@@ -60,7 +60,7 @@ import { HomemenusComponent } from './homemenus/homemenus.component';
     SupportparentComponent,
     SupportformComponent,
     TasksboardComponent,
-    HomemenusComponent,
+    HomemenusComponent
   ],
   imports: [
     CommonModule,
@@ -101,10 +101,10 @@ import { HomemenusComponent } from './homemenus/homemenus.component';
           },
         ],
       },
-      {
-        path: 'tasksboard',
-        component: TasksboardComponent,
-      },
+      // {
+      //   path: 'tasksboard',
+      //   component: TasksboardComponent,
+      // },
       {
         path: 'wf',
         loadChildren: () =>
@@ -125,6 +125,7 @@ import { HomemenusComponent } from './homemenus/homemenus.component';
       //   path: 'tasks',
       //   loadChildren: () => import('./project/project.module').then((m) => m.ProjectModule)
       // },
+
       {
         path: '',
         component: SupporthomeComponent,
@@ -141,36 +142,15 @@ import { HomemenusComponent } from './homemenus/homemenus.component';
       //   path: '',
       //   redirectTo: 'project',
       //   pathMatch: 'full'
-      // }
-    ]),
-    // NzSpinModule,
-    // NzIconModule.forRoot([]),
-    // environment.production ? [] : AkitaNgDevtools,
-    // AkitaNgRouterStoreModule,
-    // QuillModule.forRoot()
+      // },
+
+      // SigninModule,
+      // IncidenceModule,
+      // TasksModule,
+      // MyappliedworkflowModule,
+    ])
   ],
   exports: [],
-  providers: [SplistcrudService],
-  // providers: [
-  //   SplistcrudService,
-  //   {
-  //     provide: NG_ENTITY_SERVICE_CONFIG,
-  //     useValue: { baseUrl: 'https://jsonplaceholder.typicode.com' }
-  //   },
-  //   {
-  //     provide: ErrorHandler,
-  //     useValue: Sentry.createErrorHandler()
-  //   },
-  //   {
-  //     provide: Sentry.TraceService,
-  //     deps: [Router],
-  //   },
-  //   {
-  //     provide: APP_INITIALIZER,
-  //     useFactory: () => () => {return ""},
-  //     deps: [Sentry.TraceService],
-  //     multi: true,
-  //   },
-  // ],
+  providers: [SplistcrudService]
 })
 export class RemoteEntryModule {}

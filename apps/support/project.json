@@ -13,9 +13,18 @@
         "polyfills": "apps/support/src/polyfills.ts",
         "tsConfig": "apps/support/tsconfig.app.json",
         "inlineStyleLanguage": "scss",
-        "assets": ["apps/support/src/favicon.ico", "apps/support/src/assets"],
+        "assets": [
+          "apps/support/src/favicon.ico",
+          "apps/support/src/assets",
+          {
+            "glob": "**/*",
+            "input": "node_modules/@kolkov/angular-editor/assets/",
+            "output": "apps/support/src/assets/fonts/"
+          }
+        ],
         "styles": [
-          "apps/support/src/styles.scss"
+          "apps/support/src/styles.scss",
+          "node_modules/sweetalert2/src/sweetalert2.scss"
         ],
         "scripts": [],
         "customWebpackConfig": {
@@ -71,7 +80,8 @@
       "defaultConfiguration": "development",
       "options": {
         "port": 4203,
-        "publicHost": "http://localhost:4203"
+        "publicHost": "http://localhost:4203",
+        "proxyConfig": "apps/portal/src/proxy.conf.json"
       }
     },
     "extract-i18n": {

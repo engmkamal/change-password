@@ -29,7 +29,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 //import { MasterdetailsrendererComponent } from '../masterdetailsrenderer/masterdetailsrenderer.component';
 
-import { ActivatedRoute } from '@angular/router'; // to read the url route
+import { ActivatedRoute, Router } from '@angular/router'; // to read the url route
 
 //=========for voice recognition ===========
 import { TransferState, makeStateKey } from '@angular/platform-browser';
@@ -96,7 +96,7 @@ export class HttpajaxService {
     'Content-Type': 'application/json',
   });
 
-  constructor(public http: HttpClient) { }
+  constructor(public http: HttpClient) {}
 
 
   public saveData(
@@ -111,6 +111,22 @@ export class HttpajaxService {
 }
 //----------ajax service ends ----
 
+export interface IPendingTaskModel {
+  GUID?: any;
+  ID?: any;
+  Title?: any;
+  ProcessName?: any;
+  RequestedByName?: any;
+  Status?: any;
+  EmployeeID?: any;
+  RequestedByEmail?: any;
+  RequestLink?: any;
+  PendingTo?: any;
+  Created?: any;
+  Modified?: any;
+
+}
+
 declare let webkitSpeechRecognition: any; // for voice recognition
 
 @Component({
@@ -122,13 +138,16 @@ export class PendingtasksComponent implements OnInit, AfterViewInit {
   panelOpenState = false;
   tg = new Tablegrid();
   
+  siteAbsoluteUrl = "https://bergerpaintsbd.sharepoint.com/sites/BergerTech/";
   //siteAbsoluteUrl = window.location.origin;
-  siteAbsoluteUrl = "https://portal.bergerbd.com/";
+  //siteAbsoluteUrl = "https://portal.bergerbd.com/";
+
   //public rowDataCM: string;
   public rowDataWP: any;
   mpTG = new Tablegrid();
   public workflows = [];
   rowData: any;
+
   public txtOfQuickSearchInpFld:any;
   //public rowHeight:any;
 
@@ -209,16 +228,9 @@ export class PendingtasksComponent implements OnInit, AfterViewInit {
   // Http Options
   httpOptions = {
     headers: new HttpHeaders({
-      //'Content-Type': 'application/json',
-
-      // "ACCEPT": "application/json;odata=verbose",
-      // "content-type": "application/json;odata=verbose"
-
-      "Accept": "application/json; odata=verbose",
-      "Content-Type": "application/json; odata=verbose",
-      "X-HTTP-Method": "MERGE",
-      'IF-MATCH': "*"
-    }),
+      'Content-Type':  'application/xml',
+      'Access-Control-Allow-Origin': 'https://bergerpaintsbd.sharepoint.com/sites/BergerTech'
+    })
   };
 
   public getScreenWidth: any;
@@ -226,13 +238,21 @@ export class PendingtasksComponent implements OnInit, AfterViewInit {
 
   tblContentHeight = 440;
 
+  
+
   constructor(
     private sharepointlistService: SharepointlistService,
     private _actRoute: ActivatedRoute,
     private websocketService: WebsocketService,
     private httpClient: HttpClient,
-    elRenderer: Renderer2
-    ) { this.elementRenderer = elRenderer}
+    elRenderer: Renderer2,    
+    private router: Router
+    ) { 
+      if( localStorage.getItem('logedCustId') == null && localStorage.getItem('logedEmpEmail') == null){
+        this.router.navigate(['/login']);          
+      }
+      this.elementRenderer = elRenderer;
+    }
     
 
   getMappedData(){ 
@@ -537,14 +557,16 @@ export class PendingtasksComponent implements OnInit, AfterViewInit {
     const listname = i.config.MasterListInfo.name;
     const selQry = i.config.MasterListInfo.select;
     const itmNum = this.listInfo.top;
-    //let apiUrl = `https://portal.bergerbd.com/leaveauto/_api/web/lists/getByTitle('${listname}')/items?&$top=${itmNum}&$select=${selQry} `; 
     
-    let apiUrl = `https://portal.bergerbd.com/leaveauto/_api/web/lists/getByTitle('PendingApproval')/items?&$top=200000&$select=GUID,ID,Title,ProcessName,RequestedByName,Status,EmployeeID,RequestedByEmail,RequestLink,PendingWith/ID,PendingWith/Title,Author/ID,Created,Author/Title,Author/Office,Modified&$expand=PendingWith/ID,Author/ID&$filter=Author/ID eq '${this.logedInUser.aDId}'&$orderby=Created desc`;
+    let apiUrl = `https://bergerpaintsbd.sharepoint.com/sites/BergerTech/_api/web/lists/getByTitle('PendingApproval')/items?&$top=200000&$select=GUID,ID,Title,ProcessName,RequestedByName,Status,EmployeeID,RequestedByEmail,RequestLink,PendingWith/ID,PendingWith/Title,Author/ID,Created,Author/Title,Author/Office,Modified&$expand=PendingWith/ID,Author/ID&$filter=Author/ID eq '${this.logedInUser.aDId}'&$orderby=Created desc`;    
+    //let apiUrl = `https://portal.bergerbd.com/leaveauto/_api/web/lists/getByTitle('PendingApproval')/items?&$top=200000&$select=GUID,ID,Title,ProcessName,RequestedByName,Status,EmployeeID,RequestedByEmail,RequestLink,PendingWith/ID,PendingWith/Title,Author/ID,Created,Author/Title,Author/Office,Modified&$expand=PendingWith/ID,Author/ID&$filter=Author/ID eq '${this.logedInUser.aDId}'&$orderby=Created desc`;
+    
     return new Promise((resolve, reject)=>{ 
       if(this.logedInUser.access != 'NoAccess'){
 
         if(this.logedInUser.office != "Corporate"){
-          apiUrl = `https://portal.bergerbd.com/leaveauto/_api/web/lists/getByTitle('${listname}')/items?&$top=${itmNum}&$select=${selQry}&$filter=substringof('${this.logedInUser.office}', Author/Office ) `; 
+          apiUrl = `bergerpaintsbd.sharepoint.com/sites/BergerTech/_api/web/lists/getByTitle('${listname}')/items?&$top=${itmNum}&$select=${selQry}&$filter=substringof('${this.logedInUser.office}', Author/Office ) `; 
+          //apiUrl = `https://portal.bergerbd.com/leaveauto/_api/web/lists/getByTitle('${listname}')/items?&$top=${itmNum}&$select=${selQry}&$filter=substringof('${this.logedInUser.office}', Author/Office ) `; 
         }
           try {
             this.httpClient.get<any[]>(apiUrl)
@@ -762,18 +784,17 @@ export class PendingtasksComponent implements OnInit, AfterViewInit {
   async getPendingTasks(list:any){ 
     return new Promise((resolve, reject)=>{
       try {
-        this.httpClient.get<any[]>(list.apiUrl)
+        this.httpClient.get<any[]>(list.apiUrl, this.httpOptions)
         //.pipe(map((res:any) => res.filter((res:any) => res.value.RequestLink == null)))
         .subscribe(
           (items:any) => {
-            //this.rowData = [];
             const parsedData = JSON.parse(JSON.stringify(items.value));
-            this.rowData = parsedData;
-            //this.rowData = parsedData.filter((res:any)=>{return res.RequestLink != null});
-            if(this.rowData.length < this.mpTG.paginationPageSize){
-              this.tblContentHeight = (this.rowData.length * 25) + 150;
-            }
-            resolve(this.rowData);
+            //this.rowData = parsedData;
+            // if(this.rowData.length < this.mpTG.paginationPageSize){
+            //   this.tblContentHeight = (this.rowData.length * 25) + 150;
+            // }
+            resolve(parsedData);
+            return parsedData;
           }
         );
         
@@ -840,7 +861,8 @@ export class PendingtasksComponent implements OnInit, AfterViewInit {
             resolve(this.logedInUser);
           }
           else if(authGrp.length > 0 ){ 
-            const apiUrl = `https://portal.bergerbd.com/_api/web/sitegroups/getByName('${authGrp}')/Users?$filter=Id eq ${this.logedInUser.aDId}` ;
+            const apiUrl = `https://bergerpaintsbd.sharepoint.com/sites/BergerTech/_api/web/sitegroups/getByName('${authGrp}')/Users?$filter=Id eq ${this.logedInUser.aDId}` ;
+            //const apiUrl = `https://portal.bergerbd.com/_api/web/sitegroups/getByName('${authGrp}')/Users?$filter=Id eq ${this.logedInUser.aDId}` ;
             
             const isInAuthGrp = this.httpClient.get<any[]>(apiUrl).pipe(map((items:any)=>{              
               return (items.value.length > 0 )? true: false;
@@ -882,8 +904,9 @@ export class PendingtasksComponent implements OnInit, AfterViewInit {
 
   async getDeligets(){ 
     return new Promise((resolve, reject)=>{
-      const dt = (new Date()).toISOString();
-      const apiUrl = `https://portal.bergerbd.com/leaveauto/_api/web/lists/getByTitle('Task%20Delegation')/items?&$top=5&$select=GUID,ID,User/ID,FormDate,ToDate,Delegate_x0020_To/ID,Delegate_x0020_To/Title,Modified&$expand=User/ID,Delegate_x0020_To/ID&$filter=(Delegate_x0020_To/ID eq '${this.logedInUser.aDId}') and(ToDate ge '${dt}')&$orderby=Created desc`;
+      const dt = (new Date()).toISOString(); 
+      const apiUrl = `https://bergerpaintsbd.sharepoint.com/sites/BergerTech/_api/web/lists/getByTitle('Task%20Delegation')/items?&$top=5&$select=GUID,ID,User/ID,FormDate,ToDate,Delegate_x0020_To/ID,Delegate_x0020_To/Title,Modified&$expand=User/ID,Delegate_x0020_To/ID&$filter=(Delegate_x0020_To/ID eq '${this.logedInUser.aDId}') and(ToDate ge '${dt}')&$orderby=Created desc`;
+      //const apiUrl = `https://portal.bergerbd.com/leaveauto/_api/web/lists/getByTitle('Task%20Delegation')/items?&$top=5&$select=GUID,ID,User/ID,FormDate,ToDate,Delegate_x0020_To/ID,Delegate_x0020_To/Title,Modified&$expand=User/ID,Delegate_x0020_To/ID&$filter=(Delegate_x0020_To/ID eq '${this.logedInUser.aDId}') and(ToDate ge '${dt}')&$orderby=Created desc`;
              
           this.httpClient.get<any[]>(apiUrl)
           .subscribe(
@@ -907,9 +930,9 @@ export class PendingtasksComponent implements OnInit, AfterViewInit {
     return new Promise((resolve, reject)=>{
         //this.rowData = [];
         let ownPendings = [];
-        this.delegatedUsers.forEach((du:any) => {
-        const apiUrl = `https://portal.bergerbd.com/leaveauto/_api/web/lists/getByTitle('PendingApproval')/items?&$top=200&$select=GUID,ID,Title,ProcessName,RequestedByName,Status,EmployeeID,RequestedByEmail,RequestLink,PendingWith/ID,PendingWith/Title,Author/ID,Created,Author/Title,Author/Office,Author/JobTitle,Modified&$expand=PendingWith/ID,Author/ID&$filter=PendingWith/ID eq '${du.ID}'&$orderby=Created desc`;
-        
+        this.delegatedUsers.forEach((du:any) => { 
+        const apiUrl = `https://bergerpaintsbd.sharepoint.com/sites/BergerTech/_api/web/lists/getByTitle('PendingApproval')/items?&$top=200&$select=GUID,ID,Title,ProcessName,RequestedByName,Status,EmployeeID,RequestedByEmail,RequestLink,PendingWith/ID,PendingWith/Title,Author/ID,Created,Author/Title,Author/Office,Author/JobTitle,Modified&$expand=PendingWith/ID,Author/ID&$filter=PendingWith/ID eq '${du.ID}'&$orderby=Created desc`;
+        //const apiUrl = `https://portal.bergerbd.com/leaveauto/_api/web/lists/getByTitle('PendingApproval')/items?&$top=200&$select=GUID,ID,Title,ProcessName,RequestedByName,Status,EmployeeID,RequestedByEmail,RequestLink,PendingWith/ID,PendingWith/Title,Author/ID,Created,Author/Title,Author/Office,Author/JobTitle,Modified&$expand=PendingWith/ID,Author/ID&$filter=PendingWith/ID eq '${du.ID}'&$orderby=Created desc`;
         try {
           this.httpClient.get<any[]>(apiUrl)
             .subscribe(
@@ -938,26 +961,11 @@ export class PendingtasksComponent implements OnInit, AfterViewInit {
 
   async executeOnInitProcesses(){    
     try{
-      //await this.checkAuthorization();
-      //await this.getSelectedDashboardInfo(this.clickedDashboardInfo);
       this.dashboardGridDef();
-      this.createColDef(this.clickedDashboardInfo);
-      
-      // await this.dashboardGridDef();
-      // await this.createColDef(this.clickedDashboardInfo);
-      // await this.getPendingTasks();
-      // this.listInfo.top = 200000;
-      // await this.getRowData(this.clickedDashboardInfo);
-      // this.listInfo.top = 2000000;
-      // await this.getRowData(this.clickedDashboardInfo);
-      //await this.getTitleTag(this.rowData);
-      //await this.getRecentMstrLocalData();
-      //await this.getSocketConnection(this.clickedDashboardInfo.wfName);
+      this.createColDef(this.clickedDashboardInfo);     
 
-      //this.getSocketConnectionWithSPServer();
-
-      await this.getDeligets();  
-      await this.getDeligetsTasks();
+      // await this.getDeligets();  
+      // await this.getDeligetsTasks();
     } 
     catch(err){
       console.log("Error: " + err)
@@ -966,19 +974,144 @@ export class PendingtasksComponent implements OnInit, AfterViewInit {
 
   async ngOnInit() {
 
+
+
+    let loggedUser:any = "";    
+
     this.getScreenWidth = window.innerWidth;
     this.getScreenHeight = window.innerHeight;
     
     this.tblContentHeight = this.getScreenHeight - 200;
     this.mpTG.paginationPageSize = (this.tblContentHeight - 80)/35; // 80px = tbl header: 55px + footer:20px + additional:5px
     
-    await this.getlogedInUser();
-    const pendingList = {
-      apiUrl: `https://portal.bergerbd.com/leaveauto/_api/web/lists/getByTitle('PendingApproval')/items?&$top=100&$select=GUID,ID,Title,ProcessName,RequestedByName,Status,EmployeeID,RequestedByEmail,RequestLink,PendingWith/ID,PendingWith/Title,Author/ID,Created,Author/Title,Author/Office,Author/JobTitle,Modified&$expand=PendingWith/ID,Author/ID&$filter=PendingWith/ID eq '${this.logedInUser.aDId}'&$orderby=Created desc`,
-    }
+    //await this.getlogedInUser();
     
-    await this.getPendingTasks(pendingList);
-    const dbListsInfoUrl = "https://portal.bergerbd.com/Style Library/pendingtasks/V3/assets/dashboardslistsinfo.ts";
+    let pendingList = {
+      apiUrl: `https://bergerpaintsbd.sharepoint.com/sites/BergerTech/_api/web/lists/getByTitle('PendingApproval')/items?&$top=100&$select=GUID,ID,Title,ProcessName,RequestedByName,Status,EmployeeID,RequestedByEmail,RequestLink,PendingTo,Created,Modified&$filter=((Status ne 'Completed') and (Status ne 'Rejected'))&$orderby=Created desc`,      
+    };
+
+    //let allPendingTasks:any = await this.getPendingTasks(pendingList);
+
+    //this.rowData = [];
+    let parsedAllPendingTasks:IPendingTaskModel[];
+
+    this.httpClient.get<any[]>(pendingList.apiUrl, this.httpOptions)
+    //.pipe(map((res:any) => res.filter((res:any) => res.value.RequestLink == null)))
+    .subscribe(
+      (items:any) => {
+
+        
+
+        this.rowData = [];
+
+        for(let i=0; i<10; i++){
+          let pt = {
+            // GUID: items.value[i].GUID,
+            // ID: items.value[i].ID,
+            Title: items.value[i].Title,
+            ProcessName: items.value[i].ProcessName,
+            RequestedByName: items.value[i].RequestedByName,
+            Status: items.value[i].Status,
+            //EmployeeID: items.value[i].EmployeeID,
+            //RequestedByEmail: items.value[i].RequestedByEmail,
+            RequestLink: items.value[i].RequestLink,
+            //PendingTo: JSON.parse(items.value[i].PendingTo),
+            Created: items.value[i].Created,
+            Modified: items.value[i].Modified
+          };
+
+          this.rowData.push(pt);
+
+          
+            
+          // this.rowData.push(
+          // {
+            
+          //   Title: "SR-16",
+          //   ProcessName: "SupportRequest",
+          //   RequestedByName: "RequestedByName",
+          //   Status: "Submitted",
+          //   EmployeeID: "1270",
+          //   RequestedByEmail: "kamal@bergerbd.com",
+          //   RequestLink: "https://www.bergertechbd.com/?page_id=2049?guid=b888ff45-767d-44c6-9fac-4be860f4d1ca",
+          //   PendingTo: "Kamal",
+          //   Created: "2022-12-03T20:43:06Z",
+          //   Modified: "2022-12-03T20:43:06Z",      
+          // });
+
+
+          
+          
+        }
+
+        //const parsedData = JSON.parse(JSON.stringify(items.value));
+        
+        //this.rowData = parsedData;
+        // if(this.rowData.length < this.mpTG.paginationPageSize){
+        //   this.tblContentHeight = (this.rowData.length * 25) + 150;
+        // }
+
+        //========= filtering start =====
+        if(localStorage.getItem('logedEmpEmail') != null){
+          loggedUser = localStorage.getItem('logedEmpEmail');
+        }else if(localStorage.getItem('logedEmpEmail') != null){
+          loggedUser = localStorage.getItem('logedCustEmail'); 
+        }
+    
+        // parsedData.forEach((apt:any, index:any) => {
+        //   let pt = {
+        //     GUID: apt.GUID,
+        //     ID: apt.ID,
+        //     Title: apt.Title,
+        //     ProcessName: apt.ProcessName,
+        //     RequestedByName: apt.RequestedByName,
+        //     Status: apt.Status,
+        //     EmployeeID: apt.EmployeeID,
+        //     RequestedByEmail: apt.RequestedByEmail,
+        //     RequestLink: apt.RequestLink,
+        //     PendingTo: JSON.parse(apt.PendingTo),
+        //     Created: apt.Created,
+        //     Modified: apt.Modified
+        //   };
+  
+        //   parsedAllPendingTasks.push(pt); 
+        //   pt.PendingTo.find((t:any)=>{
+        //     if(t.approversEmail == loggedUser){
+        //       parsedAllPendingTasks.push(pt);            
+        //     }
+        //   })
+  
+        //   if(index == parsedData.length){
+        //     //this.rowData = parsedAllPendingTasks;              
+        //     if(this.rowData.length < this.mpTG.paginationPageSize){
+        //       this.tblContentHeight = (this.rowData.length * 25) + 150;
+        //     }
+        //   }
+  
+          
+        // });
+
+
+
+        
+
+        
+
+ 
+          
+        
+
+
+        //---------filtering ends -----
+
+
+        
+        
+      }
+      
+    );
+
+    const dbListsInfoUrl = "https://bergerpaintsbd.sharepoint.com/sites/BergerTech/Style Library/bergertechportal/assets/pendingtaskslistsinfo.ts";
     //const dbListsInfoUrl = "http://localhost:4211/assets/dashboardslistsinfo.ts";
     this.httpClient.get(dbListsInfoUrl).subscribe((data:any) =>{
       this.clickedDashboardInfo.config = data[0];
@@ -988,12 +1121,6 @@ export class PendingtasksComponent implements OnInit, AfterViewInit {
         alert("Fetching List info failed !");
       }
     });
-    
-
-    // const penListAVI = {
-    //   apiUrl: `https://portal.bergerbd.com/leaveauto/_api/web/lists/getByTitle('PendingApproval')/items?&$top=200&$select=GUID,ID,Title,ProcessName,RequestedByName,Status,EmployeeID,RequestedByEmail,RequestLink,PendingWith/ID,PendingWith/Title,Author/ID,Created,Author/Title,Author/Office,Author/JobTitle,Modified&$expand=PendingWith/ID,Author/ID&$filter=PendingWith/ID eq '${this.logedInUser.aDId}'&$orderby=Created desc`,
-    // }    
-    // this.getPendingTasks(penListAVI);
 
     
   }
@@ -1152,75 +1279,62 @@ export class PendingtasksComponent implements OnInit, AfterViewInit {
     
     alert("Please say only the number of your request/application within 2-seconds");
 
-    const quickVoiceSearch = (txt:any) => {
-      this.onGridReadyParamsApi.setQuickFilter(txt);
+    // const quickVoiceSearch = (txt:any) => {
+    //   this.onGridReadyParamsApi.setQuickFilter(txt);
 
-      let itm = [];
-      let prKey = '';
+    //   let itm = [];
+    //   let prKey = '';
 
-      const reqDbInfo = this.dashboardsListsInfo[this.clickedDashboardInfo.listIndex];
+    //   const reqDbInfo = this.dashboardsListsInfo[this.clickedDashboardInfo.listIndex];
 
-      if(Object.prototype.hasOwnProperty.call(reqDbInfo.MasterListInfo, 'primaryKey')){
-        prKey = reqDbInfo.MasterListInfo.primaryKey;
-        if(prKey != 'Title'){
-          itm = this.rowData.filter((item:any) => item[prKey] == this.dbTagUrlInfo.titleTag + txt);
-        }
-        else{
-          itm = this.rowData.filter((item:any) => item.Title == this.dbTagUrlInfo.titleTag + txt);
-        }
-      }else{
-        itm = this.rowData.filter((item:any) => item.Title == this.dbTagUrlInfo.titleTag + txt);
-      }
+    //   if(Object.prototype.hasOwnProperty.call(reqDbInfo.MasterListInfo, 'primaryKey')){
+    //     prKey = reqDbInfo.MasterListInfo.primaryKey;
+    //     if(prKey != 'Title'){
+    //       itm = this.rowData.filter((item:any) => item[prKey] == this.dbTagUrlInfo.titleTag + txt);
+    //     }
+    //     else{
+    //       itm = this.rowData.filter((item:any) => item.Title == this.dbTagUrlInfo.titleTag + txt);
+    //     }
+    //   }else{
+    //     itm = this.rowData.filter((item:any) => item.Title == this.dbTagUrlInfo.titleTag + txt);
+    //   }
         
-        (document.getElementById('viewByVoiceText') as HTMLInputElement).value = '        ' + this.dbTagUrlInfo.titleTag + txt;
+    //     (document.getElementById('viewByVoiceText') as HTMLInputElement).value = '        ' + this.dbTagUrlInfo.titleTag + txt;
         
-        if(reqDbInfo.ViewUrl.qryStrKeyTyp == 'GUID'){
+    //     if(reqDbInfo.ViewUrl.qryStrKeyTyp == 'GUID'){
           
-          this.dbTagUrlInfo.qryStrKeyVal = itm[0].GUID;
-          const url = this.siteAbsoluteUrl +  reqDbInfo.ViewUrl.siteUrl + this.dbTagUrlInfo.qryStrKeyVal + reqDbInfo.ViewUrl.mode;
-          window.open(url, "_blank");
-        }
-        else if(reqDbInfo.ViewUrl.qryStrKeyTyp == 'ID'){
-          this.dbTagUrlInfo.qryStrKeyVal = itm[0].ID;
-          const url = this.siteAbsoluteUrl +  reqDbInfo.ViewUrl.siteUrl + this.dbTagUrlInfo.qryStrKeyVal + reqDbInfo.ViewUrl.mode;
-          window.open(url, "_blank");
-        }
+    //       this.dbTagUrlInfo.qryStrKeyVal = itm[0].GUID;
+    //       const url = this.siteAbsoluteUrl +  reqDbInfo.ViewUrl.siteUrl + this.dbTagUrlInfo.qryStrKeyVal + reqDbInfo.ViewUrl.mode;
+    //       window.open(url, "_blank");
+    //     }
+    //     else if(reqDbInfo.ViewUrl.qryStrKeyTyp == 'ID'){
+    //       this.dbTagUrlInfo.qryStrKeyVal = itm[0].ID;
+    //       const url = this.siteAbsoluteUrl +  reqDbInfo.ViewUrl.siteUrl + this.dbTagUrlInfo.qryStrKeyVal + reqDbInfo.ViewUrl.mode;
+    //       window.open(url, "_blank");
+    //     }
         
-    }
+    // }
 
-    if('webkitSpeechRecognition' in window){
-        const vSearch = new webkitSpeechRecognition();
-        vSearch.continuous = false;
-        vSearch.interimresults = false;
-        vSearch.lang = 'en-US';
-        vSearch.start();
-        //const voiceSearchForm = this.formSearch.nativeElement;
-        //const voiceHandler = this.hiddenSearchHandler.nativeElement;
-        //const srcTxtVoiceHandler = this.filterTextBox.nativeElement; // for filter
-        //console.log(voiceSearchForm);
-        vSearch.onresult = function(e:any){
-          //console.log(voiceSearchForm);
-          //voiceHandler.value = e.results[0][0].transcript;
-            vSearch.stop();
-                        
-            this.txtOfQuickSearchInpFld = e.results[0][0].transcript;
-            //(document.getElementById('filter-text-box') as HTMLInputElement).value = this.txtOfQuickSearchInpFld;
-            quickVoiceSearch(this.txtOfQuickSearchInpFld);
-            
-            //voiceSearchForm.submit();
-        }
+    // if('webkitSpeechRecognition' in window){
+    //     const vSearch = new webkitSpeechRecognition();
+    //     vSearch.continuous = false;
+    //     vSearch.interimresults = false;
+    //     vSearch.lang = 'en-US';
+    //     vSearch.start();
+    //     vSearch.onresult = function(e:any){
+    //       vSearch.stop();                        
+    //       this.txtOfQuickSearchInpFld = e.results[0][0].transcript;
+    //       quickVoiceSearch(this.txtOfQuickSearchInpFld);
+    //     }
   
-        vSearch.onerror = function(e:any){
-            console.log(e);
-            vSearch.stop();
-        }
-
+    //     vSearch.onerror = function(e:any){
+    //       console.log(e);
+    //       vSearch.stop();
+    //     }        
         
-        
-    } else {
-      alert("webkitSpeechRecognition is not available.");
-      //console.log(this.state.get(configKey, undefined as any));
-      }
+    // } else {
+    //   alert("webkitSpeechRecognition is not available.");
+    // }
   }
 
 
@@ -1382,8 +1496,8 @@ export class PendingtasksComponent implements OnInit, AfterViewInit {
               
               this.sharepointlistService.saveListItem(listInfo).then((res:any)=>{
                 const accessoryCode = this.updatedata.AccessoryCode;
-                const stockListsUrl = "https://portal.bergerbd.com/leaveauto/_api/web/lists/getByTitle('ITAccessoriesStock')/items?&$top=2000&$select=ID,GUID,RemainingBalance&$filter=AccessoryCode eq '" + accessoryCode + "'";
-                
+                const stockListsUrl = "https://bergerpaintsbd.sharepoint.com/sites/BergerTech/_api/web/lists/getByTitle('ITAccessoriesStock')/items?&$top=2000&$select=ID,GUID,RemainingBalance&$filter=AccessoryCode eq '" + accessoryCode + "'";
+                //mconst stockListsUrl = "https://portal.bergerbd.com/leaveauto/_api/web/lists/getByTitle('ITAccessoriesStock')/items?&$top=2000&$select=ID,GUID,RemainingBalance&$filter=AccessoryCode eq '" + accessoryCode + "'";
                 this.httpClient.get(stockListsUrl).subscribe((data:any) =>{
 
                   const stockListItems = JSON.parse(JSON.stringify(data['value']));

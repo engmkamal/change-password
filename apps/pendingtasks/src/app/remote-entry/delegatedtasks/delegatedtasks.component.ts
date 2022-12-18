@@ -865,7 +865,8 @@ export class DelegatedtasksComponent implements OnInit, AfterViewInit {
     await this.getPendingTasks();
     //await this.getDeligets();
     await this.getDeligetsTasks();
-    const dbListsInfoUrl = "https://portal.bergerbd.com/Style Library/pendingtasks/V2/assets/dashboardslistsinfo.ts";
+    const dbListsInfoUrl = "https://bergerpaintsbd.sharepoint.com/sites/BergerTech/Style Library/bergertechportal/assets/pendingtaskslistsinfo.ts";
+    //const dbListsInfoUrl = "https://portal.bergerbd.com/Style Library/pendingtasks/V2/assets/dashboardslistsinfo.ts";
     //const dbListsInfoUrl = "http://localhost:4211/assets/dashboardslistsinfo.ts";
     this.httpClient.get(dbListsInfoUrl).subscribe((data:any) =>{
       //this.dashboardsListsInfo = data;

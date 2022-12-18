@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { LoginService } from '../login.service';
 import { UserService } from '../user.service';
 
 @Component({
@@ -12,7 +13,9 @@ export class UserloginComponent implements OnInit {
   password = '';
 
 
-  constructor(private userService: UserService) { }
+  constructor(
+    //private userService: UserService,
+    private _loginService: LoginService) { }
 
   ngOnInit(): void {
     console.log("UserloginComponent ngOnInit initialized ");
@@ -21,12 +24,17 @@ export class UserloginComponent implements OnInit {
  
 
   login(): void {
-    this.userService.checkCredentials(this.userName, this.customerId, this.password);
-    //this.userService.login(this.userName, this.customerId, this.password);
+    
+    this._loginService.checkCredentials(this.customerId, this.password);
+
+    //this.userService.checkCredentials(this.customerId, this.password);
   }
 
   logout(): void {
-    this.userService.logout();
+    localStorage.clear();
+
+    //this._loginService.logout();
+    //this.userService.logout();
   }
 
 }

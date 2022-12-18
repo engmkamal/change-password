@@ -1,31 +1,16 @@
-// import { Component, OnInit } from '@angular/core';
-
-// @Component({
-//   selector: 'portal-supporthome',
-//   templateUrl: './supporthome.component.html',
-//   styleUrls: ['./supporthome.component.scss']
-// })
-// export class SupporthomeComponent implements OnInit {
-
-//   constructor() { }
-
-//   ngOnInit(): void {
-//   }
-
-// }
-//========================================
-
-
 import { Component, OnInit, AfterViewInit, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 import { MediaMatcher } from '@angular/cdk/layout';
 import { Router } from '@angular/router';
 import { distinctUntilChanged } from 'rxjs/operators';
-import { UserService } from '@portal/shared/data-access-user';
+import { 
+  LoginService, 
+  //UserService 
+} from '@portal/shared/data-access-user';
 import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
-
-
+import { SharepointlistService } from '@portal/core';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 
 @Component({
@@ -38,6 +23,7 @@ import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
 })
 export class SupporthomeComponent implements OnInit {
 
+  windowOrigin = window.location.origin;
   mobileQuery: MediaQueryList;      
   isCardExpanded = false; //== Mat Card ==
   private _mobileQueryListener: () => void;
@@ -49,7 +35,8 @@ export class SupporthomeComponent implements OnInit {
 
   requestorsInfo:any;
 
-  isLoggedIn$ = this.userService.isUserLoggedIn$;
+  isLoggedIn$ = this._loginService.isUserLoggedIn$;
+  //isLoggedIn$ = this.userService.isUserLoggedIn$;
   showLoginFrm = false;
 
   nav_position = 'end';
@@ -95,12 +82,19 @@ export class SupporthomeComponent implements OnInit {
     matCardFooter: '',
   };
 
+  BergerEmpEmail = "";
+
+  showEmpLoginFrm = false;
+
   constructor(
     private formBuilder: FormBuilder,
     media: MediaMatcher,
     changeDetectorRef: ChangeDetectorRef,
-    private userService: UserService,
+    //private userService: UserService,
+    private _loginService: LoginService,
+    private sharepointlistService: SharepointlistService,
     private router: Router) {
+      
       this.mobileQuery = media.matchMedia('(max-width: 600px)');
       this._mobileQueryListener = () => changeDetectorRef.detectChanges();
       this.mobileQuery.addListener(this._mobileQueryListener);   
@@ -112,33 +106,41 @@ export class SupporthomeComponent implements OnInit {
 
   ngOnInit(): void {
     //==============checking login authorization ===========
-    this.isLoggedIn$
-      .pipe(distinctUntilChanged())
-      .subscribe(async (loggedIn) => {
-        if (!loggedIn) {
-          this.showLoginFrm = true;
-          //this.userService.login('Demo-User', '', '');      
+    if( localStorage.getItem('logedCustId') == null && localStorage.getItem('logedEmpEmail') == null){
+      window.location.href = this.windowOrigin + '/login';         
+    } 
+    else {
+      this.showLoginFrm = false;
+    }
+    
+    // this.isLoggedIn$
+    //   .pipe(distinctUntilChanged())
+    //   .subscribe(async (loggedIn) => {
+    //     if (!loggedIn) {
+    //       window.location.href = this.windowOrigin + '/login';
+    //       //this.router.navigate(['/login']);
           
-        } else {
-          this.showLoginFrm = false;
-          //this.router.navigate([`${this.router.url}`]);
-          //this.router.navigateByUrl('');
-        }
-      });  
+    //     }else if( localStorage.getItem('logedCustId') == null && localStorage.getItem('logedEmpEmail') == null){
+    //       window.location.href = this.windowOrigin + '/login';         
+    //     } 
+    //     else {
+    //       this.showLoginFrm = false;
+    //     }
+    //   });  
     //---------------------------
     this._createForm();    
 
     this.requestorsInfo = {
-      EmployeeName: 'Kamal',
-      Company: 'BPBL',
-      EmployeeId: '1270',
-      OfficeLocation: 'Corporate',
-      Designation: 'Kamal',
-      Department: 'Kamal',
-      Email: 'Kamal',
-      CostCenter: '444444',
-      Mobile: '345464',
-      RequestDate: '2022'
+      EmployeeName: '',
+      Company: '',
+      EmployeeId: '',
+      OfficeLocation: '',
+      Designation: '',
+      Department: '',
+      Email: '',
+      CostCenter: '',
+      Mobile: '',
+      RequestDate: ''
     };
 
 
@@ -150,6 +152,8 @@ export class SupporthomeComponent implements OnInit {
       Status: "",
       MatcardInfo: this._matcardInfo 
     };
+
+    //this.openAsBergerEmp();
   }
 
   private _createForm() {
@@ -165,6 +169,60 @@ export class SupporthomeComponent implements OnInit {
 
   GetOutputVal(valFrmChild: any) {
     console.log("");
+  }
+
+  loginAsEmployee(){
+    //window.location.href = `https://bergerpaintsbd.sharepoint.com/sites/BergerTech/closeConnection.aspx?loginasanotheruser=true&source=/SitePages/bergertechportal.aspx`;
+    
+    this.showLoginFrm = !this.showLoginFrm;
+
+    this.showEmpLoginFrm = true;
+  }
+
+  openAsBergerEmp(){
+    this.sharepointlistService.getEmpIdNdAllInfo().then((res) => {
+      // EmployeeName: "",
+      // Office: "",
+      // EmpID:"",
+      // ADId: 0,
+      // Email: ""
+
+      if(res){
+        this.showLoginFrm = false;
+
+        this._loginService.isUserLoggedIn$ = new Observable((observer)=>{
+          observer.next(true);
+        })
+
+        this._loginService.userName = res.EmployeeName;
+
+        // this.userService.isUserLoggedIn$ = new Observable((observer)=>{
+        //   observer.next(true);
+        // })
+
+        // this.userService.userName = res.EmployeeName;
+      }
+
+      
+    })
+  };
+
+  onLogout(){
+    this._loginService.logout();
+    this.showLoginFrm = true;
+  };
+
+  loginAsBrgrEmp(empEmail:any){
+
+    this._loginService.logout();
+
+    localStorage.setItem('logedBrgrEmpEmail', empEmail);   
+    this.showLoginFrm = true;
+
+  };
+
+  GetMenueOutputVal(pageUrl:any){
+    window.location.href = this.windowOrigin + pageUrl ;
   }
 
   

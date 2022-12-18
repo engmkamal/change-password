@@ -1,0 +1,151 @@
+<form class="example-form" [formGroup]="formGroup">
+  <div fxLayout="row" >            
+        <!-- <div fxFlex="1 1 100" fxLayout="row" >
+          <div fxFlex="1 1 100" fxFlex.md ="1 1 99" fxFlex.sm ="1 1 99" fxFlex.xs ="1 1 99" >
+            <mat-form-field appearance="outline" fxFlex="99" >
+                <mat-label>Row Id:</mat-label>
+                <input type="text" matInput
+                    name="rowId"
+                    formControlName="rowId"
+                    placeholder="row Id">
+                <mat-error></mat-error>
+            </mat-form-field>                    
+          </div>
+        </div> -->
+    </div>
+    <mat-form-field class="example-full-width lowHeight" appearance="outline" id="portalDropdownAutocomplete" >
+        <mat-label>Assign To:</mat-label>
+        <input 
+          matInput 
+          placeholder="Search with Employee name .." 
+          aria-label="Assign To" 
+          [matAutocomplete]="auto"
+          formControlName = "AssignedToName" 
+          (keyup.enter)="enter()" >
+        <mat-autocomplete #auto="matAutocomplete" (optionSelected)="optionSelected($event.option)">
+          <mat-option *ngFor="let option of filteredPeople | async" [value]="option.value" multiLineOption style="min-height: 70px; line-height: normal; height: auto;">
+            <span style="font-size:12px; margin-bottom: 0px; padding: 0px;">{{ option.value }}</span><br/>
+            <span style="color:grey; font-size:10px; margin-top: -3px; margin-bottom: 0px; padding: 0px; height:11px;">{{ option.description }}</span><br/>
+            <small style="color:grey; font-size:8px; margin-top: -3px; margin-bottom: 0px; padding: 0px; height:9px;">{{option.details}}</small>
+          </mat-option>
+        </mat-autocomplete >      
+    </mat-form-field>
+
+    <!-- <mat-form-field class="example-full-width" style="visibility: hidden;" appearance="outline" >
+      <mat-label>Email:</mat-label>
+      <input 
+    matInput
+    formControlName = "AssignedToEmail" >
+          
+    </mat-form-field>
+
+    <mat-form-field class="example-full-width" style="visibility: hidden;" appearance="outline" >
+      <mat-label>Designation:</mat-label>
+      <input 
+    matInput
+    formControlName = "AssignedToDesignation" >
+          
+    </mat-form-field> -->
+
+    <div fxLayout="row" fxLayout.xs="column" fxLayoutGap="0px" *ngIf="_showExpectedTimeTakenFld">
+        <!-- <div fxFlex="1 1 50" fxLayoutAlign="space-between Center">
+            <div fxFlex="1 1 95">
+                <label>Expected Time Taken(in minutes)</label>
+            </div>
+            <div fxFlex="1 1 5">
+                <label>:</label>
+            </div>
+        </div> -->
+        <div fxFlex="1 1 30" fxFlex.lg="1 1 30" fxFlex.md="1 1 40" fxFlex.gt-sm="1 1 45" fxFlex.sm="1 1 90" fxFlex.gt-xs="1 1 90" fxFlex.xs="1 1 100" fxLayout="row" fxLayoutAlign="space-between Center">
+            <div fxFlex="1 1 99" class="lblMargin">
+                <mat-form-field appearance="outline" fxFlex="100" class="lowHeight" >
+                  <mat-label>Expected Required Time(in minutes):</mat-label>
+                    <input type="number" matInput formControlName="ExpectedTimeTaken">
+                </mat-form-field>
+            </div>
+        </div>
+    </div>
+    <div fxLayout="row" fxLayout.xs="column" fxLayoutGap="0px" *ngIf="_showActualTimeTakenFld">
+      <!-- <div fxFlex="1 1 50" fxLayoutAlign="space-between Center">
+          <div fxFlex="1 1 95">
+              <label>Actual Time Taken(in minutes)</label>
+          </div>
+          <div fxFlex="1 1 5">
+              <label>:</label>
+          </div>
+      </div> -->
+      <div fxFlex="1 1 30" fxFlex.lg="1 1 30" fxFlex.md="1 1 40" fxFlex.gt-sm="1 1 45" fxFlex.sm="1 1 90" fxFlex.gt-xs="1 1 90" fxFlex.xs="1 1 100" fxLayout="row" fxLayoutAlign="space-between Center">
+        <div fxFlex="1 1 99" class="lblMargin">
+            <mat-form-field appearance="outline" fxFlex="100" class="lowHeight">
+              <mat-label>ActualTimeTaken(in minutes):</mat-label>
+                <input type="number" matInput formControlName="ActualTimeTaken">
+            </mat-form-field>
+        </div>
+      </div>
+    </div>
+
+    <div fxLayout="row" fxLayout.xs="column" fxLayoutGap="0px" *ngIf="_showAcceptedTimeTakenFld">
+      <div fxFlex="1 1 30" fxFlex.lg="1 1 30" fxFlex.md="1 1 40" fxFlex.gt-sm="1 1 45" fxFlex.sm="1 1 90" fxFlex.gt-xs="1 1 90" fxFlex.xs="1 1 100" fxLayout="row" fxLayoutAlign="space-between Center">
+        <div fxFlex="1 1 99" class="lblMargin">
+            <mat-form-field appearance="outline" fxFlex="100" class="lowHeight">
+              <mat-label>AcceptedTimeTaken(in minutes):</mat-label>
+                <input type="number" matInput formControlName="AcceptedTimeTaken">
+            </mat-form-field>
+        </div>
+      </div>    
+    </div>
+
+    <div fxLayout="row" fxLayout.xs="column" fxLayoutGap="0px" *ngIf="_showPickedUpBtn">
+      <div fxFlex="1 1 30" fxFlex.lg="1 1 30" fxFlex.md="1 1 40" fxFlex.gt-sm="1 1 45" fxFlex.sm="1 1 90" fxFlex.gt-xs="1 1 90" fxFlex.xs="1 1 100" fxLayout="row" fxLayoutAlign="space-between Center">
+        <div fxFlex="1 1 99" class="lblMargin">
+            <mat-form-field appearance="outline" fxFlex="100" class="lowHeight">
+              <mat-label>AssignedTaskStatus:</mat-label>
+                <input type="text" matInput formControlName="AssignedTaskStatus">
+            </mat-form-field>
+        </div>
+      </div>
+    </div>
+
+    <div fxLayout="row" fxLayout.xs="column" fxLayoutGap="0px" *ngIf="_showPickedUpBtn">
+      <div fxFlex="1 1 30" fxFlex.lg="1 1 30" fxFlex.md="1 1 40" fxFlex.gt-sm="1 1 45" fxFlex.sm="1 1 90" fxFlex.gt-xs="1 1 90" fxFlex.xs="1 1 100" fxLayout="row" fxLayoutAlign="space-between Center">
+        <div fxFlex="1 1 99" class="lblMargin">
+            <mat-form-field appearance="outline" fxFlex="100" class="lowHeight">
+              <mat-label>AssigneeQuery:</mat-label>
+                <input type="text" matInput formControlName="AssigneeQuery">
+            </mat-form-field>
+        </div>
+      </div>
+      
+    </div>
+
+    <div fxLayout="row" fxLayout.xs="column" fxLayoutGap="0px">      
+      
+      <div style="background-color: whitesmoke; padding: 15px; margin-left: 15px; margin-right: 15px; display: flex;">
+        <div fxLayout="row" fxFlex="1 1 100">
+
+          <button mat-button type="button" class="mat-raised-button mat-primary"
+            (click)="_processAction('PickedUp')" id="btnPickedUp" *ngIf="_showPickedUpBtn" style="margin-right:10px;" [disabled]="_btnAssigneeDisabled" >Pick Up</button>
+          <!-- <button mat-button type="button" class="mat-raised-button mat-primary"
+            (click)="_processAction('QueryFrmAssignee')" *ngIf="_showQueryFrmAssigneeBtn" style="margin-right:10px;" [disabled]="_btnAssigneeDisabled" >Query</button> -->
+          <button mat-button type="button" class="mat-raised-button mat-primary"
+            (click)="_processAction('ReadyforUAT')" *ngIf="_showReadyforUATBtn" style="margin-right:10px;" id="btnReadyforUAT" [disabled]="_btnAssigneeDisabled" >Ready for UAT</button>
+          <button mat-button type="button" class="mat-raised-button mat-primary"
+            (click)="_processAction('ReleaseAssignee')" *ngIf="_showReleaseAssigneeBtn" style="margin-right:10px;" [disabled]="_btnAssigneeDisabled" >Release Assignee</button>
+          <button mat-button type="button" class="mat-raised-button mat-primary"
+            (click)="_processAction('ReAssign')" *ngIf="_showReAssignBtn" style="margin-right:10px;" [disabled]="_btnAssigneeDisabled" >Re Assign</button>
+          
+        </div>
+      </div>
+      
+    </div>
+
+</form>
+
+
+
+
+
+
+
+
+         

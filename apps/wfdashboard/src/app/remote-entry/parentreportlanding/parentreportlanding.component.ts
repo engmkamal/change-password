@@ -491,7 +491,7 @@ export class ParentreportlandingComponent implements OnInit, AfterViewInit {
 
     return new Promise((resolve, reject)=>{    
     
-        this.dashboardsListsInfo[i.listIndex].DbViewColDef.forEach((element:any, index:number ) => {
+        this.dashboardsListsInfo[i.listIndex].MasterDetailViewColDef.forEach((element:any, index:number ) => {
           
           const ftype = element.fldType;
           const eGui: HTMLDivElement = htmlEleRenderer.createElement('div');          
@@ -1145,7 +1145,7 @@ export class ParentreportlandingComponent implements OnInit, AfterViewInit {
     
     
     
-        this.dashboardsListsInfo[i.listIndex].DbViewColDef.forEach((element:any, index:number ) => {
+        this.dashboardsListsInfo[i.listIndex].MasterDetailViewColDef.forEach((element:any, index:number ) => {
           
           //========= with object notation ================
           const ftype = element.fldType;
@@ -1933,7 +1933,7 @@ export class ParentreportlandingComponent implements OnInit, AfterViewInit {
 
   async ngOnInit() {
     //const dbListsInfoUrl = "https://portal.bergerbd.com/Style Library/Dashboard/V1/assets/dashboardslistsinfo.ts";
-    const dbListsInfoUrl = "http://localhost:4204/assets/dashboardslistsinfo.ts";
+    const dbListsInfoUrl = "https://portal.bergerbd.com/Style Library/WorkshopProposalReport/V1/assets/dashboardslistsinfo.ts";
     this.httpClient.get(dbListsInfoUrl).subscribe(data =>{
       this.dashboardsListsInfo = data;
       if(this.dashboardsListsInfo.length >0){

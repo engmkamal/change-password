@@ -1,17 +1,3 @@
-// import { Component, OnInit } from '@angular/core';
-
-// @Component({
-//   selector: 'portal-dragresizelogolinktile',
-//   templateUrl: './dragresizelogolinktile.component.html',
-//   styleUrls: ['./dragresizelogolinktile.component.scss'],
-// })
-// export class DragresizelogolinktileComponent implements OnInit {
-//   constructor() {}
-
-//   ngOnInit(): void {}
-// }
-//=====================================
-
 import { ResizedEvent } from 'angular-resize-event';
 
 import { CdkDragEnd, CdkDragMove } from '@angular/cdk/drag-drop';

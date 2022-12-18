@@ -1,0 +1,143 @@
+<ng-container [formGroup]="_frmGrp">
+    <div formGroupName="Requestor" class="fix-this">
+        <fieldset>
+            <legend>
+                <span style="font-size: 16px; font-family:Courier; color:navy">Requestor's Info</span>
+            </legend>
+            <div fxLayout="column">
+                <div fxLayout="row" fxLayout.sm="column" fxLayout.xs="column" fxLayoutGap="5px">
+                    <div fxFlex="49">
+                        <div fxLayout="row" fxLayoutAlign="space-between start">
+                            <div fxFlex="1 1 30">
+                                <mat-label>Customer Id</mat-label>
+                            </div>
+                            <div fxFlex="1 1 5">
+                                <mat-label>:</mat-label>
+                            </div>
+                            <div fxFlex="1 1 65">
+                                <input formControlName="CustId" class="reqInfoFld" (keyup)="feeedCustomerInfo()">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div fxLayout="row" fxLayout.sm="column" fxLayout.xs="column" fxLayoutGap="5px">
+                    <div fxFlex="49">
+                        <div fxLayout="row" fxLayoutAlign="space-between start">
+                            <div fxFlex="1 1 30">
+                                <mat-label>Name</mat-label>
+                            </div>
+                            <div fxFlex="1 1 5">
+                                <mat-label>:</mat-label>
+                            </div>
+                            <div fxFlex="1 1 65">
+                                <input formControlName="CustName" class="reqInfoFld" style="min-width: 280px;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div fxLayout="row" fxLayout.sm="column" fxLayout.xs="column" fxLayoutGap="5px">                    
+                    <div fxFlex="49">
+                        <div fxLayout="row" fxLayoutAlign="space-between start">
+                            <div fxFlex="1 1 30">
+                                <mat-label>Company</mat-label>
+                            </div>
+                            <div fxFlex="1 1 5">
+                                <mat-label>:</mat-label>
+                            </div>
+                            <div fxFlex="1 1 65">
+                                <input formControlName="CustCompanyName" class="reqInfoFld" style="min-width: 210px;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div fxLayout="row" fxLayout.sm="column" fxLayout.xs="column" fxLayoutGap="5px">
+                  
+                    <div fxFlex="49">
+                        <div fxLayout="row" fxLayoutAlign="space-between start">
+                            <div fxFlex="1 1 30">
+                                <mat-label>Address</mat-label>
+                            </div>
+                            <div fxFlex="1 1 5">
+                                <mat-label>:</mat-label>
+                            </div>
+                            <div fxFlex="1 1 65">
+                                <input formControlName="CustCompany1stAddress" class="reqInfoFld" style="min-width: 280px;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div fxLayout="row" fxLayout.sm="column" fxLayout.xs="column" fxLayoutGap="5px">
+                    <div fxFlex="49">
+                        <div fxLayout="row" fxLayoutAlign="space-between start">
+                            <div fxFlex="1 1 30">
+                                <mat-label>Designation</mat-label>
+                            </div>
+                            <div fxFlex="1 1 5">
+                                <mat-label>:</mat-label>
+                            </div>
+                            <div fxFlex="1 1 65">
+                                <input formControlName="CustDesignation" class="reqInfoFld">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+               
+                
+                <div fxLayout="row" fxLayout.sm="column" fxLayout.xs="column" fxLayoutGap="5px">
+                    <div fxFlex="49">
+                        <div fxLayout="row" fxLayoutAlign="space-between start">
+                            <div fxFlex="1 1 30">
+                                <mat-label>Email</mat-label>
+                            </div>
+                            <div fxFlex="1 1 5">
+                                <mat-label>:</mat-label>
+                            </div>
+                            <div fxFlex="1 1 65">
+                                <input formControlName="Cust1stEmail" class="reqInfoFld">
+                            </div>
+                        </div>
+                    </div>
+
+                   
+                </div>
+   
+                <div fxLayout="row" fxLayout.sm="column" fxLayout.xs="column" fxLayoutGap="5px">
+                    <div fxFlex="49">
+                        <div fxLayout="row" fxLayoutAlign="space-between start">
+                            <div fxFlex="1 1 30">
+                                <mat-label>Mobile</mat-label>
+                            </div>
+                            <div fxFlex="1 1 5">
+                                <mat-label>:</mat-label>
+                            </div>
+                            <div fxFlex="1 1 65">
+                                <input formControlName="Cust1stMobile" class="reqInfoFld">
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+                <!-- <div fxLayout="row" fxLayout.sm="column" fxLayout.xs="column" fxLayoutGap="5px">
+                    <div fxFlex="49">
+                        <div fxLayout="row" fxLayoutAlign="space-between start">
+                            <div fxFlex="1 1 30">
+                                <mat-label>RequestDate</mat-label>
+                            </div>
+                            <div fxFlex="1 1 5">
+                                <mat-label>:</mat-label>
+                            </div>
+                            <div fxFlex="1 1 65">
+                                <input formControlName="RequestDate" class="reqInfoFld">
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div> -->
+            </div>
+        </fieldset>
+    </div>
+</ng-container>
+
+
+
+

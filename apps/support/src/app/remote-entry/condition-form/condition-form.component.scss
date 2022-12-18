@@ -1,0 +1,40 @@
+/* 
+div {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .itemRow {
+    align-items: baseline;
+ }
+
+ .frmCont {
+    display: flex;    
+ }
+
+ .frmDiv {
+    flex-direction: column;
+ }
+
+ .mFrmFld {
+  margin-top: -20px; 
+  color:Navy;
+  font-size: 12px;
+  height: 55px;
+ }
+
+
+mat-select {
+  font-size: 12px;
+  margin-top: -15px;
+}
+
+mat-form-field>input {
+  margin-top: -15px;
+}
+
+::ng-deep .mat-form-field-appearance-outline .mat-form-field-outline {      
+  height: 32px;
+  margin-top: 8px;
+}
+ */

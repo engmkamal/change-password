@@ -456,7 +456,7 @@ export class HomemenusComponent implements OnInit, OnDestroy, AfterViewInit {
             overflow: 'hidden',
             width: '200px',
             height: '90px',
-            background: 'lightblue'
+            background: '#0E5968'
           },
           styleTitle:{
             textAlign: 'center', 
@@ -495,7 +495,7 @@ export class HomemenusComponent implements OnInit, OnDestroy, AfterViewInit {
             overflow: 'hidden',
             width: '200px',
             height: '100px',
-            background: 'lightblue'
+            background: '#003B4A'
           },
           styleTitle:{
             textAlign: 'center', 

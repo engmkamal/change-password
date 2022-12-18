@@ -1,0 +1,1124 @@
+<mat-sidenav-container class="example-sidenav-container" [style.marginTop.px]="mobileQuery.matches ? 56 : 0" style="width: 70%; height: 100%; margin: auto;">
+
+  <mat-sidenav-content>
+    <mat-drawer-container style="width: 100%; height: 100%;">
+      <mat-drawer #startDrawer mode="side" [(opened)]="openedStartDrawer" position="start" style="width:300px;">
+        Drawer content
+      </mat-drawer>
+      <!-- <mat-drawer #sideNav mode="side" [(opened)]="openedEndDrawer" position="end" style="width:400px;">
+        <ng-container>
+          <a routerLink="./itservicerequest">
+            <portal-dragndresizable [requestInfo]="requestInfo" (outputToParent)="GetOutputVal($event)">
+            </portal-dragndresizable>
+          </a>
+        </ng-container>
+      </mat-drawer> -->
+      <mat-drawer-content style="padding:10px; margin-top:10px;">
+        <div style="width: 100%; margin: auto;" class="fix-this panel">
+          <div style="width: 100%; background-color: #81bddbf7;">
+            <form [formGroup]="_form" (ngSubmit)="onSubmitBtn()" #heroForm="ngForm">
+
+              <div style="margin-top: 10px; margin-left: 30px; height: 31px;">
+                <h2 style="color: white; font-family: 'Arial';">Support Request <span style="font-style: italic; font-size: 14px;" *ngIf="uId != '' ">(Ref Id # {{parsedRequestInfo.Title}})</span></h2>
+              </div>
+
+              <!-- <div style="display: flex; justify-content: center;"><portal-userlogin *ngIf="showLoginFrm"></portal-userlogin></div> -->
+
+              <div style="background-color: whitesmoke; padding: 15px; margin-left: 15px; margin-right: 15px;">
+                <mat-accordion style="color:lightblue;">
+                  <mat-expansion-panel (opened)="panelOpenState = true" (closed)="panelOpenState = false"
+                    style="background:rgb(221, 235, 241) ;" expanded="true">
+                    <mat-expansion-panel-header>
+                      <mat-panel-title>
+                        Customer Information:
+                      </mat-panel-title>
+                      <mat-panel-description>
+                      </mat-panel-description>
+                    </mat-expansion-panel-header>
+                    <div style="background-color: whitesmoke; padding: 15px; margin:auto;" >
+                      <!-- <portal-supportcustomer [formGroup]="_form" [requestorsInfo]="requestorsInfo">
+                      </portal-supportcustomer> -->
+                      <ng-container *ngIf="displayRequestor">
+                        <div style="background-color: whitesmoke; padding: 15px; " >
+                          <div *ngComponentOutlet="RequestorComponent; injector: employeeInjector"></div>
+                        </div>
+
+                        <div style="background-color: whitesmoke; padding: 15px; margin:auto;">
+                          <div mat-dialog-content class="container-fluid" >
+                            <div style="margin-left:10px;">
+                              <div fxLayout="row wrap" fxLayoutAlign="start stretch" fxLayoutGap="20px">
+                                
+                                <div fxLayout="column"
+                                  fxFlex.md="0 1 calc(100% - 20px)"
+                                  fxFlex="0 1 calc(100% - 20px)"
+                                  fxFlex.sm="0 1 calc(100% - 20px)"
+                                  fxFlex.xs="100">
+                                  <p><b>On Behalf Of:</b></p>
+                                </div>
+  
+                                <div *ngIf="!displayApplicant">
+                                  <div fxLayout="column" fxFlex.lg="0 1 calc(25% - 20px)" fxFlex.md="0 1 calc(50% - 20px)" fxFlex="0 1 calc(50% - 20px)"
+                                    fxFlex.sm="0 1 calc(100% - 20px)" fxFlex.xs="100">
+                                    
+                                    <mat-form-field class="lowHeight">
+                                      <mat-label>Customer Id:</mat-label>
+                                      <input #loadByCustomerId type="text" matInput name="Customer Id" placeholder="Customer Id" >
+                                      <mat-error>
+                                      </mat-error>
+                                    </mat-form-field>
+                                  </div>
+
+                                  <div fxLayout="column" fxFlex.lg="0 1 calc(25% - 20px)" fxFlex.md="0 1 calc(50% - 20px)" fxFlex="0 1 calc(50% - 20px)"
+                                    fxFlex.sm="0 1 calc(100% - 20px)" fxFlex.xs="100">
+                                    
+                                    <button mat-button type="button" class="mat-raised-button mat-primary"
+                                      (click)="loadCustomerById(loadByCustomerId.value)" *ngIf=" uId == '' " style="margin-left:20px; margin-top:3px;" [disabled]="btnDisabled" >Load Cuslomer Info</button>
+
+                                  </div>
+                                </div>
+  
+
+
+  
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </ng-container>
+
+                      <ng-container *ngIf="displayApplicant">
+                        <div style="background-color: whitesmoke; padding: 15px; " >
+                          <div *ngComponentOutlet="ApplicantComponent; injector: applicantInjector"></div>
+                        </div>
+                      </ng-container>
+
+                    </div>
+                  </mat-expansion-panel>
+                </mat-accordion>
+                <br />
+
+                <div formGroupName="AppParameters">
+
+                  <mat-accordion style="color:lightblue;">
+                    <mat-expansion-panel (opened)="panelOpenState = true" (closed)="panelOpenState = false"
+                      style="background:rgb(221, 235, 241) ;" expanded="true">
+                      <mat-expansion-panel-header>
+                        <mat-panel-title>
+                          Problem Description:
+                        </mat-panel-title>
+                        <mat-panel-description>
+                          <!-- <span ></span> -->
+                        </mat-panel-description>
+                      </mat-expansion-panel-header>
+                      <div style="background-color: whitesmoke; padding: 15px; margin:auto;">
+                        <div mat-dialog-content class="container-fluid" formGroupName="ProblemDescription">
+                          <div style="margin-left:10px;">
+                            <div fxLayout="row wrap" fxLayoutAlign="start stretch" fxLayoutGap="20px">
+                              
+                              <div fxLayout="column"
+                                fxFlex.md="0 1 calc(100% - 20px)"
+                                fxFlex="0 1 calc(100% - 20px)"
+                                fxFlex.sm="0 1 calc(100% - 20px)"
+                                fxFlex.xs="100">
+                                <mat-form-field class="lowHeight">
+                                    <mat-label>Request For:</mat-label>
+                                    <mat-select
+                                        formControlName="RequestFor"
+                                        name="RequestFor"
+                                        (selectionChange)="onRequestForSelect($event.value)" >
+                                        <mat-option>None</mat-option>
+                                        <mat-option
+                                            *ngFor="let rf of requestFors"
+                                            [value]="rf.value">
+                                            {{rf.viewValue}}
+                                        </mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                              </div>
+
+                              <div fxLayout="column"
+                                fxFlex.md="0 1 calc(100% - 20px)"
+                                fxFlex="0 1 calc(100% - 20px)"
+                                fxFlex.sm="0 1 calc(100% - 20px)"
+                                fxFlex.xs="100">
+                                <mat-form-field class="lowHeight">
+                                    <mat-label>Module/Category:</mat-label>
+                                    <!-- <mat-select
+                                        formControlName="RequestCategory"
+                                        name="RequestCategory"
+                                        (selectionChange)="onReqForCategorySelect($event.value)" >
+                                        <mat-option>None</mat-option>
+                                        <mat-option
+                                            *ngFor="let rfc of requestForCategories"
+                                            [value]="rfc.value">
+                                            {{rfc.viewValue}}
+                                        </mat-option>
+                                    </mat-select> -->
+                                    <mat-select
+                                        formControlName="RequestCategory"
+                                        name="RequestCategory"
+                                        (selectionChange)="onReqForCategorySelect($event.value)">
+                                        <mat-option>None</mat-option>
+                                        <mat-option
+                                            *ngFor="let rfc of requestForCategories"
+                                            [value]="rfc.value">
+                                            {{rfc.viewValue}}
+                                        </mat-option>
+                                    </mat-select >
+                                </mat-form-field>
+                                <!-- <mat-form-field *ngIf = "uId != '' ">
+                                  <mat-label>Module/Category:</mat-label>
+                                  <input type="text" matInput name="RequestCategory" formControlName="RequestCategory"
+                                        placeholder="Request Category">                                  
+                                </mat-form-field> -->
+                              </div>
+
+                              <div fxLayout="column" fxFlex.md="0 1 calc(100% - 20px)" fxFlex="0 1 calc(100% - 20px)"
+                                fxFlex.sm="0 1 calc(100% - 20px)" fxFlex.xs="100">
+                                <mat-form-field class="lowHeight">
+                                  <mat-label>Subject:</mat-label>
+                                  <input type="text" matInput name="Subject" formControlName="Subject"
+                                    placeholder="Subject" >
+                                  <mat-error>
+                                  </mat-error>
+                                </mat-form-field>
+                              </div>
+
+                              <div fxLayout="column" fxFlex.md="0 1 calc(100% - 20px)" fxFlex="0 1 calc(100% - 20px)"
+                                fxFlex.sm="0 1 calc(100% - 20px)" fxFlex.xs="100">
+                                <p>Problem Description:</p>
+                                <angular-editor formControlName="Description" [config]="config"></angular-editor>
+                                <!-- <mat-form-field>
+                                  <mat-label>Problem Description:</mat-label>                                  
+                                  <input type="text" matInput name="Description" formControlName="Description"
+                                    placeholder="Description">
+                                  <mat-error>
+                                  </mat-error>
+                                </mat-form-field> -->
+                              </div>
+
+                              <!-- <div fxLayout="column" fxFlex.md="0 1 calc(100% - 20px)" fxFlex="0 1 calc(100% - 20px)"
+                                fxFlex.sm="0 1 calc(100% - 20px)" fxFlex.xs="100">
+
+                                <section class="example-section">
+                                  <mat-checkbox class="example-margin" formControlName="Consent" [(ngModel)]="Consent">
+                                    Agreed on DB access, if required !</mat-checkbox>
+                                </section>
+                              </div> -->
+
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </mat-expansion-panel>
+                  </mat-accordion>
+                  <br />
+
+                  <mat-accordion style="color:lightblue;" *ngIf = "uId != '' ">
+                    <mat-expansion-panel (opened)="panelOpenState = true"
+                        (closed)="panelOpenState = false" style="background:rgb(221, 235, 241) ;"
+                        expanded="true">
+                        <mat-expansion-panel-header>
+                            <mat-panel-title>
+                              Query and Response:
+                            </mat-panel-title>
+                            <mat-panel-description style="justify-content: flex-end;">
+                                <div><button (click)="panelOpenState = false"
+                                        style="font-weight: bolder;">Skip</button></div>
+                            </mat-panel-description>
+                        </mat-expansion-panel-header>
+
+                        <ng-container *ngIf = "displayQueryLog">
+                          <div style="background-color: whitesmoke; padding: 15px; " >                            
+                            <label><b><h5>Query and Response Log:</h5></b></label>
+                            <div *ngComponentOutlet="QueryLogComponent; injector: queryLogInjector"></div>
+                          </div>
+                          <br>
+                        </ng-container>
+
+
+                    </mat-expansion-panel>
+                  </mat-accordion>
+                  <br/>
+
+                  <mat-accordion style="color:lightblue;">
+                    <mat-expansion-panel (opened)="panelOpenState = true" (closed)="panelOpenState = false"
+                      style="background:rgb(221, 235, 241) ;" expanded="true">
+                      <mat-expansion-panel-header>
+                        <mat-panel-title>
+                          Priority:
+                        </mat-panel-title>
+                        <mat-panel-description>
+                          <!-- <span ></span> -->
+                        </mat-panel-description>
+                      </mat-expansion-panel-header>
+                      <div style="background-color: whitesmoke; padding: 15px; margin:auto;">
+                        <div mat-dialog-content class="container-fluid" formGroupName="PriorityInfo">
+                          <div style="margin-left:10px;">
+                            <div fxLayout="row wrap" fxLayoutAlign="start stretch" fxLayoutGap="20px">
+
+                              <div fxLayout="column" fxFlex.md="0 1 calc(100% - 20px)" fxFlex="0 1 calc(100% - 20px)"
+                                fxFlex.sm="0 1 calc(100% - 20px)" fxFlex.xs="100">
+                                <mat-form-field class="lowHeight">
+                                  <mat-label>Priority:</mat-label>
+                                  <mat-select formControlName="Priority" name="Priority" (selectionChange)="onPrioritySelect($event.value)" >
+                                    <mat-option>None</mat-option>
+                                    <mat-option *ngFor="let st of priorities" [value]="st.value">
+                                      {{st.viewValue}}
+                                    </mat-option>
+                                  </mat-select>
+                                </mat-form-field>
+                              </div>
+
+                              <fieldset fxLayout="column" fxFlex.md="0 1 calc(100% - 20px)"
+                                fxFlex="0 1 calc(100% - 20px)" fxFlex.sm="0 1 calc(100% - 20px)" fxFlex.xs="100" *ngIf="showHPBusImpactDiv">
+                                <legend>
+                                  <span style="font-size: 16px; font-family:Arial; color:navy">In case Priority is very High</span>
+                                </legend>
+
+                                <div fxLayout="column" >
+                                  <div fxLayout="column" fxFlex.md="0 1 calc(100% - 20px)"
+                                    fxFlex="0 1 calc(100% - 20px)" fxFlex.sm="0 1 calc(100% - 20px)" fxFlex.xs="100">
+                                    <mat-form-field class="lowHeight">
+                                      <mat-label>Emergency Contact:
+                                      </mat-label>
+                                      <input type="text" matInput name="EmergContact"
+                                        formControlName="EmergContact" placeholder="Emergency Contact" >
+                                      <mat-error>
+
+                                      </mat-error>
+                                    </mat-form-field>
+                                  </div>
+
+                                  <div fxLayout="column" fxFlex.md="0 1 calc(100% - 20px)"
+                                    fxFlex="0 1 calc(100% - 20px)" fxFlex.sm="0 1 calc(100% - 20px)" fxFlex.xs="100">
+                                    <mat-form-field class="lowHeight">
+                                      <mat-label>Emergency Contact Number:
+                                      </mat-label>
+                                      <input type="text" matInput name="EmergContactNumber"
+                                        formControlName="EmergContactNumber" placeholder="Emergency Contact Number" >
+                                      <mat-error>
+
+                                      </mat-error>
+                                    </mat-form-field>
+                                  </div>
+
+                                  <div fxLayout="column" fxFlex.md="0 1 calc(100% - 20px)"
+                                    fxFlex="0 1 calc(100% - 20px)" fxFlex.sm="0 1 calc(100% - 20px)" fxFlex.xs="100">
+                                    <mat-form-field class="lowHeight">
+                                      <mat-label>Emergency Contact Email:
+                                      </mat-label>
+                                      <input type="text" matInput name="EmergContactEmail"
+                                        formControlName="EmergContactEmail" placeholder="Emergency Contact Email" >
+                                      <mat-error>
+
+                                      </mat-error>
+                                    </mat-form-field>
+                                  </div>
+
+                                  <div fxLayout="column" fxFlex.md="0 1 calc(100% - 20px)"
+                                    fxFlex="0 1 calc(100% - 20px)" fxFlex.sm="0 1 calc(100% - 20px)" fxFlex.xs="100">
+                                    <mat-form-field class="lowHeight" >
+                                      <mat-label>Business Impact:
+                                      </mat-label>
+                                      <input type="text" matInput name="BusinessImpact" formControlName="BusinessImpact"
+                                        placeholder="Business Impact" >
+                                      <mat-error>
+
+                                      </mat-error>
+                                    </mat-form-field>
+                                  </div>
+
+                                </div>
+                              </fieldset>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </mat-expansion-panel>
+                  </mat-accordion>
+                  <br />
+
+                  <mat-accordion style="color:lightblue;">
+                    <mat-expansion-panel (opened)="panelOpenState = true"
+                        (closed)="panelOpenState = false" style="background:rgb(221, 235, 241) ;"
+                        expanded="true">
+                        <mat-expansion-panel-header>
+                            <mat-panel-title>
+                                Attachment(s):
+                            </mat-panel-title>
+                            <mat-panel-description style="justify-content: flex-end;">
+                                <div><button (click)="panelOpenState = false"
+                                        style="font-weight: bolder;">Skip</button></div>
+                            </mat-panel-description>
+                        </mat-expansion-panel-header>
+                        <div style="background-color: whitesmoke; padding: 15px; margin:auto;"
+                            formArrayName="Attachments" *ngIf = "parsedRequestInfo.Status != 'Completed' ">
+                            <p>N.B.: Please attach screenshot/image of your incidence/error.</p>
+                            <img *ngFor='let url of urls' [src]="url" height="200"> <br/>
+
+                            <div *ngFor="let selected of listOfFiles; let index = index">
+                                <label>Name:{{ selected.name }}; -- Type:{{selected.type}}; --
+                                    Size:{{selected.size}}</label>
+
+                                <button mat-icon-button
+                                    (click)="removeSelectedFile(index)">delete</button>
+                            </div>
+
+                            <p *ngIf="isLoading">Loading.....</p>
+                            <p><b>Upload Attachment(s) :</b></p>
+                            <button (click)="fileInput.click()">Select File</button>
+                            <input style="display: none" #attachments type="file"
+                                (change)="onFileChanged($event)" #fileInput multiple="true" />
+
+                        </div>
+
+                        <ng-container *ngIf = "displayAttachments">
+                          <div style="background-color: whitesmoke; padding: 15px; " >
+                            <label style="font-size: 16px; font-family:Courier; color:navy">Uploaded Attachments:</label>
+                            <div *ngComponentOutlet="DynamicComponent; injector: myInjector"></div>
+                          </div>
+                          <br>
+                        </ng-container>
+
+
+                    </mat-expansion-panel>
+                  </mat-accordion>
+                  <br/>
+               
+                  <!-- <mat-accordion style="color:lightblue;">
+                    <mat-expansion-panel (opened)="panelOpenState = true" (closed)="panelOpenState = false"
+                      style="background:rgb(221, 235, 241) ;" expanded="true">
+                      <mat-expansion-panel-header>
+                        <mat-panel-title>
+                          Attachment(s):
+                        </mat-panel-title>
+                        <mat-panel-description>
+                        </mat-panel-description>
+                      </mat-expansion-panel-header>
+                      <div style="background-color: whitesmoke; padding: 15px; margin:auto;" formArrayName="Attachment">                        
+
+                        <div *ngFor="let selected of listOfFiles; let index = index">
+                          <h3>Name:{{ selected.name }}; -- Type:{{selected.type}}; -- Size:{{selected.size}}</h3>
+                          <button mat-icon-button (click)="removeSelectedFile(index)">delete</button>
+                        </div>
+
+                        <p *ngIf="isLoading">Loading.....</p>
+
+                        <button (click)="fileInput.click()">Select File</button>
+
+                        <input style="display: none" #attachments type="file" (change)="onFileChanged($event)"
+                          #fileInput multiple="true" />
+                      </div>
+                    </mat-expansion-panel>
+                  </mat-accordion>
+                  <br /> -->
+
+                  <mat-accordion style="color:lightblue;">
+                    <mat-expansion-panel (opened)="panelOpenState = true"
+                        (closed)="panelOpenState = false" style="background:rgb(221, 235, 241) ;"
+                        expanded="true">
+                        <mat-expansion-panel-header>
+                            <mat-panel-title>
+                                System Information:
+                            </mat-panel-title>
+                            <mat-panel-description style="justify-content: flex-end;">
+                                <div><button (click)="panelOpenState = false"
+                                        style="font-weight: bolder;">Skip</button></div>
+                            </mat-panel-description>
+                        </mat-expansion-panel-header>
+                        <div style="background-color: whitesmoke; padding: 15px; margin:auto;">
+
+                            <div class="row mb-1">
+                                <div >
+                                    <fieldset fxLayout="column"
+                                        fxFlex.md="0 1 calc(100% - 20px)"
+                                        fxFlex="0 1 calc(100% - 20px)"
+                                        fxFlex.sm="0 1 calc(100% - 20px)"
+                                        fxFlex.xs="100" >
+                                        <legend>
+                                            <span style="font-size: 16px; font-family:Arial; color:navy">System Information</span>
+                                        </legend>
+
+                                        <div fxLayout="column">
+                                    
+                                            <div formGroupName = "SystemDetail">
+                                                <div style="background-color: whitesmoke; margin:auto;">
+                                                    <div mat-dialog-content>
+                                                        <div style="margin-left:10px;">
+                                                            <div fxLayout="row wrap"
+                                                                fxLayoutAlign="start stretch"
+                                                                fxLayoutGap="20px">
+
+                                                                <!-- <div fxLayout="column"
+                                                                    fxFlex.md="0 1 calc(100% - 20px)"
+                                                                    fxFlex="0 1 calc(100% - 20px)"
+                                                                    fxFlex.sm="0 1 calc(100% - 20px)"
+                                                                    fxFlex.xs="100" *ngIf= "true">
+                                                                    <mat-form-field>
+                                                                        <mat-label>Row Id:
+                                                                        </mat-label>
+                                                                        <input type="text" matInput
+                                                                            name="rowId"
+                                                                            formControlName="rowId"
+                                                                            placeholder="row Id">
+                                                                        <mat-error>
+                                                                        </mat-error>
+                                                                    </mat-form-field>
+                                                                </div> -->
+
+                                                                <div fxLayout="column"
+                                                                    fxFlex.md="0 1 calc(100% - 20px)"
+                                                                    fxFlex="0 1 calc(100% - 20px)"
+                                                                    fxFlex.sm="0 1 calc(100% - 20px)"
+                                                                    fxFlex.xs="100">
+                                                                    <mat-form-field class="lowHeight" >
+                                                                        <mat-label>System Type:</mat-label>
+                                                                        <mat-select
+                                                                            formControlName="SystemType"
+                                                                            name="SystemType"
+                                                                            (selectionChange)="onSystemTypeSelect($event.value)">
+                                                                            <mat-option>None</mat-option>
+                                                                            <mat-option
+                                                                                *ngFor="let st of systemTypes"
+                                                                                [value]="st.value">
+                                                                                {{st.viewValue}}
+                                                                            </mat-option>
+                                                                        </mat-select>
+                                                                    </mat-form-field>
+                                                                </div>
+                                                                
+                                                                <!-- <div fxLayout="column"
+                                                                    fxFlex.md="0 1 calc(100% - 20px)"
+                                                                    fxFlex="0 1 calc(100% - 20px)"
+                                                                    fxFlex.sm="0 1 calc(100% - 20px)"
+                                                                    fxFlex.xs="100">
+                                                                    <mat-form-field>
+                                                                        <mat-label>System Module:</mat-label>
+                                                                        <mat-select
+                                                                            formControlName="SystemModule"
+                                                                            name="SystemModule">
+                                                                            <mat-option>None</mat-option>
+                                                                            <mat-option
+                                                                                *ngFor="let st of systemModules"
+                                                                                [value]="st.value">
+                                                                                {{st.viewValue}}
+                                                                            </mat-option>
+                                                                        </mat-select>
+                                                                    </mat-form-field>
+                                                                </div> -->
+
+                                                                <div fxLayout="column"
+                                                                    fxFlex.md="0 1 calc(100% - 20px)"
+                                                                    fxFlex="0 1 calc(100% - 20px)"
+                                                                    fxFlex.sm="0 1 calc(100% - 20px)"
+                                                                    fxFlex.xs="100" *ngIf="_form.value.AppParameters.SystemDetail.SystemType == 'SAP'">
+                                                                    <mat-form-field class="lowHeight" >
+                                                                        <mat-label>SAP Module(s):
+                                                                        </mat-label>
+                                                                        <input type="text" matInput
+                                                                            name="SystemModule"
+                                                                            formControlName="SystemModule"
+                                                                            placeholder="SAP Module" >
+                                                                        <mat-error>
+                                                                        </mat-error>
+                                                                    </mat-form-field>
+                                                                </div>                                                                                    
+
+                                                                <div fxLayout="column"
+                                                                    fxFlex.md="0 1 calc(100% - 20px)"
+                                                                    fxFlex="0 1 calc(100% - 20px)"
+                                                                    fxFlex.sm="0 1 calc(100% - 20px)"
+                                                                    fxFlex.xs="100" *ngIf="_form.value.AppParameters.SystemDetail.SystemType == 'SAP'">
+                                                                    <mat-form-field class="lowHeight" >
+                                                                        <mat-label>SAP Customer Number:
+                                                                        </mat-label>
+                                                                        <input type="text" matInput
+                                                                            name="SAPCustomerNumber"
+                                                                            formControlName="SAPCustomerNumber"
+                                                                            placeholder="SAP Customer Number">
+                                                                        <mat-error>
+                                                                        </mat-error>
+                                                                    </mat-form-field>
+                                                                </div>
+
+                                                                <div fxLayout="column"
+                                                                    fxFlex.md="0 1 calc(100% - 20px)"
+                                                                    fxFlex="0 1 calc(100% - 20px)"
+                                                                    fxFlex.sm="0 1 calc(100% - 20px)"
+                                                                    fxFlex.xs="100" *ngIf="_form.value.AppParameters.SystemDetail.SystemType == 'SAP'">
+                                                                    <mat-form-field class="lowHeight" >
+                                                                        <mat-label>S-User:</mat-label>
+                                                                        <input type="text" matInput
+                                                                            name="SUser"
+                                                                            formControlName="SUser"
+                                                                            placeholder="S-User">
+                                                                        <mat-error>
+
+                                                                        </mat-error>
+                                                                    </mat-form-field>
+                                                                </div>
+
+                                                                <div fxLayout="column"
+                                                                    fxFlex.md="0 1 calc(100% - 20px)"
+                                                                    fxFlex="0 1 calc(100% - 20px)"
+                                                                    fxFlex.sm="0 1 calc(100% - 20px)"
+                                                                    fxFlex.xs="100">
+                                                                    <mat-form-field class="lowHeight" >
+                                                                        <mat-label>System Description:
+                                                                        </mat-label>
+                                                                        <input type="text" matInput
+                                                                            name="SystemDescription"
+                                                                            formControlName="SystemDescription"
+                                                                            placeholder="System Description">
+                                                                        <mat-error>
+                                                                        </mat-error>
+                                                                    </mat-form-field>
+                                                                </div>
+
+
+                                                                <fieldset fxLayout="column"
+                                                                    fxFlex.md="0 1 calc(100% - 20px)"
+                                                                    fxFlex="0 1 calc(100% - 20px)"
+                                                                    fxFlex.sm="0 1 calc(100% - 20px)"
+                                                                    fxFlex.xs="100" *ngIf="_form.value.AppParameters.SystemDetail.SystemType == 'SAP'">
+                                                                    <legend>
+                                                                        <span style="font-size: 16px; font-family:Arial; color:navy">Hardware</span>
+                                                                    </legend>
+
+                                                                    <div fxLayout="column">
+
+                                                                        <div fxLayout="column"
+                                                                            fxFlex.md="0 1 calc(100% - 20px)"
+                                                                            fxFlex="0 1 calc(100% - 20px)"
+                                                                            fxFlex.sm="0 1 calc(100% - 20px)"
+                                                                            fxFlex.xs="100">
+
+                                                                            <mat-form-field class="lowHeight" >
+                                                                                <mat-label>Manufacturer:
+                                                                                </mat-label>
+                                                                                <input type="text" matInput
+                                                                                    name="Manufacturer"
+                                                                                    formControlName="Manufacturer"
+                                                                                    placeholder="Manufacturer">
+                                                                                <mat-error>
+
+                                                                                </mat-error>
+                                                                            </mat-form-field>
+                                                                        </div>
+
+                                                                        <div fxLayout="column"
+                                                                            fxFlex.md="0 1 calc(100% - 20px)"
+                                                                            fxFlex="0 1 calc(100% - 20px)"
+                                                                            fxFlex.sm="0 1 calc(100% - 20px)"
+                                                                            fxFlex.xs="100">
+                                                                            <mat-form-field class="lowHeight" >
+                                                                                <mat-label>Model:
+                                                                                </mat-label>
+                                                                                <input type="text" matInput
+                                                                                    name="Model"
+                                                                                    formControlName="Model"
+                                                                                    placeholder="Model">
+                                                                                <mat-error>
+
+                                                                                </mat-error>
+                                                                            </mat-form-field>
+                                                                        </div>
+
+
+
+                                                                        <div fxLayout="column"
+                                                                            fxFlex.md="0 1 calc(100% - 20px)"
+                                                                            fxFlex="0 1 calc(100% - 20px)"
+                                                                            fxFlex.sm="0 1 calc(100% - 20px)"
+                                                                            fxFlex.xs="100">
+                                                                            <mat-form-field class="lowHeight">
+                                                                                <mat-label>Operating System:
+                                                                                </mat-label>
+                                                                                <input type="text" matInput
+                                                                                    name="OperatingSystem"
+                                                                                    formControlName="OperatingSystem"
+                                                                                    placeholder="Operating System">
+                                                                                <mat-error></mat-error>
+                                                                            </mat-form-field>
+                                                                        </div>
+
+                                                                        <div fxLayout="column"
+                                                                            fxFlex.md="0 1 calc(100% - 20px)"
+                                                                            fxFlex="0 1 calc(100% - 20px)"
+                                                                            fxFlex.sm="0 1 calc(100% - 20px)"
+                                                                            fxFlex.xs="100">
+                                                                            <mat-form-field class="lowHeight">
+                                                                                <mat-label>OS Release:
+                                                                                </mat-label>
+                                                                                <input type="text" matInput
+                                                                                    name="OSRelease"
+                                                                                    formControlName="OSRelease"
+                                                                                    placeholder="OS Release">
+                                                                                <mat-error></mat-error>
+                                                                            </mat-form-field>
+                                                                        </div>
+                                            
+                                                                    </div>
+                                                                </fieldset>
+
+
+                                                                <fieldset fxLayout="column"
+                                                                    fxFlex.md="0 1 calc(100% - 20px)"
+                                                                    fxFlex="0 1 calc(100% - 20px)"
+                                                                    fxFlex.sm="0 1 calc(100% - 20px)"
+                                                                    fxFlex.xs="100" *ngIf="_form.value.AppParameters.SystemDetail.SystemType == 'SAP'">
+                                                                    <legend>
+                                                                        <span style="font-size: 16px; font-family:Arial; color:navy">Database</span>
+                                                                    </legend>
+
+                                                                    <div fxLayout="column">
+
+                                                                      <div fxLayout="column"
+                                                                        fxFlex.md="0 1 calc(100% - 20px)"
+                                                                        fxFlex="0 1 calc(100% - 20px)"
+                                                                        fxFlex.sm="0 1 calc(100% - 20px)"
+                                                                        fxFlex.xs="100">
+                                                                        <mat-form-field class="lowHeight">
+                                                                            <mat-label>Database Name:
+                                                                            </mat-label>
+                                                                            <input type="text" matInput
+                                                                                name="DatabaseName"
+                                                                                formControlName="DatabaseName"
+                                                                                placeholder="DatabaseName">
+                                                                            <mat-error></mat-error>
+                                                                        </mat-form-field>
+                                                                      </div>
+
+                                                                      
+
+                                                                        <div fxLayout="column"
+                                                                          fxFlex.md="0 1 calc(100% - 20px)"
+                                                                          fxFlex="0 1 calc(100% - 20px)"
+                                                                          fxFlex.sm="0 1 calc(100% - 20px)"
+                                                                          fxFlex.xs="100">
+                                                                          <mat-form-field class="lowHeight">
+                                                                              <mat-label>Database Release:
+                                                                              </mat-label>
+                                                                              <input type="text" matInput
+                                                                                  name="DatabaseRelease"
+                                                                                  formControlName="DatabaseRelease"
+                                                                                  placeholder="DatabaseRelease">
+                                                                              <mat-error></mat-error>
+                                                                          </mat-form-field>
+                                                                        </div>
+
+                                                                        
+
+                                                                    </div>
+                                                                </fieldset>
+
+                                                                <fieldset fxLayout="column"
+                                                                    fxFlex.md="0 1 calc(100% - 20px)"
+                                                                    fxFlex="0 1 calc(100% - 20px)"
+                                                                    fxFlex.sm="0 1 calc(100% - 20px)"
+                                                                    fxFlex.xs="100">
+                                                                    <legend>
+                                                                        <span style="font-size: 16px; font-family:Arial; color:navy">Contact Details</span>
+                                                                    </legend>
+
+                                                                      <div fxLayout="column">
+
+                                                                        <div fxLayout="column"
+                                                                          fxFlex.md="0 1 calc(100% - 20px)"
+                                                                          fxFlex="0 1 calc(100% - 20px)"
+                                                                          fxFlex.sm="0 1 calc(100% - 20px)"
+                                                                          fxFlex.xs="100">
+                                                                          <mat-form-field class="lowHeight">
+                                                                              <mat-label>Contact Person:
+                                                                              </mat-label>
+                                                                              <input type="text" matInput
+                                                                                  name="PersonIncharge"
+                                                                                  formControlName="PersonIncharge"
+                                                                                  placeholder="Person Incharge">
+                                                                              <mat-error></mat-error>
+                                                                          </mat-form-field>
+                                                                        </div>
+
+                                                                        <div fxLayout="column"
+                                                                          fxFlex.md="0 1 calc(100% - 20px)"
+                                                                          fxFlex="0 1 calc(100% - 20px)"
+                                                                          fxFlex.sm="0 1 calc(100% - 20px)"
+                                                                          fxFlex.xs="100">
+                                                                          <mat-form-field class="lowHeight">
+                                                                              <mat-label>Contact No:
+                                                                              </mat-label>
+                                                                              <input type="text" matInput
+                                                                                  name="SIContactNo"
+                                                                                  formControlName="SIContactNo"
+                                                                                  placeholder="SI Contact No">
+                                                                              <mat-error></mat-error>
+                                                                          </mat-form-field>
+                                                                        </div>
+                                                                       
+
+                                                                        <div fxLayout="column"
+                                                                          fxFlex.md="0 1 calc(100% - 20px)"
+                                                                          fxFlex="0 1 calc(100% - 20px)"
+                                                                          fxFlex.sm="0 1 calc(100% - 20px)"
+                                                                          fxFlex.xs="100">
+                                                                          <mat-form-field class="lowHeight">
+                                                                              <mat-label>Contact Person Email:
+                                                                              </mat-label>
+                                                                              <input type="text" matInput
+                                                                                  name="SIEmail"
+                                                                                  formControlName="SIEmail"
+                                                                                  placeholder="Contact Person Email">
+                                                                              <mat-error></mat-error>
+                                                                          </mat-form-field>
+                                                                        </div>
+
+                                                                       
+
+                                                                    </div>
+                                                                </fieldset>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+                                    </fieldset>
+                                       
+                                </div>
+                                <br/> 
+                            </div>
+
+                        </div>
+                    </mat-expansion-panel>
+                  </mat-accordion>
+                  <br/>
+
+                 
+
+                  <mat-accordion style="color:lightblue;" *ngIf = "uId != '' ">
+                    <mat-expansion-panel (opened)="panelOpenState = true"
+                        (closed)="panelOpenState = false" style="background:rgb(221, 235, 241) ;"
+                        expanded="true">
+                        <mat-expansion-panel-header>
+                            <mat-panel-title>
+                                Process Log:
+                            </mat-panel-title>
+                            <mat-panel-description style="justify-content: flex-end;">
+                                <div><button (click)="panelOpenState = false"
+                                        style="font-weight: bolder;">Skip</button></div>
+                            </mat-panel-description>
+                        </mat-expansion-panel-header>
+
+                        <ng-container *ngIf = "displayProcessLog">
+                          <div style="background-color: whitesmoke; padding: 15px; " >
+                            <p><b>Pending With : </b>{{_pendingWith}}</p>
+                            <label><b><h5>Approval Process Log:</h5></b></label>
+                            <div *ngComponentOutlet="ProcessLogComponent; injector: processLogInjector"></div>
+                          </div>
+                          <br>
+                        </ng-container>
+
+
+                    </mat-expansion-panel>
+                  </mat-accordion>
+                  <br/>
+
+
+                
+                  <mat-accordion style="color:lightblue;" *ngIf = "uId != '' ">
+                    <mat-expansion-panel (opened)="panelOpenState = true" (closed)="panelOpenState = false"
+                      style="background:rgb(221, 235, 241) ;" expanded="true">
+                      <mat-expansion-panel-header>
+                        <mat-panel-title>
+                          Assigned Tasks:
+                        </mat-panel-title>
+                        <mat-panel-description>
+                          <!-- <span ></span> -->
+                        </mat-panel-description>
+                      </mat-expansion-panel-header>
+
+                      <div style="background-color: whitesmoke; padding: 15px; " >
+                        
+                        <div fxLayout="row wrap"
+                            fxLayoutAlign="start stretch"
+                            fxLayoutGap="20px" >
+
+                            <div fxFlex.md="0 1 calc(100% - 20px)"
+                              fxFlex="0 1 calc(100% - 20px)"
+                              fxFlex.sm="0 1 calc(100% - 20px)"
+                              fxFlex.xs="100">
+                              <div fxLayout="column">
+                                <div style="background-color: whitesmoke; padding: 15px; margin-left: 15px; margin-right: 15px;">
+                                  
+                                  <div >
+                                    <div >
+                                      <!-- <span>Nested TestParameters</span> 
+                                      <button type="button" label="Add Statement" (click)="_buildFormFromData()">
+                                        build form based on data
+                                      </button> -->
+                                      <button type="button" label="Add Statement" (click)="_addGroup()" >Add Task</button>
+                                    </div>
+                                   
+                                    <ng-container formArrayName="AssignedTasks">
+                                      <ng-container *ngFor="let group of _groupsFormArray?.controls; index as i">
+                                        
+                                        <portal-groupcontrol (remove)="_delete(i)" [formGroupName]="i"
+                                          [formLabel]="'Task '+ (i + 1) + ':'"
+                                          [requestInfo]="requestInfo"
+                                          [childForm]="group"
+                                          (outputToParent)="GetOutputVal($event)" >
+                                        </portal-groupcontrol>
+                                      </ng-container>
+                                    </ng-container>
+
+                                    <!-- <ng-container formArrayName="AssignedTasks">
+                                      <ng-container *ngFor="let group of _groupsFormArray?.controls; index as i">
+                                        
+                                        <portal-groupcontrol (remove)="_delete(i)" [formControlName]="i"
+                                          [formLabel]="'TestParameter '+ (i + 1) + ':'"
+                                          [requestInfo]="requestInfo">
+                                        </portal-groupcontrol>
+                                      </ng-container>
+                                    </ng-container> -->
+
+                                    <!-- <ng-container formArrayName="TestParameters">
+                                      <ng-container *ngFor="let group of _groupsFormArray?.controls; index as i">
+                                        <app-group-control (remove)="_delete(i)" [formControlName]="i"
+                                          [formLabel]="'TestParameter '+ (i + 1) + ':'"
+                                          [requestInfo]="requestInfo">
+                                        </app-group-control>
+                                      </ng-container>
+                                    </ng-container> -->
+                                    
+                                  </div>
+                                  <br>
+                                  <br>
+                                </div>
+                              </div>
+
+                              
+
+                             
+
+                              <!-- <div fxLayout="column"
+                                fxFlex.md="0 1 calc(100% - 20px)"
+                                fxFlex="0 1 calc(100% - 20px)"
+                                fxFlex.sm="0 1 calc(100% - 20px)"
+                                fxFlex.xs="100">
+                                <mat-form-field class="w-100">
+                                    <mat-label>AssignedTo:
+                                    </mat-label>
+                                    <input type="text" matInput
+                                        name="AssignedTo"
+                                        formControlName="AssignedTo"
+                                        placeholder="AssignedTo">
+                                    <mat-error>
+
+                                    </mat-error>
+                                </mat-form-field>
+                              </div> -->
+
+                              
+                          
+                              <!-- <div fxLayout="column"
+                                fxFlex.md="0 1 calc(100% - 20px)"
+                                fxFlex="0 1 calc(100% - 20px)"
+                                fxFlex.sm="0 1 calc(100% - 20px)"
+                                fxFlex.xs="100" >
+                                <portal-tasksboard></portal-tasksboard>
+                              </div> -->
+
+                          
+
+                        
+                          
+
+                          
+
+                              <!-- <div fxLayout="column"
+                                fxFlex.md="0 1 calc(100% - 20px)"
+                                fxFlex="0 1 calc(100% - 20px)"
+                                fxFlex.sm="0 1 calc(100% - 20px)"
+                                fxFlex.xs="100">
+                                <mat-form-field class="w-100">
+                                    <mat-label>Expected Start Date:</mat-label>
+                                    <portal-datetimepicker></portal-datetimepicker>
+                                    <mat-error> </mat-error>
+                                </mat-form-field>
+                              </div> -->
+
+                          
+                            </div>
+
+                          <!-- <div style="height: 25px; margin-top: 20px;"><button (click)="addAssignee()" >Add Assignee</button></div> -->
+                            
+                          
+                      </div>
+
+                    </div>
+
+                     
+                    </mat-expansion-panel>
+                  </mat-accordion>
+                  <br/>
+                
+                  <mat-accordion style="color:lightblue;">
+                    <mat-expansion-panel (opened)="panelOpenState = true" (closed)="panelOpenState = false"
+                      style="background:rgb(221, 235, 241) ;" expanded="true">
+                      <mat-expansion-panel-header>
+                        <mat-panel-title>
+                          Comments:
+                        </mat-panel-title>
+                        <mat-panel-description>
+                          <!-- <span ></span> -->
+                        </mat-panel-description>
+                      </mat-expansion-panel-header>
+                      <div style="background-color: whitesmoke; padding: 15px; margin:auto;">
+                        <div mat-dialog-content class="container-fluid">
+                          <div style="margin-left:10px;">
+                            <div fxLayout="row wrap" fxLayoutAlign="start stretch" fxLayoutGap="20px">
+  
+                              <div fxLayout="column" fxFlex.md="0 1 calc(100% - 20px)" fxFlex="0 1 calc(100% - 20px)"
+                                fxFlex.sm="0 1 calc(100% - 20px)" fxFlex.xs="100">
+                                <mat-form-field>
+                                  <textarea matInput name="Comments" cols="35" rows="3" placeholder="Comments" formControlName="Comments" ></textarea>
+                                </mat-form-field>
+                              </div>
+  
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <br/>
+
+                 
+
+                      <!-- <div fxFlex="100" fxLayout="row" fxLayout.xs="column" fxLayoutGap="5px">
+                        <div fxFlex="1 1 100" fxLayout="row" fxLayoutAlign="space-between start">
+                           <div fxFlex="1 1 100" fxLayout="row" class="div-outer-table">
+                              <table class="table" formArrayName="TestResults">
+                                 <thead class="thead bg-info">
+                                    <tr>
+                                       <th>#</th>
+                                       <th scope="col">SampleID</th>
+                                       <th scope="col" class="text-center">
+                                    <tr>
+                                       <th scope="col">#</th>
+                                       <th scope="col" style="width:122px">Parameter<label style="color:red">*</label></th>
+                                       <th scope="col" style="width:129px">TestResult<label style="color:red">*</label></th>
+                                       <th scope="col" style="width:78px" *ngIf="requestInfo.Title.Code != 'CORC'">Unit<label style="color:red">*</label></th>
+                                       <th scope="col" style="width:78px" *ngIf="requestInfo.Title.Code == 'CORC'">Hours</th>
+                                       <th scope="col" style="width:78px">RL</th>
+                                       <th scope="col" style="width:88px">LimitValue</th>
+                                       <th scope="col" style="width:119px">ResComment</th>
+                                       <th scope="col" hidden>Action</th>
+                                    </tr>
+                                    </th>
+                                    <th scope="col" hidden>Action</th>
+                                    </tr>
+                                 </thead>
+                                 <tbody>
+                                    <tr *ngFor="let person of getPeople(TestParameter); let i=index"
+                                       [formGroupName]="i">
+                                       <td>{{i+1}}</td>
+                                       <td><input formControlName="SampleID" style="width:125px" readonly disabled>
+                                       </td>
+                                       <td>
+                                          <table class="table table-sm" formArrayName="Results">
+                                             <tbody>
+                                                <tr *ngFor="let address of getAddress(person); let j=index"
+                                                   [formGroupName]="j">
+                                                   <td>
+                                                      {{j+1}}
+                                                   </td>
+                                                   <td>
+                                                      <input formControlName="Parameter" style="width:115px">
+                                                   </td>
+                                                   <td>
+                                                      <input formControlName="TestResult" style="width:120px">
+                                                   </td>
+
+                                                   <td>
+                                                      <input formControlName="Unit" style="width:70px">
+                                                   </td>
+                                                   <td>
+                                                      <input formControlName="RL" style="width:70px">
+                                                   </td>
+                                                   <td>
+                                                      <input formControlName="LimitValue" style="width:80px">
+                                                   </td>
+                                                   <td>
+                                                      <input formControlName="ResComment" style="width:110px">
+                                                   </td>
+                                                   <td hidden>
+                                                      <button class="btn btn-success" *ngIf="j<1"
+                                                         (click)="addAddress(i)" type="button">+</button>
+                                                      <button class="btn btn-danger" *ngIf="j>=1"
+                                                         (click)="removeAddress(i, j)" type="button">-</button>
+                                                   </td>
+                                                </tr>
+                                             </tbody>
+                                          </table>
+                                       </td>
+                                       <td hidden>
+                                          <button class="btn btn-success" style="float:left;"
+                                             (click)="addTestResults()" type="button">+</button>
+                                          <button class="btn btn-danger" style="float:right;" *ngIf="i>=1"
+                                             (click)="removeTestResults(i)" type="button">-</button>
+                                       </td>
+                                    </tr>
+                                 </tbody>
+                              </table>
+                           </div>
+                        </div>
+                      </div> -->
+                    </mat-expansion-panel>
+                  </mat-accordion>
+                  <br/>
+
+
+
+                <br />
+                </div>
+              </div>
+              <br />
+              <!-- <pre>{{_form.value | json}}</pre> -->
+
+              <div style="background-color: whitesmoke; padding: 15px; margin-left: 15px; margin-right: 15px; display: flex;">
+                <div fxLayout="row" fxFlex="1 1 100">
+                  <button mat-button type="submit" class="mat-raised-button mat-primary"
+                    (click)="processAction('Submitted')" id="btnSubmitNewReq" *ngIf="uId == ''" style="margin-right:10px;" [disabled]="btnDisabled" >Submit</button>
+                  <button mat-button type="button" class="mat-raised-button mat-primary"
+                    (click)="processAction('Assigned')" id="btnAssigned" *ngIf="(uId != '' && parsedRequestInfo.Status == 'Submitted') " style="margin-right:10px;" [disabled]="btnDisabled" >Assign</button>
+                  <button mat-button type="button" class="mat-raised-button mat-primary"
+                    (click)="processAction('UATRequest')" id="btnUATRequest" *ngIf="(uId != '' && (parsedRequestInfo.Status == 'ReadyforUAT' || parsedRequestInfo.Status == 'UATFeedbackFrmCustomer' ))" style="margin-right:10px;" [disabled]="btnDisabled">UAT Request</button>
+                  <button mat-button type="button" class="mat-raised-button mat-primary"
+                    (click)="processAction('Approved')" id="btnApprove" *ngIf="(uId != '' && parsedRequestInfo.Status == 'Assigned')" style="margin-right:10px;" [disabled]="btnDisabled" >Approve</button>
+                  <button mat-button type="button" class="mat-raised-button mat-primary"
+                    (click)="processAction('Reject')" id="btnReject" *ngIf="(uId != '' && parsedRequestInfo.Status != 'UATRequest') " style="margin-right:10px;" [disabled]="btnDisabled" >Reject</button>
+                  <button mat-button type="button" class="mat-raised-button mat-primary"
+                    (click)="processAction('UATFeedbackFrmCustomer')" id="btnCustomerUATFeedback" *ngIf="(uId != '' && parsedRequestInfo.Status == 'UATRequest') " style="margin-right:10px;" [disabled]="btnDisabled" >Submit UAT Feedback</button>
+                  <button mat-button type="button" class="mat-raised-button mat-primary"
+                    (click)="processAction('Completed')" id="btnComplete" *ngIf="(uId != '' && parsedRequestInfo.Status == 'UATFeedbackFrmCustomer') " style="margin-right:10px;" [disabled]="btnDisabled" >Complete</button>
+                  <button mat-button type="button" class="mat-raised-button mat-primary"
+                    (click)="processAction('Query')" *ngIf="(uId != '' && (parsedRequestInfo.Status != 'UATRequest' || parsedRequestInfo.Status != 'Rejected' || parsedRequestInfo.Status != 'Completed' )) " style="margin-right:10px;" [disabled]="btnDisabled" >Query</button>
+                    
+                </div>
+              </div>
+            </form>
+            <br>
+          </div>
+        </div>
+        <br />
+      </mat-drawer-content>
+    </mat-drawer-container>
+
+
+
+
+  </mat-sidenav-content>
+
+</mat-sidenav-container>

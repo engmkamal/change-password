@@ -1,0 +1,107 @@
+<style>
+  .parent {
+    height: 40px;
+    width: 170px;
+    display: flex;
+    padding: 10px;
+    margin: 10px;
+  }
+
+  .child {
+    text-align: center;
+    color: rgb(37, 4, 133);
+    font-weight: bolder;
+    font-size: 12pt;
+    font-family: Arial;
+    align-items: center;
+  }
+</style>
+
+
+<div style="width: 100%;" fxLayout="column" fxLayoutGap="5px">
+
+  <div fxLayout="row" fxLayoutAlign="space-around center"
+    style="padding: 15px; margin-left: 15px; margin-right: 15px;">
+    <div fxLayout="column" fxFlex.gt-lg="50" fxFlex.gt-md="80" fxFlex.gt-sm="90" fxFlex.lt-md="100" fxFlex.lt-sm="100">
+      <mat-accordion style="color:lightblue;" class="lowHeight">
+        <mat-expansion-panel (opened)="panelOpenState = true" (closed)="panelOpenState = false"
+          style="background:rgb(221, 235, 241) ;" expanded="true">
+          <mat-expansion-panel-header >
+            <mat-panel-title>
+              <div style="margin: auto;">Support Requests (SAP)</div>
+            </mat-panel-title>
+            <!-- <mat-panel-description>
+              <span></span>
+            </mat-panel-description> -->
+          </mat-expansion-panel-header>
+          <portal-mysapworkflow></portal-mysapworkflow>
+        </mat-expansion-panel>
+      </mat-accordion>
+    </div>
+  </div>
+
+  <div fxLayout="row" fxLayoutAlign="space-around center"
+    style="padding: 15px; margin-left: 15px; margin-right: 15px;">
+    <div fxLayout="column" fxFlex.gt-lg="50" fxFlex.gt-md="80" fxFlex.gt-sm="90" fxFlex.lt-md="100" fxFlex.lt-sm="100">
+      <mat-accordion style="color:lightblue;" class="lowHeight">
+        <mat-expansion-panel (opened)="panelOpenState = true" (closed)="panelOpenState = false"
+          style="background:rgb(221, 235, 241) ;" expanded="true">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <div style="margin: auto;">Support Requests (Others)</div>
+            </mat-panel-title>
+            <!-- <mat-panel-description>
+            <span></span>
+          </mat-panel-description> -->
+          </mat-expansion-panel-header>
+          <portal-mynonsapworkflow></portal-mynonsapworkflow>
+        </mat-expansion-panel>
+      </mat-accordion>
+    </div>
+  </div>
+
+  <!-- <div fxLayout="row" fxLayoutAlign="space-around center"
+    style="padding: 15px; margin-left: 15px; margin-right: 15px;">
+    <div fxLayout="column" fxFlex.gt-lg="50" fxFlex.gt-md="80" fxFlex.gt-sm="90" fxFlex.lt-md="100" fxFlex.lt-sm="100">
+      <mat-accordion style="color:lightblue;" class="lowHeight">
+        <mat-expansion-panel (opened)="panelOpenState = true" (closed)="panelOpenState = false"
+          style="background:rgb(221, 235, 241) ;" expanded="true">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <div style="margin: auto;">Others Workflows</div>
+            </mat-panel-title>
+          </mat-expansion-panel-header>
+          <div
+            style="background-color: whitesmoke; padding: 15px; width: 95%; margin:auto; display: flex; flex-direction: row; flex-wrap: wrap; border-radius:2px;">
+
+            <ng-template ngFor let-wf [ngForOf]="allWf" let-i="index" [ngForTrackBy]="trackByFnMenu" let-c="count">
+              <div
+                style="background-color: whitesmoke; margin-left: 10px; margin-right: 70px; margin-bottom: 10px;">
+                <div style="background-color: lightblue; ">
+                  <div style="margin-left: 10px; margin-right: 10px; background-color: rgb(228, 242, 247);"
+                    class="actionDivFlexCont">
+
+                    <div style="margin-left: 10px; margin-right: 10px;">
+                      <div>
+                        <a routerLink="./{{wf.WfName}}">
+                          <div>
+                            <h5>{{wf.DisplayTxt}}</h5>
+                            <span></span>
+                          </div>
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </ng-template>
+
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+
+      <br />
+    </div>
+  </div> -->
+
+</div>

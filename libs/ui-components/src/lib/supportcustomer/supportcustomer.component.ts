@@ -9,6 +9,8 @@ import { MediaChange, MediaObserver, FlexLayoutModule } from '@angular/flex-layo
 import { Observable, Subscription } from 'rxjs';
 import { AngularmaterialModule } from '../angularmaterial.module';
 import { PendingwithComponent } from '../pendingwith/pendingwith.component';
+import { SupportapplicantloaderService } from '../supportapplicantloader.service';
+
 
 const moment = _moment;
 
@@ -57,22 +59,46 @@ export class SupportcustomerComponent implements OnInit{
   
   private mediaSub!: Subscription;
   date = new FormControl(moment());
-  
+  private applicantInfo!: any;
 
   constructor(private controlContainer: ControlContainer, 
     parent: FormGroupDirective, 
     private formbuilder: FormBuilder,
     private mediaObserver: MediaObserver,
-    private cdRef: ChangeDetectorRef
+    private cdRef: ChangeDetectorRef,
+    private supportapplicantloaderService: SupportapplicantloaderService
     ) {
       this.formGroup = parent.control;
-      this.media$ = mediaObserver.asObservable();    
+      this.media$ = mediaObserver.asObservable(); 
+      
+      // if(this.requestorsInfo == undefined){
+
+      //   this.applicantInfo.CustName = "";
+      //   this.applicantInfo.CustCompanyName = "";
+      //   this.applicantInfo.CustId = "";
+      //   this.applicantInfo.CustDesignation = "";
+      //   this.applicantInfo.CustCompany1stAddress = "";
+      //   this.applicantInfo.Cust1stEmail = "";
+      //   this.applicantInfo.Cust1stMobile = "";
+
+      // }else{
+
+      //   this.applicantInfo.CustName = JSON.parse(JSON.stringify(this.requestorsInfo.CustName));
+      //   this.applicantInfo.CustCompanyName = JSON.parse(JSON.stringify(this.requestorsInfo.CustCompanyName));
+      //   this.applicantInfo.CustId = JSON.parse(JSON.stringify(this.requestorsInfo.CustId));
+      //   this.applicantInfo.CustDesignation = JSON.parse(JSON.stringify(this.requestorsInfo.CustDesignation));
+      //   this.applicantInfo.CustCompany1stAddress = JSON.parse(JSON.stringify(this.requestorsInfo.CustCompany1stAddress));
+      //   this.applicantInfo.Cust1stEmail = JSON.parse(JSON.stringify(this.requestorsInfo.Cust1stEmail));
+      //   this.applicantInfo.Cust1stMobile = JSON.parse(JSON.stringify(this.requestorsInfo.Cust1stMobile));
+        
+      // }   
   }  
   
 
   ngOnInit() {
     this._frmGrp = this.controlContainer.control as FormGroup;
     this.addGroupToParent();
+    //this.requestorsInfo = this.supportapplicantloaderService.gridInfo.Requestor;
     //console.log("Requestor component initialized !!");
   }
 
@@ -86,19 +112,34 @@ export class SupportcustomerComponent implements OnInit{
 
   private addGroupToParent() {
     const config = {
-      CustName: [this.requestorsInfo.CustName],
-      CustCompanyName: [this.requestorsInfo.CustCompanyName],
-      CustId: [this.requestorsInfo.CustId],      
-      CustDesignation: [this.requestorsInfo.CustDesignation],
-      CustCompanyAddress: [this.requestorsInfo.CustCompany1stAddress],
-      CustEmail: [this.requestorsInfo.Cust1stEmail],
-      CustContact: [this.requestorsInfo.Cust1stMobile],
-      RequestDate: [this.requestorsInfo.RequestDate]
+      // CustName: [this.requestorsInfo.CustName],
+      // CustCompanyName: [this.requestorsInfo.CustCompanyName],
+      // CustId: [this.requestorsInfo.CustId],      
+      // CustDesignation: [this.requestorsInfo.CustDesignation],
+      // CustCompany1stAddress: [this.requestorsInfo.CustCompany1stAddress],
+      // Cust1stEmail: [this.requestorsInfo.Cust1stEmail],
+      // Cust1stMobile: [this.requestorsInfo.Cust1stMobile],
+      //RequestDate: [this.applicantInfo.RequestDate],
+
+
+
+      CustName: [''],
+      CustCompanyName: [''],
+      CustId: [''],      
+      CustDesignation: [''],
+      CustCompany1stAddress: [''],
+      Cust1stEmail: [''],
+      //Cust1stMobile: [''],
     };
     this.formGroup.addControl('Requestor', this.formbuilder.group(config));  
 
     // this._frmGrp.addControl('Requestor', this.formbuilder.group(data2));
-  }  
+  }
+  
+  feeedCustomerInfo(){
+    let custId = this._frmGrp.value.requestorsInfo.CustId;
+    alert(custId);
+  }
   
 }
 

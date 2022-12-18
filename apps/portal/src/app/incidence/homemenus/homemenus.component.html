@@ -1,0 +1,8 @@
+<ng-container *ngIf="showDeptWiseWFDiv">
+    <div *ngFor="let dept of wfDepartments" #homeMenusDiv>
+        
+        <ng-container >
+            <a [routerLink]="[dept.MatcardInfo.pageUrl]"><portal-dragresizelogolinktile [requestInfo]="dept" #dragndresizable class="dbImg"></portal-dragresizelogolinktile></a>          
+        </ng-container>
+    </div>
+</ng-container>

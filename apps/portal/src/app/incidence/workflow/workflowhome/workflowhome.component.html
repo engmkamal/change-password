@@ -1,0 +1,234 @@
+<style>
+    .flex-container {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: space-evenly ;
+      align-content: flex-start;
+      background-color: rgb(235, 240, 242);
+      align-items: stretch;
+    }
+  
+    .flex-container>div {
+        border-radius: 5px;
+        background-color: #04AA6D;
+        margin: 10px;
+        padding: 10px;
+        width: 120px;
+        height: 60px;        
+    }
+  
+    .flex-container-text {        
+        justify-content: center;
+        text-align: center;
+        vertical-align: middle;
+    }
+  </style>
+  
+  <div class="container">
+    <div class="flex-container">
+        <div class=" flex-container-text">
+            <a routerLink="./it" style="color: white">
+                <!-- <a href="{{webAbsoluteUrl}}/BusinessProcess/TravelRequest"> -->
+                <!-- <a href="http://localhost:4200/"> -->
+                <div>
+                    <h5 class="child">IT Corner</h5>
+                    <span class="count"></span>
+                </div>
+            </a>
+        </div>
+  
+        <div class=" flex-container-text">
+            <a routerLink="./hr" style="color: white">
+                <!-- <a href="{{webAbsoluteUrl}}/BusinessProcess/TravelRequest"> -->
+                <!-- <a href="http://localhost:4200/"> -->
+                <div>
+                    <h5 class="child">HR Corner</h5>
+                    <span class="count"></span>
+                </div>
+            </a>
+        </div>
+  
+        <div>
+            <a routerLink="./itservice" style="color: white">
+                <!-- <a href="{{webAbsoluteUrl}}/BusinessProcess/TravelRequest"> -->
+                <!-- <a href="http://localhost:4200/"> -->
+                <div>
+                    <h5 class="child">it service</h5>
+                    <span class="count"></span>
+                </div>
+            </a>
+        </div>
+        <div>
+            <a routerLink="./sampletest" style="color: white">
+                <!-- <a href="{{webAbsoluteUrl}}/BusinessProcess/TravelRequest"> -->
+                <!-- <a href="http://localhost:4200/"> -->
+                <div>
+                    <h5 class="child">sample test</h5>
+                    <span class="count"></span>
+                </div>
+            </a>
+        </div>
+        <div>
+            <a routerLink="./hrservice" style="color: white">
+                <!-- <a href="{{webAbsoluteUrl}}/BusinessProcess/TravelRequest"> -->
+                <!-- <a href="http://localhost:4200/"> -->
+                <div>
+                    <h5 class="child">hr service</h5>
+                    <span class="count"></span>
+                </div>
+            </a>
+        </div>
+        <div>
+            <a routerLink="./poolcar" style="color: white">
+                <!-- <a href="{{webAbsoluteUrl}}/BusinessProcess/TravelRequest"> -->
+                <!-- <a href="http://localhost:4200/"> -->
+                <div>
+                    <h5 class="child">Pool Car</h5>
+                    <span class="count"></span>
+                </div>
+            </a>
+        </div>
+    </div>
+    <!-- <federated-component remoteEntry="http://localhost:4201/remoteEntry.js" remoteName="profile" exposedModule="ProfileModule" componentName="ListUserComponent"></federated-component> -->
+  </div>
+  <router-outlet></router-outlet>
+
+  //=====================================
+
+
+  <div class="example-container" [class.example-is-mobile]="mobileQuery.matches" >
+    <mat-toolbar color="primary" class="example-toolbar">
+        
+      <button mat-icon-button (click)="snav.toggle()"><mat-icon>menu</mat-icon></button>
+      <h1 class="example-app-name">Home > Business Process</h1>
+
+      <mat-icon aria-hidden="false" aria-label="Example home icon">home</mat-icon>
+    </mat-toolbar>
+
+    
+  
+    <mat-sidenav-container class="example-sidenav-container"
+                           [style.marginTop.px]="mobileQuery.matches ? 56 : 0">
+                           
+            <mat-sidenav #snav [(opened)]="opened" [mode]="mobileQuery.matches ? 'over' : 'side'"
+                           [fixedInViewport]="mobileQuery.matches" fixedTopGap="56" >
+                <mat-nav-list>
+                  <!-- <a mat-list-item routerLink="." *ngFor="let nav of fillerNav">{{nav}}</a> -->
+                  <a mat-list-item (click)="showDeptWF()" >Departmentwise Process</a>
+                  <a mat-list-item (click)="showAllWF()" >All Business Process</a>                  
+                  <a mat-list-item routerLink="./approvalflow" >Alphabetical order</a>                  
+                  <a mat-list-item routerLink="." >IT Corner</a>
+                  <a mat-list-item routerLink="." >HR Corner</a> 
+                </mat-nav-list>
+            </mat-sidenav>
+        
+
+      <mat-sidenav-content>  
+
+        
+
+        <ng-container *ngIf="showDeptWiseWFDiv">
+            <div *ngFor="let dept of wfDepartments">
+                <ng-container >
+                    <a routerLink="./request" ><portal-dragndresizable [requestInfo]="dept" #dragndresizable></portal-dragndresizable></a>          
+                </ng-container>
+            </div>
+        </ng-container>
+
+        <ng-container *ngIf="showAllWFDiv">
+            <h2 style="font-family:arial;">All Business Processes:</h2>
+
+            
+            <div>
+                <p>Search : <input type="text" [(ngModel)]="search" (ngModelChange)="onSearchChange($event)"/></p>                
+            </div> 
+
+            
+
+            <div style="overflow-y: scroll;" [style.height.px]="allWFsDivH">
+                <div *ngFor="let dept of allWorkflows" >
+                    <ng-container >
+                        <a routerLink="./request" ><portal-dragndresizable [requestInfo]="dept" #dragndresizable></portal-dragndresizable></a>          
+                    </ng-container>
+                </div>
+            </div>
+
+
+            <!-- <div>                
+                <div class="container">
+                    <div class="flex-container">
+                        <div *ngFor="let item of allWorkflows" cdkDrag portal-resizable>
+                            <div class=" flex-container-text">
+                                <a routerLink="./it" style="color: white">
+                                    <div>
+                                        <h5 style="font-family:Arial, Helvetica, sans-serif">{{ item.SubCategory }}</h5>                                    
+                                        <span class="count"></span>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>  -->
+        </ng-container>
+
+        <!-- <ng-container >
+            <a routerLink="./request" ><portal-dragndresizable [requestInfo]="cardInfo1"></portal-dragndresizable></a>          
+        </ng-container>
+
+        
+
+        <ng-container >
+            <a routerLink="./request" ><portal-dragndresizable [requestInfo]="cardInfo2"></portal-dragndresizable></a>          
+        </ng-container>
+
+        <ng-container >
+            <a routerLink="./request" ><portal-dragndresizable [requestInfo]="cardInfo3"></portal-dragndresizable></a>          
+        </ng-container> -->
+
+        
+        
+<!-- 
+        <div class="container">
+            <div class="flex-container">
+                <div *ngFor="let item of categorizedWorkflow" cdkDrag portal-resizable>
+                    <div class=" flex-container-text">
+                        <a routerLink="./it" style="color: white">
+                            <div>
+                                <h5 style="font-family:Arial, Helvetica, sans-serif">{{ item.key }}</h5>
+                                <span style="font-family:Arial, Helvetica, sans-serif">{{ item.value.length }}</span>
+                                <span class="count"></span>
+                            </div>
+                            <div class="example-handle" cdkDragHandle>
+                                <svg width="24px" fill="currentColor" viewBox="0 0 24 24">
+                                  <path d="M10 9h4V6h3l-5-5-5 5h3v3zm-1 1H6V7l-5 5 5 5v-3h3v-4zm14 2l-5-5v3h-3v4h3v3l5-5zm-9 3h-4v3H7l5 5 5-5h-3v-3z"></path>
+                                  <path d="M0 0h24v24H0z" fill="none"></path>
+                                </svg>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div> -->
+
+
+        
+
+        
+
+
+
+        
+      
+        <!-- <portal-resizableanyside></portal-resizableanyside> -->
+      </mat-sidenav-content>
+
+      
+    </mat-sidenav-container>
+  </div>
+
+  
+
+  
+<router-outlet></router-outlet>

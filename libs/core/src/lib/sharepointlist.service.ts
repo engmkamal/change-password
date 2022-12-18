@@ -1,15 +1,5 @@
-// import { Injectable } from '@angular/core';
-
-// @Injectable({
-//   providedIn: 'root'
-// })
-// export class SharepointlistService {
-
-//   constructor() { }
-// }
-//=======================================
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { 
   from, observable, Observable, of, Subject, pipe,
   groupBy, tap, mergeMap, reduce, map, filter, catchError
@@ -18,7 +8,6 @@ import * as pnp from "sp-pnp-js";
 
 //import { groupBy, tap, mergeMap, reduce, map, filter, catchError } from 'rxjs/operators';
 import { GroupedObservable } from 'rxjs/internal/operators/groupBy';
-
 //import { ISPList, IValueItems, IMyProcessItems, IUserAccess, AuthorItems, DashboardUsers} from "../../list-interface";
 //import { IItemAddResult } from "../../../../node_modules/@pnp/sp/items";
 
@@ -36,13 +25,22 @@ interface WorkflowGroup{
 @Injectable({
   providedIn: 'root'
 })
-export class SharepointlistService {
-
+export class SharepointlistService {  
+  
+  public webAbsoluteUrl = "https://bergerpaintsbd.sharepoint.com/sites/BergerTech"; //uncomment for localhost //PendingApproval
+  public apiUrl = "https://bergerpaintsbd.sharepoint.com/sites/BergerTech"; //uncomment for localhost //PendingApproval
   //public webAbsoluteUrl = window.location.origin + "/leaveauto";
-  public webAbsoluteUrl = "https://portal.bergerbd.com/leaveauto"; //uncomment for localhost //PendingApproval
 
-  public apiUrl = "https://portal.bergerbd.com"; //uncomment for localhost //PendingApproval
-
+  //public webAbsoluteUrl = "https://portal.bergerbd.com/leaveauto"; //uncomment for localhost //PendingApproval
+  //public apiUrl = "https://portal.bergerbd.com"; //uncomment for localhost //PendingApproval
+  
+  httpGetHeaders = new HttpHeaders()
+    .set('content-type', 'application/json')
+    .set('Access-Control-Allow-Origin', '*')
+    .set('Origin', 'https://www.bergertechbd.com')
+    .set('Vary', 'Origin')
+    .set('crossDomain', 'true');
+  
   private getConfigInfo(){
     const mySP = pnp.sp.configure({
       headers:{
@@ -63,6 +61,8 @@ export class SharepointlistService {
     return mySP;
   }; 
 
+
+
   constructor(private http: HttpClient) { }
 
   
@@ -70,8 +70,10 @@ export class SharepointlistService {
   async getSPLoggedInUser():Promise<any>{   
     let userADId;
     const apiUrl = this.webAbsoluteUrl + "/_api/web/currentuser?$expand=Groups"; 
+    
+
     await this.http
-        .get(apiUrl)
+        .get(apiUrl, {"headers": this.httpGetHeaders})
         .toPromise()
         .then(
         (res) => {
@@ -101,7 +103,7 @@ export class SharepointlistService {
       //let apiUrl = "https://portaldv.bergerbd.com/leaveauto/_api/web/lists/getByTitle('BergerEmployeeInformation')/items?&$top=2000000&$select=EmployeeName,Email/ID,Email/Title,Email/EMail,OptManagerEmail/ID,OptManagerEmail/Title,DeptID,EmployeeId,EmployeeGrade,Department,Designation,OfficeLocation,Mobile,CostCenter,CompanyCode&$expand=Email/ID,OptManagerEmail/ID&$filter=Email/ID eq 1026"
       const apiUrl = this.webAbsoluteUrl + "/_api/web/lists/getByTitle('BergerEmployeeInformation')/items?&$top=2000000&$select=EmployeeName,Email/ID,Email/Title,Email/EMail,OptManagerEmail/ID,OptManagerEmail/Title,DeptID,EmployeeId,EmployeeGrade,Department,Designation,OfficeLocation,Mobile,CostCenter,CompanyCode&$expand=Email/ID,OptManagerEmail/ID&$filter=Email/ID eq '"+userADId+"'"; 
         await this.http
-            .get(apiUrl)
+            .get(apiUrl, {"headers": this.httpGetHeaders})
             .toPromise()
             .then(
             (res) => {
@@ -109,6 +111,54 @@ export class SharepointlistService {
               const parse = JSON.parse(sringify);
               logedUser.Office = parse.value[0].OfficeLocation;
               logedUser.EmpID = parse.value[0].EmployeeId;
+
+              console.log("Loged user's Office Location : " + logedUser.Office +"; Emp ID: "+ logedUser.EmpID);
+              //alert("Loged user's OfficeLocation: " + parse.value[0].OfficeLocation +"; Emp ID: "+ parse.value[0].EmployeeId);
+              }            
+              )
+              .catch(
+                (res)=>{
+                  const sringify = JSON.stringify(res);
+                  if(userADId == 1026){
+                    logedUser.Office = "Corporate";
+                    logedUser.EmpID = "000";
+                  }else{
+                    logedUser.Office = "";
+                    logedUser.EmpID = "";
+                    //logedUser.Access = user.Access;
+                  }
+                }
+              );
+    
+    return logedUser;
+  }
+
+  async getEmpIdNdAllInfo(user?:any):Promise<any>{
+    const logedUser = {
+      EmployeeName: "",
+      Office: "",
+      EmpID:"",
+      ADId: 0,
+      Email: ""
+      //Access:user.Access,
+    }
+    const userADId = Number(await this.getSPLoggedInUser());  
+    
+    logedUser.ADId = userADId;
+    
+      //let apiUrl = "https://portaldv.bergerbd.com/leaveauto/_api/web/lists/getByTitle('BergerEmployeeInformation')/items?&$top=2000000&$select=EmployeeName,Email/ID,Email/Title,Email/EMail,OptManagerEmail/ID,OptManagerEmail/Title,DeptID,EmployeeId,EmployeeGrade,Department,Designation,OfficeLocation,Mobile,CostCenter,CompanyCode&$expand=Email/ID,OptManagerEmail/ID&$filter=Email/ID eq 1026"
+      const apiUrl = this.webAbsoluteUrl + "/_api/web/lists/getByTitle('BergerEmployeeInformation')/items?&$top=2000000&$select=EmployeeName,Email/ID,Email/Title,Email/EMail,OptManagerEmail/ID,OptManagerEmail/Title,DeptID,EmployeeId,EmployeeGrade,Department,Designation,OfficeLocation,Mobile,CostCenter,CompanyCode&$expand=Email/ID,OptManagerEmail/ID&$filter=Email/ID eq '"+userADId+"'"; 
+        await this.http
+            .get(apiUrl, {"headers": this.httpGetHeaders})
+            .toPromise()
+            .then(
+            (res) => {
+              const sringify = JSON.stringify(res);
+              const parse = JSON.parse(sringify);
+              logedUser.Office = parse.value[0].OfficeLocation;
+              logedUser.EmpID = parse.value[0].EmployeeId;
+              logedUser.EmployeeName = parse.value[0].EmployeeName;
+              logedUser.Email = parse.value[0].Email.EMail;
 
               console.log("Loged user's Office Location : " + logedUser.Office +"; Emp ID: "+ logedUser.EmpID);
               //alert("Loged user's OfficeLocation: " + parse.value[0].OfficeLocation +"; Emp ID: "+ parse.value[0].EmployeeId);
@@ -702,41 +752,68 @@ export class SharepointlistService {
 
   //======== add an item to the list start=============
   async saveListItem(list:any): Promise<any>{
+
     const savedItemInfo = {
       ID: null,
       GUID: null,
     }
-    
-    await this.getConfigInfo().web.lists.getByTitle(list.name).items.add(list.item).then((result: any) => { 
-      // let rID= result.data.Id;
-      // let rGUID= result.data.GUID;
-      savedItemInfo.ID= result.data.Id;
-      savedItemInfo.GUID= result.data.GUID;        
-    }, (error: any): void => { 
-      console.log('Error while creating the item: ' + error);
-    });
   
-    return savedItemInfo;
+    let promiseSLI:any = await new Promise((resolve:any, reject:any) => {
+
+      this.getConfigInfo().web.lists.getByTitle(list.name).items.add(list.item).then((result: any) => { 
+        
+        if(Object.prototype.hasOwnProperty.call(result, 'data')){ 
+          
+          savedItemInfo.ID = result.data.Id;
+          savedItemInfo.GUID = result.data.GUID;
+          resolve(savedItemInfo);
+          return savedItemInfo;
+
+        } else{
+          resolve(savedItemInfo);
+          return savedItemInfo;
+        }     
+
+      }, (error: any): void => { 
+
+        console.log('Error while creating the item: ' + error);
+        reject(savedItemInfo);
+
+      });   
+      
+      return savedItemInfo;
+
+    });
+
+    return promiseSLI;
+
   }
   //-----------add an item to the list ends-----------
 
   //======== add an item to the list start=============
   async updateListItem(list:any): Promise<any>{
-    const savedItemInfo = {
-      ID: null,
-      GUID: null,
-    }
-    
-    await this.getConfigInfo().web.lists.getByTitle(list.name).items.getById(list.rId).update(list.item).then((result: any) => { 
-      // let rID= result.data.Id;
-      // let rGUID= result.data.GUID;
-      savedItemInfo.ID= result.data.Id;
-      savedItemInfo.GUID= result.data.GUID;        
-    }, (error: any): void => { 
-      console.log('Error while creating the item: ' + error);
-    });    
-  
-    return savedItemInfo;
+
+    let promiseULI:any = await new Promise((resolve:any, reject:any) => {
+
+       this.getConfigInfo().web.lists.getByTitle(list.name).items.getById(list.rId).update(list.item).then((result: any) => { 
+        if(Object.prototype.hasOwnProperty.call(result, 'data')){ 
+          resolve('Successful'); 
+          return 'Successful';
+        }else{
+          resolve('Failed'); 
+          return 'Failed'; 
+        }        
+              
+      }, (error: any): void => {
+        reject(error); 
+        console.log('Error while creating the item: ' + error);
+      }); 
+
+     
+    });
+
+    return promiseULI;
+ 
   }
   //-----------add an item to the list ends-----------
 
@@ -779,6 +856,8 @@ export class SharepointlistService {
           
         return data;
   }
+
+  
   
   
 }

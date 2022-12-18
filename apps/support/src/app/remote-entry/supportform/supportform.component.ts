@@ -1,38 +1,3 @@
-// import { Component, OnInit } from '@angular/core';
-
-// @Component({
-//   selector: 'portal-supportform',
-//   templateUrl: './supportform.component.html',
-//   styleUrls: ['./supportform.component.scss']
-// })
-// export class SupportformComponent implements OnInit {
-
-//   constructor() { }
-
-//   ngOnInit(): void {
-//   }
-
-// }
-
-//=======================
-// import { Component, OnInit, ViewEncapsulation } from '@angular/core';
-// import { CommonModule } from '@angular/common';
-
-// @Component({
-//   selector: 'portal-supportcustomer',
-//   standalone: true,
-//   imports: [CommonModule],
-//   templateUrl: './supportcustomer.component.html',
-//   styleUrls: ['./supportcustomer.component.scss'],
-//   encapsulation: ViewEncapsulation.Emulated,
-// })
-// export class SupportcustomerComponent implements OnInit {
-//   constructor() {}
-
-//   ngOnInit(): void {}
-// }
-
-//=============================
 import { Component, OnDestroy, OnInit, ChangeDetectorRef, Input, ViewEncapsulation } from '@angular/core';
 import { FormGroup, FormControl, FormBuilder, Validators, FormArray, ControlContainer, FormGroupDirective, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import {MomentDateAdapter, MAT_MOMENT_DATE_ADAPTER_OPTIONS} from '@angular/material-moment-adapter';

@@ -1,0 +1,129 @@
+<ng-container [formGroup]="formGroup" >
+    <div style="margin: auto;">
+        
+        <!-- <div fxLayout="row" >            
+            <div fxFlex="1 1 100" fxLayout="row" >
+                <div fxFlex="1 1 100" fxFlex.md ="1 1 99" fxFlex.sm ="1 1 99" fxFlex.xs ="1 1 99" >
+                    <mat-form-field appearance="outline" fxFlex="99" >
+                        <mat-label>Row Id:</mat-label>
+                        <input type="text" matInput
+                            name="rowId"
+                            formControlName="rowId"
+                            placeholder="row Id">
+                        <mat-error></mat-error>
+                    </mat-form-field>                    
+                </div>
+            </div>
+        </div> -->
+
+        <div fxLayout="row" *ngIf = "_swTaskIdFld">            
+            <div fxFlex="1 1 100" fxLayout="row" >
+                <div fxFlex="1 1 100" fxFlex.md ="1 1 99" fxFlex.sm ="1 1 99" fxFlex.xs ="1 1 99" >
+                    <mat-form-field appearance="outline" fxFlex="99" class="lowHeight" >
+                        <mat-label>Task Id:</mat-label>
+                        <input type="text" matInput
+                            name="TaskId"
+                            formControlName="TaskId"
+                            placeholder="Task Id">
+                        <mat-error></mat-error>
+                    </mat-form-field>                    
+                </div>
+            </div>
+        </div>
+
+        <div fxLayout="row" >            
+            <div fxFlex="1 1 100" fxLayout="row" >
+                <div fxFlex="1 1 100" fxFlex.md ="1 1 99" fxFlex.sm ="1 1 99" fxFlex.xs ="1 1 99" >
+                    <mat-form-field appearance="outline" fxFlex="99" class="lowHeight" >
+                        <mat-label>Task Title:</mat-label>
+                        <input type="text" matInput
+                            name="TaskTitle"
+                            formControlName="TaskTitle"
+                            placeholder="Task Title" >
+                        <mat-error></mat-error>
+                    </mat-form-field>
+                    
+                </div>
+            </div>
+        </div>
+
+
+        <!-- <div fxLayout="row" fxLayout.xs="column" fxLayoutGap="0px">
+            <div fxFlex="1 1 20" fxLayoutAlign="space-between Center">
+                <div fxFlex="1 1 98">
+                    <label>Task Description</label>
+                </div>
+                <div fxFlex="1 1 2">
+                    <label>:</label>
+                </div>
+            </div>
+            <div fxFlex="1 1 79" fxLayout="row" fxLayoutAlign="space-between Center">
+                <div fxFlex="1 1 99" class="lblMargin">
+                    <mat-form-field appearance="outline" fxFlex="100" class="mFFldMargin">
+                        <input type="text" matInput formControlName="TaskDescription">
+                    </mat-form-field>
+                </div>
+            </div>
+        </div> -->
+
+        <div fxLayout="row" style="margin-top: 10px; margin-bottom: 10px;">            
+            <div fxFlex="1 1 100" fxLayout="row" >
+                <div fxFlex="1 1 99" fxFlex.md ="1 1 80" fxFlex.sm ="1 1 50" fxFlex.xs ="1 1 40" >
+                    <portal-datetimepicker [formGroup]="formGroup" [formControlName]="ExStartDateCtrl" [dateInfo]="exStartDateInfo"></portal-datetimepicker>   
+                    
+                </div>
+            </div>
+        </div>
+
+        <div fxLayout="row" >            
+            <div fxFlex="1 1 100" fxLayout="row" >
+                <div fxFlex="1 1 99" fxFlex.md ="1 1 80" fxFlex.sm ="1 1 50" fxFlex.xs ="1 1 40" >
+                    <portal-datetimepicker [formGroup]="formGroup" [formControlName]="ExEndCtrl" [dateInfo]="exEndDateInfo"></portal-datetimepicker>   
+                    
+                </div>
+            </div>
+        </div>
+
+        <!-- <div fxLayout="row" fxLayout.sm="column" fxLayout.xs="column" fxLayoutGap="5px">
+            <div fxFlex="1 1 20" fxLayoutAlign="space-between Center">
+                <div fxFlex="1 1 95">
+                    <label>Expected Start Date</label>
+                </div>
+                <div fxFlex="1 1 5">
+                    <label>:</label>
+                </div>
+            </div>
+            <div fxFlex="1 1 79" fxLayout="row" fxLayoutAlign="space-between Center" >
+                <div fxFlex="1 1 99" >
+                    <portal-datetimepicker [formGroup]="formGroup" [formControlName]="ExStartDateCtrl"></portal-datetimepicker>   
+                    
+                </div>
+            </div>
+        </div> -->
+        <!-- <div fxLayout="row" fxLayout.sm="column" fxLayout.xs="column" fxLayoutGap="5px" >
+            <div fxFlex="1 1 20" fxLayoutAlign="space-between center">
+                <div fxFlex="1 1 95">
+                    <label>Expected Completion Date</label>
+                </div>
+                <div fxFlex="1 1 5">
+                    <label>:</label>
+                </div>
+            </div>
+            <div fxFlex="1 1 79" fxLayout="row" fxLayoutAlign="space-between center" >
+                <div fxFlex="1 1 99" >
+                    <portal-datetimepicker [formGroup]="formGroup" [formControlName]="ExEndCtrl"></portal-datetimepicker>
+                </div>
+            </div>
+            
+        </div> -->
+
+        <ng-container formArrayName="Assignees">
+            <portal-condition-form *ngFor="let c of _conditionsFormArray?.controls; index as j" 
+              [formLabel]="'Assign To ' + (j+1)" [requestInfo]="requestInfo" [childGroup]="c" (outputToParent)="GetOutputVal($event)" >
+            </portal-condition-form>
+        </ng-container>
+        
+
+        
+    </div>
+</ng-container>

@@ -1,0 +1,17 @@
+/*
+button {
+    cursor: pointer;
+  }
+  
+
+  
+  .container button:not(:last-of-type) {
+    margin-right: 5px;
+  }
+
+  */
+
+  .container {
+    display: flex;
+    justify-content: flex-end;
+  }

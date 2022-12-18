@@ -1,0 +1,166 @@
+<style>
+    .XDyW0e {
+        /* flex: 1 0 auto;
+        display: flex; */
+        cursor: pointer;
+        align-items: center;
+        border: 0;
+        background: transparent;
+        outline: none;
+        padding: 0 0px;
+        width: 24px;
+        line-height: 44px;
+        position: absolute;
+    }
+
+    .actionDivFlexCont {
+        flex-flow: row wrap;
+        box-sizing: border-box;
+        display: flex;
+        align-items: center;
+        background-color: lightblue;
+    }
+
+    .embushBtn {
+        border: 2px solid white;
+        border-radius: 5px;
+        box-shadow: inset 0 0 3px 3px #CECFD1
+    }
+
+    .ag-paging-panel {
+        height: 25px !important;
+        background-color: lightgray !important;
+    }
+    .ag-header-row {
+        height: 40px !important;
+        background-color: lightgray !important;
+    }
+</style>
+
+<div>   
+    
+    <div style="width: 98%; background-color: whitesmoke; padding: 1px; margin:auto;">         
+        <div class="panel-content">
+        <ag-grid-angular
+        [style.height.px]="tblContentHeight"
+        style="width: 100%;"
+        class="ag-theme-alpine" 
+        [columnDefs]="mpTG.columnDefs"
+        [defaultColDef]="mpTG.defaultColDef"
+        [masterDetail]="mpTG.masterDetail"
+        [detailCellRenderer]="mpTG.detailCellRenderer"
+        [frameworkComponents]="mpTG.frameworkComponents"
+        [rowData]="rowData"
+        [rowGroupPanelShow]="mpTG.rowGroupPanelShow"
+        [rowSelection]="mpTG.rowSelection"
+        [animateRows]="mpTG.animateRows"
+        [suppressDragLeaveHidesColumns]="mpTG.suppressDragLeaveHidesColumns"
+        [groupUseEntireRow] ="true"
+        [pagination]="true"
+        [paginationPageSize]="mpTG.paginationPageSize"
+        [rowHeight]="mpTG.rowHeight"
+        [cacheQuickFilter]="mpTG.cacheQuickFilter"
+        [enableCharts]="mpTG.enableCharts"
+        [enableRangeSelection]="mpTG.enableRangeSelection"
+        [suppressRowClickSelection]="mpTG.suppressRowClickSelection"
+        [editType]="mpTG.editType"
+        (gridReady)="onGridReady($event)"
+        (cellClicked)="onCellClicked($event)"
+        (rowEditingStopped)="onRowEditingStopped($event)"
+        (rowEditingStarted)="onRowEditingStarted($event)"
+        (cellEditingStarted)="onCellEditingStarted($event)"
+        (cellEditingStopped)="onCellEditingStopped($event)"    
+        ></ag-grid-angular>
+        </div>
+          
+          
+    </div>
+</div>
+
+<!-- <div style="width: 90%; margin: auto; background-color:lightblue; border-radius:3px; box-shadow: 0px 1px 3px DimGray;" >
+    <div style="width: 98%; margin: auto; color:lightblue; height:30px; ">
+        <div style="font-weight: bolder; font-family: Arial; font-size: 20px; color:navy; text-align: center; " >Support Requests (Others)</div>
+    </div>
+    <div style="width: 98%; background-color: whitesmoke; padding: 1px; margin:auto;">
+        <div style="margin-bottom: 2px; background-color: lightblue;">
+            <div style="margin: 2px; background-color: rgb(228, 242, 247);" class="actionDivFlexCont">  
+            
+                
+                <div style="margin: 10px;" >
+                    <button (click)="onAddRow()"
+                        style="background-color: #008CBA; text-decoration: none; color:white; text-align:center; vertical-align:middle; height: 35px;"
+                        onMouseOver="this.style.backgroundColor='#4CAF50'" onMouseOut="this.style.backgroundColor='#008CBA'" class="embushBtn">
+                        <label style="margin: 3px;">Add Item</label>
+                    </button>
+                    &nbsp; &nbsp;
+                </div>    
+         
+                <div style="margin: 2px;">
+                    <div style="margin-left: 145px; margin-top: 2px;" class="XDyW0e" aria-label="Search by voice" role="button"
+                        (click)="voiceSearch()">
+                        <svg focusable="false" viewBox="0 0 24 24" width="30" height="30" xmlns="http://www.w3.org/2000/svg">
+                            <path fill="#4285f4"
+                                d="m12 15c1.66 0 3-1.31 3-2.97v-7.02c0-1.66-1.34-3.01-3-3.01s-3 1.34-3 3.01v7.02c0 1.66 1.34 2.97 3 2.97z">
+                            </path>
+                            <path fill="#34a853" d="m11 18.08h2v3.92h-2z"></path>
+                            <path fill="#fbbc05"
+                                d="m7.05 16.87c-1.27-1.33-2.05-2.83-2.05-4.87h2c0 1.45 0.56 2.42 1.47 3.38v0.32l-1.15 1.18z"></path>
+                            <path fill="#ea4335"
+                                d="m12 16.93a4.97 5.25 0 0 1 -3.54 -1.55l-1.41 1.49c1.26 1.34 3.02 2.13 4.95 2.13 3.87 0 6.99-2.92 6.99-7h-1.99c0 2.92-2.24 4.93-5 4.93z">
+                            </path>
+                        </svg>
+                    </div>
+                    <input #filterTextBox type="search" id="filter-text-box" placeholder="Search with any word..."
+                        (keyup)="quickSearch()" [(ngModel)]="txtOfQuickSearchInpFld" style="height:34px; border: 3px solid #ccc; border-radius: 5px;" />
+                    &nbsp; &nbsp;
+                </div>        
+                         
+            </div>
+        </div>
+    </div>
+    
+    <div style="width: 98%; background-color: whitesmoke; padding: 1px; margin:auto;">         
+        <div class="panel-content">
+        <ag-grid-angular
+        [style.height.px]="tblContentHeight"
+        style="width: 100%;"
+        class="ag-theme-alpine" 
+        [columnDefs]="mpTG.columnDefs"
+        [defaultColDef]="mpTG.defaultColDef"
+        [masterDetail]="mpTG.masterDetail"
+        [detailCellRenderer]="mpTG.detailCellRenderer"
+        [frameworkComponents]="mpTG.frameworkComponents"
+        [rowData]="rowData"
+        [rowGroupPanelShow]="mpTG.rowGroupPanelShow"
+        [rowSelection]="mpTG.rowSelection"
+        [animateRows]="mpTG.animateRows"
+        [suppressDragLeaveHidesColumns]="mpTG.suppressDragLeaveHidesColumns"
+        [groupUseEntireRow] ="true"
+        [pagination]="true"
+        [paginationPageSize]="mpTG.paginationPageSize"
+        [rowHeight]="mpTG.rowHeight"
+        [cacheQuickFilter]="mpTG.cacheQuickFilter"
+        [enableCharts]="mpTG.enableCharts"
+        [enableRangeSelection]="mpTG.enableRangeSelection"
+        [suppressRowClickSelection]="mpTG.suppressRowClickSelection"
+        [editType]="mpTG.editType"
+        (gridReady)="onGridReady($event)"
+        (cellClicked)="onCellClicked($event)"
+        (rowEditingStopped)="onRowEditingStopped($event)"
+        (rowEditingStarted)="onRowEditingStarted($event)"
+        (cellEditingStarted)="onCellEditingStarted($event)"
+        (cellEditingStopped)="onCellEditingStopped($event)"    
+        ></ag-grid-angular>
+        </div>
+          
+          
+    </div>
+    
+    <div style="color:lightblue; height:3px;"></div>
+</div>
+<br/> -->
+
+
+
+
+

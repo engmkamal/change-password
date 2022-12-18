@@ -1,4 +1,9 @@
-import { NgModule, APP_INITIALIZER, ErrorHandler } from '@angular/core';
+import {
+  NgModule,
+  APP_INITIALIZER,
+  ErrorHandler,
+  InjectionToken,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { RouterModule } from '@angular/router';
@@ -20,11 +25,12 @@ import { SupportformComponent } from './supportform/supportform.component';
 
 //import { createCustomElement } from '@angular/elements';
 import {
+  UiComponentsModule,
   AttachmentprimengModule,
+  CustomerinfoModule,
   CardtemplettiltedComponent,
   DropdownAutocompleteComponent,
   RequestorComponent,
-  SupportcustomerComponent,
 } from '@portal/ui-components';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { SharedDataAccessUserModule } from '@portal/shared/data-access-user';
@@ -39,6 +45,43 @@ import {
 } from '@angular-architects/module-federation-tools';
 import { WorkflowModule } from './workflow/workflow.module';
 import { HomemenusComponent } from './homemenus/homemenus.component';
+//import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { AngularEditorModule } from '@kolkov/angular-editor';
+import { PeoplepickerComponent } from './peoplepicker/peoplepicker.component';
+import { DatetimepickerComponent } from './datetimepicker/datetimepicker.component';
+
+import {
+  NgxMatDatetimePickerModule,
+  NgxMatTimepickerModule,
+  NgxMatNativeDateModule,
+  NGX_MAT_DATE_FORMATS,
+  NgxMatDateFormats,
+} from '@angular-material-components/datetime-picker';
+import { NgxMatMomentModule } from '@angular-material-components/moment-adapter';
+import { MatIconModule } from '@angular/material/icon';
+
+import 'ag-grid-enterprise';
+import { GroupcontrolComponent } from './groupcontrol/groupcontrol.component';
+import { ConditionFormComponent } from './condition-form/condition-form.component';
+import { ActionButtonsBarComponent } from './action-buttons-bar/action-buttons-bar.component';
+import { TaskassigneeselectComponent } from './taskassigneeselect/taskassigneeselect.component';
+import { SweetAlert2Module } from "@sweetalert2/ngx-sweetalert2";
+
+export const NGX_MAT_DATEX = new InjectionToken<NgxMatDateFormats>(
+  'ngx-mat-date-formats'
+);
+
+const CUSTOM_MOMENT_FORMATS: NgxMatDateFormats = {
+  parse: {
+    dateInput: 'DD-MM/YYYY, LTS',
+  },
+  display: {
+    dateInput: 'MM-DD-YYYY, LTS',
+    monthYearLabel: 'MMM YYYY',
+    dateA11yLabel: 'LL',
+    monthYearA11yLabel: 'MMMM YYYY',
+  },
+};
 
 //import { BrowserModule } from '@angular/platform-browser';
 //import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -52,6 +95,7 @@ import { HomemenusComponent } from './homemenus/homemenus.component';
 // import { AkitaNgDevtools } from '@datorama/akita-ngdevtools';
 // import { AkitaNgRouterStoreModule } from '@datorama/akita-ng-router-store';
 // import { NG_ENTITY_SERVICE_CONFIG } from '@datorama/akita-ng-entity-service';
+// import { AgGridModule } from 'ag-grid-angular';
 
 @NgModule({
   declarations: [
@@ -62,6 +106,12 @@ import { HomemenusComponent } from './homemenus/homemenus.component';
     SupportformComponent,
     TasksboardComponent,
     HomemenusComponent,
+    DatetimepickerComponent,
+    PeoplepickerComponent,
+    GroupcontrolComponent,
+    ConditionFormComponent,
+    ActionButtonsBarComponent,
+    TaskassigneeselectComponent,
   ],
   imports: [
     CommonModule,
@@ -70,6 +120,7 @@ import { HomemenusComponent } from './homemenus/homemenus.component';
     AngularmaterialModule,
     UtilsModule,
     UiModule,
+    UiComponentsModule,
     FormsModule,
     HttpClientModule,
     ReactiveFormsModule,
@@ -80,8 +131,7 @@ import { HomemenusComponent } from './homemenus/homemenus.component';
     CardtemplettiltedComponent,
     SharedDataAccessUserModule,
     DropdownAutocompleteComponent,
-    SupportcustomerComponent,
-    JsonSchemaFormModule,
+    JsonSchemaFormModule,    
     //WorkflowModule,
     RouterModule.forChild([
       {
@@ -151,15 +201,26 @@ import { HomemenusComponent } from './homemenus/homemenus.component';
       //   pathMatch: 'full'
       // }
     ]),
-    AttachmentprimengModule
+    AttachmentprimengModule,
+    //FontAwesomeModule,
+    AngularEditorModule,
+    //AgGridModule
     // NzSpinModule,
     // NzIconModule.forRoot([]),
     // environment.production ? [] : AkitaNgDevtools,
     // AkitaNgRouterStoreModule,
     // QuillModule.forRoot()
+    NgxMatDatetimePickerModule,
+
+    NgxMatTimepickerModule,
+    NgxMatMomentModule,
+    SweetAlert2Module.forRoot()
   ],
   exports: [],
-  providers: [SplistcrudService],
+  providers: [
+    SplistcrudService,
+    { provide: NGX_MAT_DATE_FORMATS, useValue: CUSTOM_MOMENT_FORMATS },
+  ],
   // providers: [
   //   SplistcrudService,
   //   {

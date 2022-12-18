@@ -1,0 +1,32 @@
+
+<br/>
+<div class="login-box">
+    <div style="margin:20px;" >        
+        <h2 style="text-align: center">Login</h2>
+        <form>
+        <div>
+            <div style="width:150px;">
+                Customer Id:
+            </div>
+            <div>
+                <input name="customerId" [(ngModel)]="customerId" style="border: 2px solid grey; border-radius: 2px;" height="48"><br>
+            </div>
+        </div>
+        <br>
+        <div>
+            <div style="width:150px;">
+                Password:
+            </div> 
+            <div>
+                <input name="userName" type="password" [(ngModel)]="password" style="border: 2px solid grey; border-radius: 2px;" height="48"><br>
+            </div>       
+        </div>
+        <br/>
+        <div>
+            <button (click)="login()">Login</button>&nbsp;&nbsp;
+            <button (click)="logout()">Logout</button>
+        </div>
+        </form>        
+    </div>
+</div>
+

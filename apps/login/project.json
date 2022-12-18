@@ -15,7 +15,7 @@
         "inlineStyleLanguage": "scss",
         "assets": ["apps/login/src/favicon.ico", "apps/login/src/assets"],
         "styles": ["apps/login/src/styles.scss"],
-        "scripts": [],
+        "scripts": ["node_modules/jquery/dist/jquery.min.js"],
         "customWebpackConfig": {
           "path": "apps/login/webpack.config.js"
         }
@@ -25,13 +25,13 @@
           "budgets": [
             {
               "type": "initial",
-              "maximumWarning": "500kb",
-              "maximumError": "1mb"
+              "maximumWarning": "90000mb",
+              "maximumError": "100000mb"
             },
             {
               "type": "anyComponentStyle",
-              "maximumWarning": "2kb",
-              "maximumError": "4kb"
+              "maximumWarning": "90000mb",
+              "maximumError": "100000mb"
             }
           ],
           "fileReplacements": [
@@ -54,7 +54,8 @@
           "namedChunks": true
         }
       },
-      "defaultConfiguration": "production"
+      "defaultConfiguration": "production",
+      "styles": ["node_modules/sweetalert2/src/sweetalert2.scss"]
     },
     "serve": {
       "executor": "@nrwl/angular:webpack-server",
@@ -64,12 +65,14 @@
         },
         "development": {
           "browserTarget": "login:build:development"
-        }
+        },
+        "runtimeArgs": ["--disable-web-security"]
       },
       "defaultConfiguration": "development",
       "options": {
         "port": 4201,
-        "publicHost": "http://localhost:4201"
+        "publicHost": "http://localhost:4201",
+        "proxyConfig": "apps/login/src/proxy.conf.json"
       }
     },
     "extract-i18n": {

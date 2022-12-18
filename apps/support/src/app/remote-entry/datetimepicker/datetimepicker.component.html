@@ -1,0 +1,75 @@
+  <div [formGroup]="formGroup">
+  <mat-form-field class="lowHeight">
+    <mat-label>{{dateInfo.label}}:</mat-label>
+    <input
+      matInput
+      [ngxMatDatetimePicker]="picker"
+      placeholder="Choose a date"
+      [min]="minDate"
+      [max]="maxDate"
+      [disabled]="disabled"
+      [formControlName]="formControlName"
+    />
+    <mat-datepicker-toggle
+      matSuffix
+      [for]="$any(picker)"
+    ></mat-datepicker-toggle>
+    <ngx-mat-datetime-picker
+      #picker
+      [showSpinners]="showSpinners"
+      [showSeconds]="showSeconds"
+      [stepHour]="stepHour"
+      [stepMinute]="stepMinute"
+      [stepSecond]="stepSecond"
+      [touchUi]="touchUi"
+      [color]="color"
+      [enableMeridian]="enableMeridian"
+    >
+    </ngx-mat-datetime-picker>
+  </mat-form-field>
+</div>
+<!-- <table class="table">
+  <thead>
+    <tr>
+      <th><strong>ngx-mat-datetime-picker</strong></th>
+      
+    </tr>
+  </thead>
+  <tbody>
+
+    <tr>
+      <td>
+        <mat-form-field>
+          <input
+            matInput
+            [ngxMatDatetimePicker]="picker"
+            placeholder="Choose a date"
+            [formControl]="dateControl"
+            [min]="minDate"
+            [max]="maxDate"
+            [disabled]="disabled"
+          />
+          <mat-datepicker-toggle
+            matSuffix
+            [for]="$any(picker)"
+          ></mat-datepicker-toggle>
+          <ngx-mat-datetime-picker
+            #picker
+            [showSpinners]="showSpinners"
+            [showSeconds]="showSeconds"
+            [stepHour]="stepHour"
+            [stepMinute]="stepMinute"
+            [stepSecond]="stepSecond"
+            [touchUi]="touchUi"
+            [color]="color"
+            [enableMeridian]="enableMeridian"
+          >
+          </ngx-mat-datetime-picker>
+        </mat-form-field>
+      </td>
+    
+    </tr>
+
+  </tbody>
+
+</table> -->

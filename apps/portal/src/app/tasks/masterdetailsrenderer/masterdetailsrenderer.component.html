@@ -1,0 +1,129 @@
+<p>masterdetailsrenderer works!</p>
+<!-- <script src="https://unpkg.com/ag-grid-community/dist/ag-grid-community.min.noStyle.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/ag-grid-community/dist/styles/ag-grid.css"/>
+<link rel="stylesheet" href="https://unpkg.com/ag-grid-community/dist/styles/ag-theme-alpine.css"/> -->
+
+<style>
+    .XDyW0e {
+     /* flex: 1 0 auto;
+     display: flex; */
+     cursor: pointer;
+     align-items: center;
+     border: 0;
+     background: transparent;
+     outline: none;
+     padding: 0 8px;
+     width: 24px;
+     line-height: 44px;
+     position: absolute;     
+    }     
+ </style>
+
+
+<div style="margin: 10px 10px">   
+    <div style="margin-left: 160px; margin-top: -7px;" class="XDyW0e" aria-label="Search by voice" role="button" (click)="voiceSearch()">
+       <svg focusable="false" viewBox="0 0 24 24" width="25" height="25" xmlns="http://www.w3.org/2000/svg"><path fill="#4285f4" d="m12 15c1.66 0 3-1.31 3-2.97v-7.02c0-1.66-1.34-3.01-3-3.01s-3 1.34-3 3.01v7.02c0 1.66 1.34 2.97 3 2.97z"></path><path fill="#34a853" d="m11 18.08h2v3.92h-2z"></path><path fill="#fbbc05" d="m7.05 16.87c-1.27-1.33-2.05-2.83-2.05-4.87h2c0 1.45 0.56 2.42 1.47 3.38v0.32l-1.15 1.18z"></path><path fill="#ea4335" d="m12 16.93a4.97 5.25 0 0 1 -3.54 -1.55l-1.41 1.49c1.26 1.34 3.02 2.13 4.95 2.13 3.87 0 6.99-2.92 6.99-7h-1.99c0 2.92-2.24 4.93-5 4.93z"></path>
+       </svg>
+    </div>
+ <input #filterTextBox type="text" id="filter-text-box" placeholder="Search with any word..." (keyup)="quickSearch()" [(ngModel)]="txtOfQuickSearchInpFld" style="height:31px;"/>
+ &nbsp;
+ 
+ &nbsp;
+ <button (click)="onBtnExportDataAsExcel()" style="margin-top:px; height:32px; background-color: #008CBA; text-decoration: none; color:white; text-align:center; vertical-align:middle" onMouseOver="this.style.backgroundColor='#4CAF50'" onMouseOut="this.style.backgroundColor='#008CBA'">        
+     Export Data As Excel
+ </button>  
+ &nbsp; &nbsp;
+ 
+ <span style="position: absolute;">      
+    <div style="text-align: right; margin-top: -7px;" class="XDyW0e" aria-label="Search by voice" role="button" (click)="viewByVoice()">
+       <svg focusable="false" viewBox="0 0 24 24" width="25" height="25" xmlns="http://www.w3.org/2000/svg"><path fill="#4285f4" d="m12 15c1.66 0 3-1.31 3-2.97v-7.02c0-1.66-1.34-3.01-3-3.01s-3 1.34-3 3.01v7.02c0 1.66 1.34 2.97 3 2.97z"></path><path fill="#34a853" d="m11 18.08h2v3.92h-2z"></path><path fill="#fbbc05" d="m7.05 16.87c-1.27-1.33-2.05-2.83-2.05-4.87h2c0 1.45 0.56 2.42 1.47 3.38v0.32l-1.15 1.18z"></path><path fill="#ea4335" d="m12 16.93a4.97 5.25 0 0 1 -3.54 -1.55l-1.41 1.49c1.26 1.34 3.02 2.13 4.95 2.13 3.87 0 6.99-2.92 6.99-7h-1.99c0 2.92-2.24 4.93-5 4.93z"></path>
+       </svg>
+    </div>  
+    <input id="viewByVoiceText" placeholder="       View Application by Voice" style="height:31px; width: 180px;" (click)="viewByVoice()" readonly /> 
+ </span>
+ &nbsp; &nbsp;
+
+</div>
+
+<!-- <button (click)="clearSelection()">Clear Selection</button> -->
+
+<!-- <div placeholder="Search with any word..." style="margin: 10px 10px">
+   
+    <input #filterTextBox type="text" id="filter-text-box" placeholder="Search with any word..." (keyup)="quickSearch()" [(ngModel)]="txtOfQuickSearchInpFld" style="height:31px;"/>
+    &nbsp;
+    <button (click)="onBtnExportDataAsExcel()" style="margin-top:px; height:32px; background-color: #008CBA; text-decoration: none; color:white; text-align:center; vertical-align:middle" onMouseOver="this.style.backgroundColor='#4CAF50'" onMouseOut="this.style.backgroundColor='#008CBA'">        
+        Export Data As Excel
+    </button>
+    &nbsp;
+    <label style="font-size:16pt; font-family: Arial, Helvetica, sans-serif; color: navy; cursor: pointer; margin-top: 5px;" ><b><a href="https://portal.bergerbd.com/leaveauto/SitePages/WorkshopProposalDashboard.aspx/report">Go To Report View</a></b></label>
+
+      
+    &nbsp; &nbsp; -->
+    <!-- Set Row Height:
+    <button (click)="setRowHeight(35)" style="margin-top:0px; height:32px; width:44px; background-color: #008CBA; text-decoration: none; color:white; text-align:center; vertical-align:middle!important;" onMouseOver="this.style.backgroundColor='#4CAF50'" onMouseOut="this.style.backgroundColor='#008CBA'">35px</button>
+    <button (click)="setRowHeight(25)" style="margin-top:0px; height:32px; width:44px; background-color: #008CBA; text-decoration: none; color:white; text-align:center; vertical-align:middle!important;" onMouseOver="this.style.backgroundColor='#4CAF50'" onMouseOut="this.style.backgroundColor='#008CBA'">25px</button>
+    <button (click)="setRowHeight(15)" style="margin-top:0px; height:32px; width:44px; background-color: #008CBA; text-decoration: none; color:white; text-align:center; vertical-align:middle!important;" onMouseOver="this.style.backgroundColor='#4CAF50'" onMouseOut="this.style.backgroundColor='#008CBA'">15px</button> -->
+ <!-- </div> -->
+
+
+
+ 
+ 
+ <!-- <div class="panel-content"> 
+    <ag-grid-angular
+    style="width: 99%; height: 450px; margin-left:5px;"
+    class="ag-theme-alpine"
+    [modules]="modules"
+    [columnDefs]="columnDefs"
+    [defaultColDef]="mpTG.defaultColDef"
+    [masterDetail]="true"   
+    [rowData]="rowData1"
+    [detailCellRenderer]="mpTG.detailCellRenderer"
+    [frameworkComponents]="mpTG.frameworkComponents"
+    [rowGroupPanelShow]="mpTG.rowGroupPanelShow"
+    [suppressDragLeaveHidesColumns]="true"
+    [groupUseEntireRow] = "true"
+    pagination
+    paginationPageSize="1000"
+    [rowHeight]="rowHeight"
+    enableCharts
+    enableRangeSelection
+    suppressRowClickSelection
+    (gridReady)="onGridReady($event)"
+    ></ag-grid-angular>              
+ </div> -->
+ 
+
+<div class="panel-content"> 
+   <ag-grid-angular
+   style="width: 99%; height: 500px; margin-left:5px"
+   class="ag-theme-alpine" 
+   [columnDefs]="mpTG.columnDefs"
+   [defaultColDef]="mpTG.defaultColDef"
+   [masterDetail]="true"
+   [detailCellRenderer]="mpTG.detailCellRenderer"
+   [frameworkComponents]="mpTG.frameworkComponents"
+   [rowData]="rowData"
+   [rowGroupPanelShow]="mpTG.rowGroupPanelShow"
+   [rowSelection]="'multiple'"
+   [animateRows]="true"
+   [suppressDragLeaveHidesColumns]="true"
+   [groupUseEntireRow] = "true"
+   pagination
+   [rowHeight]="rowHeight"
+   floatingFilter="true"
+   [cacheQuickFilter]="true"
+   enableCharts
+   enableRangeSelection
+   suppressRowClickSelection
+   (cellClicked)="onCellClicked($event)"   
+   (gridReady)="onGridReady($event)" 
+   ></ag-grid-angular>              
+</div>
+ 
+ <br/>
+
+ <!-- some events to note for future use
+     (firstDataRendered)="autosizeHeaders($event)"
+ (columnResized)="headerHeightSetter($event)" -->
+

@@ -1,0 +1,36 @@
+<div style="width: 98%; background-color: whitesmoke; padding: 1px; margin:auto;">         
+    <div class="panel-content">
+        <ag-grid-angular
+        [style.height.px]="tblContentHeight"
+        style="width: 100%;"
+        class="ag-theme-alpine" 
+        [columnDefs]="mpTG.columnDefs"
+        [defaultColDef]="mpTG.defaultColDef"
+        [masterDetail]="mpTG.masterDetail"
+        [detailCellRenderer]="mpTG.detailCellRenderer"
+        [frameworkComponents]="mpTG.frameworkComponents"
+        [rowData]="rowData"
+        [rowGroupPanelShow]="mpTG.rowGroupPanelShow"
+        [rowSelection]="mpTG.rowSelection"
+        [animateRows]="mpTG.animateRows"
+        [suppressDragLeaveHidesColumns]="mpTG.suppressDragLeaveHidesColumns"
+        [groupUseEntireRow] ="true"
+        [pagination]="true"
+        [paginationPageSize]="mpTG.paginationPageSize"
+        [rowHeight]="mpTG.rowHeight"
+        [cacheQuickFilter]="mpTG.cacheQuickFilter"
+        [enableCharts]="mpTG.enableCharts"
+        [enableRangeSelection]="mpTG.enableRangeSelection"
+        [suppressRowClickSelection]="mpTG.suppressRowClickSelection"
+        [editType]="mpTG.editType"
+        (gridReady)="onGridReady($event)"
+        (cellClicked)="onCellClicked($event)"
+        (rowEditingStopped)="onRowEditingStopped($event)"
+        (rowEditingStarted)="onRowEditingStarted($event)"
+        (cellEditingStarted)="onCellEditingStarted($event)"
+        (cellEditingStopped)="onCellEditingStopped($event)"    
+        ></ag-grid-angular>
+    </div>        
+          
+</div>
+

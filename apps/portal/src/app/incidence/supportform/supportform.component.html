@@ -1,0 +1,130 @@
+<ng-container [formGroup]="_frmGrp">
+    <div formGroupName="Requestor" class="fix-this">
+        <fieldset>
+            <legend>
+                <span>Requestor's Info</span>
+            </legend>
+            <div fxLayout="column">
+                <div fxLayout="row" fxLayout.sm="column" fxLayout.xs="column" fxLayoutGap="5px">
+                    <div fxFlex="49">
+                        <div fxLayout="row" fxLayoutAlign="space-between start">
+                            <div fxFlex="1 1 30">
+                                <mat-label>Name</mat-label>
+                            </div>
+                            <div fxFlex="1 1 5">
+                                <mat-label>:</mat-label>
+                            </div>
+                            <div fxFlex="1 1 65">
+                                <!-- <input formControlName="EmployeeName" readonly [disabled]="disabled" class="reqInfoFld" style="min-width: 280px;"> -->
+                                <input formControlName="EmployeeName" class="reqInfoFld" style="min-width: 280px;">
+                            </div>
+                        </div>
+                    </div>
+                    <div fxFlex="49">
+                        <div fxLayout="row" fxLayoutAlign="space-between start">
+                            <div fxFlex="1 1 30">
+                                <mat-label>Company</mat-label>
+                            </div>
+                            <div fxFlex="1 1 5">
+                                <mat-label>:</mat-label>
+                            </div>
+                            <div fxFlex="1 1 65">
+                                <input formControlName="Company" readonly [disabled]="disabled" class="reqInfoFld" style="min-width: 210px;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div fxLayout="row" fxLayout.sm="column" fxLayout.xs="column" fxLayoutGap="5px">
+                    <div fxFlex="49">
+                        <div fxLayout="row" fxLayoutAlign="space-between start">
+                            <div fxFlex="1 1 30">
+                                <mat-label>Customer Id</mat-label>
+                            </div>
+                            <div fxFlex="1 1 5">
+                                <mat-label>:</mat-label>
+                            </div>
+                            <div fxFlex="1 1 65">
+                                <input formControlName="EmployeeId" readonly [disabled]="disabled" class="reqInfoFld">
+                            </div>
+                        </div>
+                    </div>
+                    <div fxFlex="49">
+                        <div fxLayout="row" fxLayoutAlign="space-between start">
+                            <div fxFlex="1 1 30">
+                                <mat-label>Position</mat-label>
+                            </div>
+                            <div fxFlex="1 1 5">
+                                <mat-label>:</mat-label>
+                            </div>
+                            <div fxFlex="1 1 65">
+                                <input formControlName="Designation" readonly [disabled]="disabled" class="reqInfoFld" style="min-width: 280px;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div fxLayout="row" fxLayout.sm="column" fxLayout.xs="column" fxLayoutGap="5px">
+                    <div fxFlex="49">
+                        <div fxLayout="row" fxLayoutAlign="space-between start">
+                            <div fxFlex="1 1 30">
+                                <mat-label>Email</mat-label>
+                            </div>
+                            <div fxFlex="1 1 5">
+                                <mat-label>:</mat-label>
+                            </div>
+                            <div fxFlex="1 1 65">
+                                <input formControlName="Email" readonly [disabled]="disabled" class="reqInfoFld">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div fxFlex="49">
+                        <div fxLayout="row" fxLayoutAlign="space-between start">
+                            <div fxFlex="1 1 30">
+                                <mat-label>Department</mat-label>
+                            </div>
+                            <div fxFlex="1 1 5">
+                                <mat-label>:</mat-label>
+                            </div>
+                            <div fxFlex="1 1 65">
+                                <input formControlName="Department" readonly [disabled]="disabled" class="reqInfoFld">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+   
+                <div fxLayout="row" fxLayout.sm="column" fxLayout.xs="column" fxLayoutGap="5px">
+                    <div fxFlex="49">
+                        <div fxLayout="row" fxLayoutAlign="space-between start">
+                            <div fxFlex="1 1 30">
+                                <mat-label>Mobile</mat-label>
+                            </div>
+                            <div fxFlex="1 1 5">
+                                <mat-label>:</mat-label>
+                            </div>
+                            <div fxFlex="1 1 65">
+                                <input formControlName="Mobile" readonly [disabled]="disabled" class="reqInfoFld">
+                            </div>
+                        </div>
+                    </div>
+                    <div fxFlex="49">
+                        <div fxLayout="row" fxLayoutAlign="space-between start">
+                            <div fxFlex="1 1 30">
+                                <mat-label>RequestDate</mat-label>
+                            </div>
+                            <div fxFlex="1 1 5">
+                                <mat-label>:</mat-label>
+                            </div>
+                            <div fxFlex="1 1 65">
+                                <input formControlName="RequestDate" readonly class="reqInfoFld" [disabled]="disabled">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+    </div>
+</ng-container>
+
+
+
+

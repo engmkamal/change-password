@@ -1,6 +1,7 @@
 {
   "login": "http://localhost:4201",
   "itservicerequest": "http://localhost:4202",
+  "support": "http://localhost:4203",
   "wfdashboard": "http://localhost:4204",
   "itaccessoriesdashboard": "http://localhost:4205",
   "colorbankdashboard": "http://localhost:4206",
@@ -8,6 +9,9 @@
   "workshopproposaldashboard": "http://localhost:4208",
   "travelrequestdashboard": "http://localhost:4209",
   "stationaryitemsdashboard": "http://localhost:4210",
-  "support": "http://localhost:4203",
-  "pendingtasks": "http://localhost:4211"
+  "pendingtasks": "http://localhost:4211",
+  "registration": "http://localhost:4212",
+  "myworkflow": "http://localhost:4213",
+  "supportreqdashboard": "http://localhost:4214",
+  "systeminfo": "http://localhost:4215"
 }

@@ -55,7 +55,8 @@
           "extractLicenses": false,
           "sourceMap": true,
           "namedChunks": true
-        }
+        },
+        "runtimeArgs": ["--disable-web-security"]
       },
       "defaultConfiguration": "production"
     },
@@ -67,12 +68,14 @@
         },
         "development": {
           "browserTarget": "pendingtasks:build:development"
-        }
+        },
+        "runtimeArgs": ["--disable-web-security"]
       },
       "defaultConfiguration": "development",
       "options": {
         "port": 4211,
-        "publicHost": "http://localhost:4211"
+        "publicHost": "http://localhost:4211",
+        "proxyConfig": "apps/pendingtasks/src/proxy.conf.json"
       }
     },
     "extract-i18n": {

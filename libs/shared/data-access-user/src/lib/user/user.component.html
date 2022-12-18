@@ -1,4 +1,4 @@
-<label *ngIf="userName" style="font-size:8px; margin-top:2px">{{userName}}</label>
-<label *ngIf="!userName" style="font-size:8px; margin-top:2px">Unauthorized</label>
+<label *ngIf="userName != '' " style="font-size:8px; margin-top:2px">{{userName}}</label>
+<label *ngIf="userName == '' " style="font-size:8px; margin-top:2px">Unauthorized</label>
 
 

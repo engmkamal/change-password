@@ -2,34 +2,8 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { map } from 'rxjs/operators';
+import { ICustomer } from './customer';
 //import {map } from 'rxjs/add/operator/map';
-
-export interface ICustomer {
-  CustId: any;
-  CustPassword: any;
-  CustName: any;
-  CustCompanyName: any;
-  CustCompany1stAddress?: any;
-  CustCompany2ndAddress?: any;
-  CustCompany3rdAddress?: any;
-  Cust1stEmail: any;
-  Cust2ndEmail: any;
-  Cust3rdEmail: any;
-  Cust1stPhone?: any;
-  Cust2ndPhone?: any;
-  Cust3rdPhone?: any;
-  Cust1stMobile?: any;
-  Cust2ndMobile?: any;
-  Cust3rdMobile?: any;
-  CustDesignation?: any;
-  SecurityQuestion1?: any;
-  SecurityQuestion1Answer?: any;
-  SecurityQuestion2?: any;
-  SecurityQuestion2Answer?: any;
-  SecurityQuestion3?: any;
-  SecurityQuestion3Answer?: any;
-  RegistrationDate?: any  
-}
 
 
 @Injectable({
@@ -41,15 +15,20 @@ export class UserService {
 
   private isUserLoggedIn = new BehaviorSubject(false);
   isUserLoggedIn$ = this.isUserLoggedIn.asObservable();
-  loggedUserInfo$!: Observable<ICustomer>;
+  private _loggedUserInfo$!: Observable<ICustomer> ;
 
   loogedCustomer!: ICustomer;
 
   private _userName = '';
   private _customerId = '';
 
-  customerInfo = {};
+  private _customerInfo = {};
 
+  get customerInfo(){
+    return this._customerInfo;
+  }
+
+  
   // customersList:ICustomer[] = [
   //   {
   //     CustId: "1000",
@@ -132,21 +111,56 @@ export class UserService {
 
   // ];
 
-  customersList:ICustomer[] = [];
+  customersList:ICustomer[] = [];  
   
-  //apiUrl = `https://bergerpaintsbd.sharepoint.com/sites/kamalportal/_api/web/lists/getByTitle('customerregistration')/items?&$top=200&$select=*`;
-  apiUrl = 'http://localhost:3000/customerregistration';
+  apiUrl = `https://bergerpaintsbd.sharepoint.com/sites/BergerTech/_api/web/lists/getByTitle('customerregistration')/items?&$top=200&$select=*`;
 
-
-
-
+  get loggedUserInfo$(){
+    return new Promise((resolve:any, reject:any)=>{
+      resolve(this._loggedUserInfo$);
+      return this._loggedUserInfo$;
+    })
+    
+  }
+  
   constructor(
     private _http:HttpClient
     ){
-    this.getAllCustomers().subscribe((res:any)=>{
-      console.log(res);
-      this.customersList = res.data;
-    });
+      // const itemSet = (localStorage.getItem('logedCustId') !== null);
+
+      // if(itemSet){
+      //   let ls = localStorage.getItem('logedCustId');
+      //   if(ls != "" ){
+      
+      //     this.reloadCustomerInfo(ls);
+  
+      //   }else{
+      //     this.getAllCustomers().subscribe((res:any)=>{
+      //       this.customersList = res.value;
+      //     });
+      //   }
+      // }else{
+      //   this.getAllCustomers().subscribe((res:any)=>{
+      //     this.customersList = res.value;
+      //   });
+      // }
+  
+      
+
+
+    // //login and fetch profile data
+    // this.auth.isAuth.pipe(
+    //   switchMap(isAuth => {
+    //    if (isAuth) return this.http.getProfile;
+    //    return of(undefined)
+    //   }))
+    //   .subscribe(profile => {
+    //     if (profile) { 
+    //       this.profile.next(profile))
+    //     } else {
+    //      // do whatever you want if user is not authorized
+    //     }
+    //   });
   }  
 
   getAllCustomers():any{
@@ -164,50 +178,95 @@ export class UserService {
     return this._http.get(`${this.apiUrl}`);
   }
 
-  checkCredentials(username: string, customerId:string, password: string) {
+  checkCredentials(customerId:string, password: string, username?: string, ) {
+    
+    // if(this.customersList.length > 0){
+    //   this.customersList.forEach(c => {
+    //     if (c.CustId === customerId && c.CustPassword === password) {
+    //       this.isUserLoggedIn.next(true);        
+  
+    //       let lUserInfo = {
+    //         CustId: c.CustId,
+    //         CustPassword: c.CustPassword,
+    //         CustName: c.CustName,
+    //         CustCompanyName: c.CustCompanyName,
+    //         CustCompany1stAddress: c.CustCompany1stAddress,
+    //         CustCompany2ndAddress: c.CustCompany2ndAddress,
+    //         CustCompany3rdAddress: c.CustCompany3rdAddress,
+    //         Cust1stEmail: c.Cust1stEmail,
+    //         Cust2ndEmail: c.Cust2ndEmail,
+    //         Cust3rdEmail: c.Cust3rdEmail,
+    //         Cust1stPhone: c.Cust1stPhone,
+    //         Cust2ndPhone: c.Cust2ndPhone,
+    //         Cust3rdPhone: c.Cust3rdPhone,
+    //         Cust1stMobile: c.Cust1stMobile,
+    //         Cust2ndMobile: c.Cust2ndMobile,
+    //         Cust3rdMobile: c.Cust3rdMobile,
+    //         CustDesignation: c.CustDesignation,
+    //         RegistrationDate: c.RegistrationDate,
+    //         SystemDetails: c.SystemDetails
+    //       }
+  
+    //       this.loogedCustomer = lUserInfo;
+    //       this._customerInfo = lUserInfo;
+  
+    //       this._loggedUserInfo$ = new Observable((observer)=>{
+    //         observer.next(lUserInfo);
+    //       })
+  
+    //       this._customerInfo = c;
+    //       this._userName = c.CustName;
 
-    this.customersList.forEach(c => {
-      if (c.CustId === customerId && c.CustPassword === password) {
+    //       localStorage.setItem('logedCustId', c.CustId);
+    //       localStorage.setItem('logedCustName', c.CustName);
+    //     }
+    //   });
+
+    // }else{
+
+      let filApiUrl = `https://bergerpaintsbd.sharepoint.com/sites/BergerTech/_api/web/lists/getByTitle('customerregistration')/items?&$top=200&$select=*&$filter=CustId eq '${customerId}' and CustPassword eq '${password}' `;
+
+      this._http.get(filApiUrl).subscribe((res:any)=>{
         this.isUserLoggedIn.next(true);        
+  
+          let lUserInfo = {
+            CustId: res.value[0].CustId,
+            CustPassword: res.value[0].CustPassword,
+            CustName: res.value[0].CustName,
+            CustCompanyName: res.value[0].CustCompanyName,
+            CustCompany1stAddress: res.value[0].CustCompany1stAddress,
+            CustCompany2ndAddress: res.value[0].CustCompany2ndAddress,
+            CustCompany3rdAddress: res.value[0].CustCompany3rdAddress,
+            Cust1stEmail: res.value[0].Cust1stEmail,
+            Cust2ndEmail: res.value[0].Cust2ndEmail,
+            Cust3rdEmail: res.value[0].Cust3rdEmail,
+            Cust1stPhone: res.value[0].Cust1stPhone,
+            Cust2ndPhone: res.value[0].Cust2ndPhone,
+            Cust3rdPhone: res.value[0].Cust3rdPhone,
+            Cust1stMobile: res.value[0].Cust1stMobile,
+            Cust2ndMobile: res.value[0].Cust2ndMobile,
+            Cust3rdMobile: res.value[0].Cust3rdMobile,
+            CustDesignation: res.value[0].CustDesignation,
+            RegistrationDate: res.value[0].RegistrationDate,
+            SystemDetails: res.value[0].SystemDetails
+          }
+  
+          localStorage.setItem('logedCustId', lUserInfo.CustId);
+          localStorage.setItem('logedCustName', lUserInfo.CustName);
 
-        let lUserInfo = {
-          CustId: c.CustId,
-          CustPassword: c.CustPassword,
-          CustName: c.CustName,
-          CustCompanyName: c.CustCompanyName,
-          CustCompany1stAddress: c.CustCompany1stAddress,
-          CustCompany2ndAddress: c.CustCompany2ndAddress,
-          CustCompany3rdAddress: c.CustCompany3rdAddress,
-          Cust1stEmail: c.Cust1stEmail,
-          Cust2ndEmail: c.Cust2ndEmail,
-          Cust3rdEmail: c.Cust3rdEmail,
-          Cust1stPhone: c.Cust1stPhone,
-          Cust2ndPhone: c.Cust2ndPhone,
-          Cust3rdPhone: c.Cust3rdPhone,
-          Cust1stMobile: c.Cust1stMobile,
-          Cust2ndMobile: c.Cust2ndMobile,
-          Cust3rdMobile: c.Cust3rdMobile,
-          CustDesignation: c.CustDesignation,
-          SecurityQuestion1: c.SecurityQuestion1,
-          SecurityQuestion1Answer: c.SecurityQuestion1Answer,
-          SecurityQuestion2: c.SecurityQuestion2,
-          SecurityQuestion2Answer: c.SecurityQuestion2Answer,
-          SecurityQuestion3: c.SecurityQuestion3,
-          SecurityQuestion3Answer: c.SecurityQuestion3Answer,
-          RegistrationDate: c.RegistrationDate
-        }
+          this.loogedCustomer = lUserInfo;
+          this._customerInfo = lUserInfo;
+  
+          this._loggedUserInfo$ = new Observable((observer)=>{
+            observer.next(lUserInfo);
+          })
+  
+          this._customerInfo = lUserInfo;
+          this._userName = res.value[0].CustName.CustName;
+      })
 
-        this.loogedCustomer = lUserInfo;
-        this.customerInfo = lUserInfo;
+   // }
 
-        this.loggedUserInfo$ = new Observable((observer)=>{
-          observer.next(lUserInfo);
-        })
-
-        this.customerInfo = c;
-        this._userName = c.CustName;
-      }
-    });
     
   }
 
@@ -241,14 +300,20 @@ export class UserService {
       RegistrationDate: ""
     }
 
-    this.loggedUserInfo$ = new Observable((observer)=>{
+    this._loggedUserInfo$ = new Observable((observer)=>{
       observer.next(lUserInfo);
     })
     this._userName = '';
+
+    window.localStorage.clear();
   }
 
   public get userName(): string {
     return this._userName;
+  }
+
+  public set userName(user:any) {
+    this._userName = user;
   }
 
   login(userName: string, customerId:string, password: string): void {
@@ -274,31 +339,104 @@ export class UserService {
           Cust1stMobile: c.Cust1stMobile,
           Cust2ndMobile: c.Cust2ndMobile,
           Cust3rdMobile: c.Cust3rdMobile,
-          CustDesignation: c.CustDesignation,
-          SecurityQuestion1: c.SecurityQuestion1,
-          SecurityQuestion1Answer: c.SecurityQuestion1Answer,
-          SecurityQuestion2: c.SecurityQuestion2,
-          SecurityQuestion2Answer: c.SecurityQuestion2Answer,
-          SecurityQuestion3: c.SecurityQuestion3,
-          SecurityQuestion3Answer: c.SecurityQuestion3Answer,
-          RegistrationDate: c.RegistrationDate
+          CustDesignation: c.CustDesignation,          
+          RegistrationDate: c.RegistrationDate,
+          SystemDetails: c.SystemDetails
         }
 
-        this.customerInfo = lUserInfo;
+        this._customerInfo = lUserInfo;
 
         this.loogedCustomer = lUserInfo;
 
-        this.loggedUserInfo$ = new Observable((observer)=>{
+        this._loggedUserInfo$ = new Observable((observer)=>{
           observer.next(lUserInfo);
         })
 
-        this.customerInfo = c;
+        this._customerInfo = c;
         this._userName = c.CustName;
+
+        localStorage.setItem('logedCustId', c.CustId);
+        localStorage.setItem('logedCustName', c.CustName);
       }
     });
 
     this._userName = userName;
     this._customerId = customerId;
+
+    
   }
+
+  async reloadCustomerInfo(customerId:any){
+
+    return await new Promise((resolve:any, reject:any)=>{      
+
+      try{
+
+        let filApiUrl = `https://bergerpaintsbd.sharepoint.com/sites/BergerTech/_api/web/lists/getByTitle('customerregistration')/items?&$top=200&$select=*&$filter=CustId eq '${customerId}'  `;
+
+      return this._http.get(filApiUrl).subscribe((res:any)=>{
+
+          if(res.value.length > 0){
+            this.isUserLoggedIn.next(true);        
+    
+            let lUserInfo = {
+              CustId: res.value[0].CustId,
+              CustPassword: res.value[0].CustPassword,
+              CustName: res.value[0].CustName,
+              CustCompanyName: res.value[0].CustCompanyName,
+              CustCompany1stAddress: res.value[0].CustCompany1stAddress,
+              CustCompany2ndAddress: res.value[0].CustCompany2ndAddress,
+              CustCompany3rdAddress: res.value[0].CustCompany3rdAddress,
+              Cust1stEmail: res.value[0].Cust1stEmail,
+              Cust2ndEmail: res.value[0].Cust2ndEmail,
+              Cust3rdEmail: res.value[0].Cust3rdEmail,
+              Cust1stPhone: res.value[0].Cust1stPhone,
+              Cust2ndPhone: res.value[0].Cust2ndPhone,
+              Cust3rdPhone: res.value[0].Cust3rdPhone,
+              Cust1stMobile: res.value[0].Cust1stMobile,
+              Cust2ndMobile: res.value[0].Cust2ndMobile,
+              Cust3rdMobile: res.value[0].Cust3rdMobile,
+              CustDesignation: res.value[0].CustDesignation,
+              RegistrationDate: res.value[0].RegistrationDate,
+              SystemDetails: res.value[0].SystemDetails
+            }
+    
+            window.localStorage.setItem('logedCustId', lUserInfo.CustId);
+            window.localStorage.setItem('logedCustName', lUserInfo.CustName);
+
+            this.loogedCustomer = lUserInfo;
+            this._customerInfo = lUserInfo;
+    
+            this._loggedUserInfo$ = new Observable((observer)=>{
+              observer.next(lUserInfo);
+            })
+    
+            this._customerInfo = lUserInfo;
+            this._userName = res.value[0].CustName;
+
+            resolve(lUserInfo);
+            return (lUserInfo);
+
+          }else{
+            reject();
+            return ("");
+          }
+          
+        })
+        
+      } 
+      catch(err){
+
+        reject('Retrieve master data failed !');
+        console.log("Error: " + err);
+        return("");
+
+      }
+    })
+
+    
+  }
+
+  
 
 }

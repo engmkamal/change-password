@@ -9,6 +9,12 @@ import { loadRemoteModule } from '@nrwl/angular/mf';
 
 import { LayoutModule } from '@angular/cdk/layout';
 import { HttpClientModule } from '@angular/common/http';
+//import { SigninModule } from './signin/signin.module';
+//import { LoginhomeComponent } from './signin/loginhome/loginhome.component';
+//import { LoginformComponent } from './signin/loginform/loginform.component';
+//import { IncidenceModule } from './incidence/incidence.module';
+//import { TasksModule } from './tasks/tasks.module';
+//import { MyappliedworkflowModule } from './myappliedworkflow/myappliedworkflow.module';
 
 @NgModule({
   declarations: [AppComponent, NxWelcomeComponent],
@@ -17,15 +23,39 @@ import { HttpClientModule } from '@angular/common/http';
     BrowserAnimationsModule,
     LayoutModule,
     HttpClientModule,
+    // SigninModule,
+    // IncidenceModule,
+    // TasksModule,
+    // MyappliedworkflowModule,
     RouterModule.forRoot(
       [
         {
-          path: 'login',
-          loadChildren: () =>
-            loadRemoteModule('login', './Module').then(
-              (m) => m.RemoteEntryModule
-            ),
+          path: 'support',
+          redirectTo: 'http://support.bergertechbd.com/support',
         },
+        {
+          path: 'pendingtasks',
+          redirectTo: 'http://support.bergertechbd.com/pendingtasks',
+        },
+        {
+          path: 'registration',
+          redirectTo: 'http://support.bergertechbd.com/registration',
+        },
+        // {
+        //   path: 'registration',
+        //   component: LoginhomeComponent,
+        // },
+        // {
+        //   path: 'login',
+        //   component: LoginformComponent,
+        // },
+        // {
+        //   path: 'login',
+        //   loadChildren: () =>
+        //     loadRemoteModule('login', './Module').then(
+        //       (m) => m.RemoteEntryModule
+        //     ),
+        // },
         {
           path: 'itservicerequest',
           loadChildren: () =>
@@ -33,13 +63,6 @@ import { HttpClientModule } from '@angular/common/http';
               (m) => m.RemoteEntryModule
             ),
         },
-        // {
-        //   path: 'support',
-        //   loadChildren: () =>
-        //     loadRemoteModule('support', './Module').then(
-        //       (m) => m.RemoteEntryModule
-        //     ),
-        // },
         {
           path: 'wfdashboard',
           loadChildren: () =>
@@ -101,19 +124,47 @@ import { HttpClientModule } from '@angular/common/http';
             ),
         },
         {
-          path: 'support',
+          path: 'myworkflow',
           loadChildren: () =>
-            loadRemoteModule('support', './Module').then(
+            loadRemoteModule('myworkflow', './Module').then(
               (m) => m.RemoteEntryModule
             ),
         },
         {
-          path: 'pendingtasks',
+          path: 'supportreqdashboard',
           loadChildren: () =>
-            loadRemoteModule('pendingtasks', './Module').then(
+            loadRemoteModule('supportreqdashboard', './Module').then(
               (m) => m.RemoteEntryModule
             ),
         },
+        {
+          path: 'systeminfo',
+          loadChildren: () =>
+            loadRemoteModule('systeminfo', './Module').then(
+              (m) => m.RemoteEntryModule
+            ),
+        },
+        // {
+        //   path: 'support',
+        //   loadChildren: () =>
+        //     loadRemoteModule('support', './Module').then(
+        //       (m) => m.RemoteEntryModule
+        //     ),
+        // },
+        // {
+        //   path: 'pendingtasks',
+        //   loadChildren: () =>
+        //     loadRemoteModule('pendingtasks', './Module').then(
+        //       (m) => m.RemoteEntryModule
+        //     ),
+        // },
+        // {
+        //   path: 'registration',
+        //   loadChildren: () =>
+        //     loadRemoteModule('registration', './Module').then(
+        //       (m) => m.RemoteEntryModule
+        //     ),
+        // },
       ],
       { initialNavigation: 'enabledBlocking' }
     ),

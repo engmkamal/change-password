@@ -1,0 +1,195 @@
+//@import '~@angular/material/prebuilt-themes/deeppurple-amber.css';
+@import "~@angular/material/prebuilt-themes/indigo-pink.css";
+
+.example-container {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+.example-is-mobile .example-toolbar {
+    position: fixed;
+    /* Make sure the toolbar will stay on top of the content as it scrolls past. */
+    z-index: 2;
+}
+
+h1.example-app-name {
+    margin-left: 8px;
+}
+
+.example-sidenav-container {
+    /* When the sidenav is not fixed, stretch the sidenav container to fill the available space. This
+        causes `<mat-sidenav-content>` to act as our scrolling element for desktop layouts. */
+    flex: 1;
+}
+
+.example-is-mobile .example-sidenav-container {
+    /* When the sidenav is fixed, don't constrain the height of the sidenav container. This allows the
+        `<body>` to be our scrolling element for mobile layouts. */
+    flex: 1 0 auto;
+}
+
+
+
+
+.mat-card {
+    position: fixed;
+    transition: all 1s linear;
+}
+
+.fullscreen {
+    background-color: red;
+    z-index: 9999;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+}
+
+.example-box {
+    width: 200px;
+    height: 200px;
+    padding: 10px;
+    box-sizing: border-box;
+    border: solid 1px #ccc;
+    color: rgba(0, 0, 0, 0.87);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    background: #fff;
+    border-radius: 4px;
+    position: relative;
+    z-index: 1;
+    transition: box-shadow 200ms cubic-bezier(0, 0, 0.2, 1);
+    box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2),
+                0 2px 2px 0 rgba(0, 0, 0, 0.14),
+                0 1px 5px 0 rgba(0, 0, 0, 0.12);
+  }
+  
+  .example-box:active {
+    box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
+                0 8px 10px 1px rgba(0, 0, 0, 0.14),
+                0 3px 14px 2px rgba(0, 0, 0, 0.12);
+  }
+  
+  .example-handle {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    color: #ccc;
+    cursor: move;
+    width: 24px;
+    height: 24px;
+  }
+
+  //=========== resizable div style starts ========
+  mwlResizable {
+    box-sizing: border-box;
+  }
+  
+  .rectangle {
+    //position: relative;
+    top: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 150px;
+    height: 150px;
+    margin: auto;
+    font-size: 12px;
+    font-weight: bold;
+    background-color: red;
+    overflow:hidden;
+  }
+  .resize-handle-top,
+  .resize-handle-bottom {
+    position: absolute;
+    height: 8px;
+    width: 8px;
+    background-color: white;
+    cursor: row-resize;
+  }
+  .resize-handle-top {
+    top: 0;
+  }
+  .resize-handle-bottom {
+    bottom: 0;
+  }
+  .resize-handle-left,
+  .resize-handle-right {
+    position: absolute;
+    height: 100%;
+    cursor: col-resize;
+    width: 5px;
+  }
+  .resize-handle-left {
+    left: 0;
+  }
+  .resize-handle-right {
+    right: 0;
+  }
+  
+  .wrapper {
+    position: relative;
+    width: 500px;
+    height: 500px;
+    border: 10px solid rgb(0, 0, 0);
+  }
+  //--------- resizable div style ends---------
+  :host {
+    position: absolute;
+    display: block;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+  }
+  .list-item {
+    border: solid 1px #ccc;
+    box-sizing: border-box;
+    cursor: move;
+    background: white;
+    color: black;
+    font-size: 14px;
+    max-width: 300px;
+    padding: 20px;
+    position: relative;
+    margin: 10px;
+  }
+
+  $handle-size: 10px;
+  $handle-color: rgb(19, 71, 243);
+  
+  :host:hover .m22-resizable-triangle {
+    opacity: 1;
+  }
+  
+  .m22-resizable-handle {
+    position: absolute;
+    width: $handle-size;
+    height: $handle-size;
+    bottom: 0;
+    right: 0;
+    cursor: se-resize;
+  }
+  
+  .m22-resizable-triangle {
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity ease-in-out 0.2s;
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-left: $handle-size / 2 solid transparent;
+    border-top: $handle-size / 2 solid transparent;
+    border-right: $handle-size / 2 solid $handle-color;
+    border-bottom: $handle-size / 2 solid $handle-color;
+    bottom: 0;
+    right: 0;
+  }
